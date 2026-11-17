@@ -1,0 +1,217 @@
+# Documentation website for axionMultiPhysics (MkDocs + Material + mkdocstrings).
+#
+#   pip install -r docs/requirements.txt -c docs/constraints.txt
+#   mkdocs serve            # live preview on http://127.0.0.1:8000
+#   mkdocs build --strict   # what CI runs (.github/workflows/docs.yml)
+#
+# The API reference (docs/api.md) is read by griffe without importing the
+# package, so the C++ core (_core) need not be compiled.
+# The notebooks come from examples/ and are
+# copied in by scripts/docs/gen_pages.py.  scripts/docs/hooks.py maps links that point
+# outside the site (source files, pages kept out of the site) to the GitHub repository.
+site_name: axionMultiPhysics
+site_description: "Finite-element simulation of electromagnetics, mechanics, heat conduction, fluid flow and electrochemistry, built for axion dark-matter detectors"
+site_author: Joshua N. Benabou, Joshua W. Foster, Benjamin R. Safdi
+site_url: https://bsafdi.github.io/axionMultiPhysics/
+repo_url: https://github.com/bsafdi/axionMultiPhysics
+repo_name: bsafdi/axionMultiPhysics
+edit_uri: blob/main/docs/
+copyright: Copyright &copy; 2026, Joshua N. Benabou, Joshua W. Foster, Benjamin R. Safdi. BSD 3-Clause license. COMSOL and COMSOL Multiphysics are registered trademarks of COMSOL AB. axionMultiPhysics is not affiliated with, sponsored by or endorsed by COMSOL AB.
+
+docs_dir: docs
+site_dir: site
+# Offline build (a site/ folder that browses from disk, file://):
+#   AXMP_DOCS_OFFLINE=true AXMP_DOCS_DIRECTORY_URLS=false mkdocs build
+# or scripts/docs/build_offline.sh.  The defaults are the online site.
+use_directory_urls: !ENV [AXMP_DOCS_DIRECTORY_URLS, true]
+
+# Reference material (validation, physics notes, CLI and C++ references, developer notes, changelog) stays in the
+# repository but out of the site. Links to these files are rewritten to GitHub by scripts/docs/hooks.py.
+exclude_docs: |
+  developer/
+  cavity/
+  validation/
+  physics/*.md
+  srf/*.md
+  /comsol_export.md
+  /comsol_import.md
+  /design_format.md
+  /install.md
+  /optimization.md
+  /viewer.md
+  /scene_format.md
+  /render.md
+  images/*.py
+  images/*.npz
+  __pycache__/
+  images/home/README.md
+  images/home/captions.md
+  images/home/manifest.json
+  *.tex
+  /requirements.txt
+  /constraints.txt
+  /cli.md
+  /cpp_core.md
+
+validation:
+  nav:
+    omitted_files: info
+    not_found: warn
+    absolute_links: info
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: info
+    unrecognized_links: warn
+
+hooks:
+  - scripts/docs/hooks.py
+
+# `mkdocs serve` also reloads on changes to these (read by gen_pages.py)
+watch:
+  - python/axionmultiphysics
+  - examples
+  - scripts/docs
+
+theme:
+  name: material
+  favicon: images/logo/favicon.svg
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - content.action.view
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - offline:
+      enabled: !ENV [AXMP_DOCS_OFFLINE, false]
+  - gen-files:
+      scripts:
+        - scripts/docs/gen_pages.py
+  - mkdocs-jupyter:
+      execute: false
+      include: ["examples/*.ipynb"]
+      include_source: true
+      ignore_h1_titles: true
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [python]
+          options:
+            # Static analysis only: never import axionmultiphysics (the compiled
+            # _core is not available when the docs are built).
+            allow_inspection: false
+            docstring_style: numpy
+            docstring_options:
+              ignore_init_summary: true
+            docstring_section_style: table
+            extensions:
+              - scripts/docs/griffe_sphinx_roles.py:SphinxRoles
+            filters: ["!^_"]
+            members_order: source
+            merge_init_into_class: true
+            heading_level: 1
+            show_root_heading: true
+            show_root_full_path: true
+            show_root_toc_entry: true
+            show_source: false
+            show_signature_annotations: true
+            separate_signature: true
+            signature_crossrefs: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            show_if_no_docstring: true
+            show_submodules: false
+            summary: true
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/bsafdi/axionMultiPhysics
+
+nav:
+  - Home: index.md
+  - Getting started:
+      - Installation: guides/install.md
+      - Quick start: examples/notebook_quickstart.ipynb
+  - Lumped-element detectors:
+      - Walkthrough: examples/lumped_element_demo.ipynb
+      - Readout and multi-band scans: guides/readout_multiband.md
+      - Shape optimization: guides/optimization.md
+      - Mechanics and thermal: examples/mechanics_thermal_demo.ipynb
+  - dc SQUID readout chains:
+      - Walkthrough: examples/squid_chain_demo.ipynb
+  - Cavity haloscopes:
+      - Walkthrough: examples/cavity_demo.ipynb
+  - SRF heterodyne cavities:
+      - Walkthrough: examples/srf_demo.ipynb
+  - COMSOL:
+      - Export and import: guides/comsol.md
+  - Designs and solvers: guides/solvers.md
+  - Visualization: guides/visualization.md
+  - Fluids and chemistry (beta):
+      - Fluids: guides/fluids.md
+      - Fluids walkthrough: examples/fluids_demo.ipynb
+      - Chemistry: guides/chemistry.md
+      - Chemistry walkthrough: examples/chemistry_demo.ipynb
+  - Chat assistants (MCP): guides/mcp.md
+  - About: about.md
+  - API reference: api.md

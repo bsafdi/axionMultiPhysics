@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "axionmultiphysics": {
+      "command": ".venv/bin/python",
+      "args": ["-m", "axionmultiphysics.mcp_server"],
+      "env": {"AXMP_WORKSPACE": "axmp_workspace", "AXMP_THREADS": "4"}
+    }
+  }
+}
