@@ -1,5 +1,7 @@
 # axionMultiPhysics
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24298305.svg)](https://doi.org/10.5281/zenodo.24298305)
+
 axionMultiPhysics is a finite-element package for electromagnetics, structural
 mechanics, heat conduction, fluid flow and electrochemistry. We built it to
 design axion dark-matter detectors: lumped-element experiments (e.g.,
@@ -176,7 +178,7 @@ We ask that work using axionMultiPhysics cite
 
 > J. N. Benabou, J. W. Foster, B. R. Safdi, to appear (2026).
 
-and the software itself, using the metadata in [CITATION.cff](https://github.com/bsafdi/axionMultiPhysics/blob/main/CITATION.cff). Please also cite the methods and
+and the software itself (DOI [10.5281/zenodo.24298305](https://doi.org/10.5281/zenodo.24298305)), using the metadata in [CITATION.cff](https://github.com/bsafdi/axionMultiPhysics/blob/main/CITATION.cff). Please also cite the methods and
 benchmark papers your work relies on, and MFEM. [About](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/about.md#citing-axionmultiphysics) has a BibTeX entry.
 
 ## Development

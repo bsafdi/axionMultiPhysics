@@ -5,6 +5,7 @@ message: >-
   Please also cite the papers whose methods or benchmarks you rely on, and MFEM.
 type: software
 title: axionMultiPhysics
+doi: 10.5281/zenodo.24298305
 abstract: >-
   axionMultiPhysics is a finite-element package for designing and evaluating axion dark-matter
   detectors. It covers lumped-element detectors from the field solve to the scan reach
