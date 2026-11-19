@@ -4,7 +4,7 @@ Lumped-element detectors, cavity haloscopes and SRF heterodyne cavities use the 
 
 axionMultiPhysics is introduced in
 
-> J. N. Benabou, J. W. Foster, B. R. Safdi, to appear (2026).
+> J. N. Benabou, J. W. Foster, B. R. Safdi, *The Price of Discovery: Cost-Optimized Detectors for the GUT-Scale QCD Axion*, [arXiv:2611.23374](https://arxiv.org/abs/2611.23374) [hep-ph] (2026).
 
 ## Goal
 
@@ -33,6 +33,15 @@ The DOI [10.5281/zenodo.24298305](https://doi.org/10.5281/zenodo.24298305) alway
 each release also has its own DOI (0.1.0: [10.5281/zenodo.24298306](https://doi.org/10.5281/zenodo.24298306)).
 
 ```bibtex
+@article{Benabou2026,
+  author        = {Benabou, Joshua N. and Foster, Joshua W. and Safdi, Benjamin R.},
+  title         = {{The Price of Discovery: Cost-Optimized Detectors for the GUT-Scale QCD Axion}},
+  eprint        = {2611.23374},
+  archivePrefix = {arXiv},
+  primaryClass  = {hep-ph},
+  year          = {2026}
+}
+
 @software{axionMultiPhysics,
   author  = {Benabou, Joshua N. and Foster, Joshua W. and Safdi, Benjamin R.},
   title   = {axionMultiPhysics},

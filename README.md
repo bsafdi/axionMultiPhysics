@@ -176,7 +176,7 @@ reference pages are kept out of the site by `exclude_docs` in `mkdocs.yml` and l
 
 We ask that work using axionMultiPhysics cite
 
-> J. N. Benabou, J. W. Foster, B. R. Safdi, to appear (2026).
+> J. N. Benabou, J. W. Foster, B. R. Safdi, *The Price of Discovery: Cost-Optimized Detectors for the GUT-Scale QCD Axion*, [arXiv:2611.23374](https://arxiv.org/abs/2611.23374) [hep-ph] (2026).
 
 and the software itself (DOI [10.5281/zenodo.24298305](https://doi.org/10.5281/zenodo.24298305)), using the metadata in [CITATION.cff](https://github.com/bsafdi/axionMultiPhysics/blob/main/CITATION.cff). Please also cite the methods and
 benchmark papers your work relies on, and MFEM. [About](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/about.md#citing-axionmultiphysics) has a BibTeX entry.

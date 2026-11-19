@@ -1,7 +1,8 @@
 cff-version: 1.2.0
 message: >-
   If you use axionMultiPhysics, please cite it using the metadata in this file, and also cite
-  J. N. Benabou, J. W. Foster, B. R. Safdi, to appear (2026).
+  J. N. Benabou, J. W. Foster, B. R. Safdi, "The Price of Discovery: Cost-Optimized Detectors for
+  the GUT-Scale QCD Axion", arXiv:2611.23374 [hep-ph] (2026).
   Please also cite the papers whose methods or benchmarks you rely on, and MFEM.
 type: software
 title: axionMultiPhysics
