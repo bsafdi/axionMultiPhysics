@@ -1,0 +1,2721 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Finite-element simulation of electromagnetics, mechanics, heat conduction, fluid flow and electrochemistry, built for axion dark-matter detectors">
+      
+      
+        <meta name="author" content="Joshua N. Benabou, Joshua W. Foster, Benjamin R. Safdi">
+      
+      
+        <link rel="canonical" href="https://bsafdi.github.io/axionMultiPhysics/guides/solids/">
+      
+      
+        <link rel="prev" href="../field_maps/">
+      
+      
+        <link rel="next" href="../particles/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/logo/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Solids and GDML - axionMultiPhysics</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#solids-for-particle-transport-beta" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="axionMultiPhysics" class="md-header__button md-logo" aria-label="axionMultiPhysics" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            axionMultiPhysics
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Solids and GDML
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bsafdi/axionMultiPhysics" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    bsafdi/axionMultiPhysics
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="axionMultiPhysics" class="md-nav__button md-logo" aria-label="axionMultiPhysics" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    axionMultiPhysics
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bsafdi/axionMultiPhysics" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    bsafdi/axionMultiPhysics
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/notebook_quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lumped-element detectors
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Lumped-element detectors
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/lumped_element_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../readout_multiband/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Readout and multi-band scans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shape optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/mechanics_thermal_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mechanics and thermal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dc SQUID readout chains
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    dc SQUID readout chains
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/squid_chain_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cavity haloscopes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cavity haloscopes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/cavity_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SRF heterodyne cavities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SRF heterodyne cavities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/srf_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMSOL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMSOL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../comsol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export and import
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../solvers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Designs and solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model documents (beta)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Model documents (beta)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_meshes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshes and named boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/physics_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/error_codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fluids and chemistry (beta)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Fluids and chemistry (beta)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fluids/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fluids
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/fluids_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fluids walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chemistry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chemistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/chemistry_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chemistry walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export to Geant4 and particle transport (beta)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Export to Geant4 and particle transport (beta)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field_maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solids and GDML
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solids and GDML
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-partition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The partition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#electromagnetic-designs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Electromagnetic designs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3d-designs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3D designs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-solids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The solids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solidsjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        solids.json
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-volume-and-mass-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The volume and mass report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Materials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDML
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-geometry-mode-of-axmp-transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The geometry mode of axmp-transport
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits-of-this-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits of this version
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../particles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transport and its driver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../validation/particles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chat assistants (MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-partition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The partition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#electromagnetic-designs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Electromagnetic designs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3d-designs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3D designs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-solids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The solids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solidsjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        solids.json
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-volume-and-mass-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The volume and mass report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Materials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDML
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-geometry-mode-of-axmp-transport" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The geometry mode of axmp-transport
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limits-of-this-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits of this version
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+    
+      
+    
+    <a href="https://github.com/bsafdi/axionMultiPhysics/raw/main/docs/guides/solids.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="solids-for-particle-transport-beta">Solids for particle transport (beta)<a class="headerlink" href="#solids-for-particle-transport-beta" title="Permanent link">&para;</a></h1>
+<p>Geant4 transports particles through a tree of solids, each placed in its mother. <code>axionmultiphysics.solids</code> builds
+that tree from the mesher's description of an axisymmetric partition (the regions as disjoint faces in the (r, z)
+half-plane, bounded by curves whose exact parameters the mesher states) or of a <a href="#3d-designs">3D partition</a> (the
+volumes of a 3D design, bounded by triangulated faces). It writes the tree as <code>solids.json</code> (schema
+<code>axionmultiphysics.solids/1</code>), which <code>axmp-transport</code> instantiates, or as GDML for any Geant4 application. Per region it
+reports the volume and the mass of the exact solid of revolution and of the solids that represent it. Nothing here
+needs gmsh or Geant4.</p>
+<div class="admonition warning">
+<p class="admonition-title">Beta</p>
+<p>The module, the format of <code>solids.json</code> and the codes may change between minor versions. The partition comes from a
+hand-built table, from the mesher's info file of a bounded axisymmetric mode, or from an axisymmetric or 3D
+electromagnetic design (<a href="#electromagnetic-designs"><code>Design.export_gdml</code></a>, <a href="#3d-designs">3D designs</a>); the route
+from a model document to the partition comes later.</p>
+</div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">axionmultiphysics</span><span class="w"> </span><span class="kn">import</span> <span class="n">solids</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">doc</span> <span class="o">=</span> <span class="n">solids</span><span class="o">.</span><span class="n">from_partition</span><span class="p">(</span><span class="n">partition</span><span class="p">,</span> <span class="n">materials</span><span class="p">,</span> <span class="n">region_materials</span><span class="p">)</span>   <span class="c1"># chord_tol_m=None</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">solids</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">"solids.json"</span><span class="p">)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">solids</span><span class="o">.</span><span class="n">write_gdml</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">"design.gdml"</span><span class="p">)</span>
+</span></code></pre></div>
+<ul>
+<li><code>partition</code>: the mesher's info file of a bounded axisymmetric mode, or the file of <code>axmp-mesher --export-regions</code> (a
+  JSON object), with the extended entity table described below; for a 3D design, the file of <code>--export-regions</code> on its
+  3D mesher input (<a href="#3d-designs">3D designs</a>).</li>
+<li><code>materials</code>: the document's materials, <code>{name: {"density": kg/m3, "particle": {...}}}</code>. Other keys of a material
+  (its electromagnetic or thermal properties) are ignored.</li>
+<li><code>region_materials</code>: <code>{region: material name}</code> for every region that has a face.</li>
+<li><code>chord_tol_m</code>: the chord tolerance of every region, in m; by default each region has its own (below). A 3D partition
+  takes none (<code>ValueError</code>): its triangulation is the mesher's, made to the <code>chord_tol_m</code> given to the export.</li>
+</ul>
+<p><code>solids.default_chord_tol(size_m)</code> is min(1 µm, 1e-5 × size); <code>solids.VOLUME_WARN</code> is 1e-4; <code>solids.SCHEMA</code> is
+<code>"axionmultiphysics.solids/1"</code>. Errors are <code>AxionMultiPhysicsError</code> with a <code>code</code> and a <code>hint</code>; the volume warning is a
+<code>solids.SolidsWarning</code>.</p>
+<h2 id="the-partition">The partition<a class="headerlink" href="#the-partition" title="Permanent link">&para;</a></h2>
+<p>The conversion reads, from the info file:</p>
+<ul>
+<li><code>geometry</code>: <code>"axisymmetric"</code> (a planar partition is refused with <code>particle.planar_not_offered</code>);</li>
+<li><code>regions</code>: <code>{name: {"attr": ...}}</code>; the regions are reported in the order of <code>attr</code>;</li>
+<li><code>entities</code>: the curves, each with <code>tag</code>, <code>type</code> (<code>line</code>, <code>circle</code> or <code>ellipse</code>), <code>side</code> ([the region on the left of
+  the curve's direction, the region on its right], <code>"exterior"</code> outside the domain), and the extension below;</li>
+<li><code>faces</code>: <code>[{"tag", "region", "loops": [[signed tags], ...]}]</code>, every final face of the partition with its outer loop
+  first. A loop keeps its face on its left (the outer loop counter-clockwise in (r, z), the inner loops clockwise); a
+  positive tag runs the entity from <code>start</code> to <code>end</code>, a negative one from <code>end</code> to <code>start</code>.</li>
+</ul>
+<p>Each entity carries <code>start</code> and <code>end</code> ([r, z, 0], in m): the coordinates of its end vertices, <code>start</code> first along the
+curve. Entities that meet share the coordinates of their common vertex bit for bit, a point on the axis has r exactly
+0, and a closed curve has <code>start == end</code>. An arc (<code>circle</code> or <code>ellipse</code>) also has <code>center</code>, <code>radii</code> ([a, b], a ≥ b;
+equal for a circle, also for the circular arcs that gmsh reports as ellipses), <code>major_axis</code> (the unit vector of the
+semi-axis a) and <code>ccw</code> (true when the curve turns counter-clockwise from <code>start</code> to <code>end</code>): the curve is
+c + a cos t u + b sin t v, with v the major axis turned by +90°.</p>
+<p>Every other key of the info file (the regions' measures, the atoms, the boundaries, the timings) is ignored, and the
+output depends only on the geometry: not on the order of the entities, faces or inner loops, the tags, or where a
+loop starts. A table that does not describe closed faces is refused with <code>particle.partition_invalid</code>: no <code>faces</code>; a
+face that names an entity or a region the table does not have; an entity type other than line, circle or ellipse (an
+imported mesh has no exact curves); a missing <code>start</code> or <code>end</code>; a loop that does not close (consecutive curves must
+share their vertex bit for bit); a face that runs a curve with its region on the wrong side; an outer loop that is not
+counter-clockwise.</p>
+<h2 id="electromagnetic-designs">Electromagnetic designs<a class="headerlink" href="#electromagnetic-designs" title="Permanent link">&para;</a></h2>
+<p><code>Design.export_gdml(path, composition, *, solids=None, chord_tol_m=None, workdir=None, mesher=None)</code> (beta) writes the
+GDML of an axisymmetric electromagnetic design, and returns the solids document:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">axionmultiphysics</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">axmp</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">design</span> <span class="o">=</span> <span class="n">axmp</span><span class="o">.</span><span class="n">template</span><span class="p">(</span><span class="s2">"core"</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">composition</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"winding"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"nist"</span><span class="p">:</span> <span class="s2">"G4_Cu"</span><span class="p">,</span> <span class="s2">"density"</span><span class="p">:</span> <span class="mf">8960.0</span><span class="p">},</span> <span class="s2">"nb"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"nist"</span><span class="p">:</span> <span class="s2">"G4_Nb"</span><span class="p">},</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>               <span class="s2">"vacuum"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"nist"</span><span class="p">:</span> <span class="s2">"G4_Galactic"</span><span class="p">,</span> <span class="s2">"density"</span><span class="p">:</span> <span class="mf">1e-22</span><span class="p">},</span> <span class="s2">"air"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"nist"</span><span class="p">:</span> <span class="s2">"G4_AIR"</span><span class="p">,</span> <span class="s2">"density"</span><span class="p">:</span> <span class="mf">1.205</span><span class="p">}}</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">doc</span> <span class="o">=</span> <span class="n">design</span><span class="o">.</span><span class="n">export_gdml</span><span class="p">(</span><span class="s2">"core.gdml"</span><span class="p">,</span> <span class="n">composition</span><span class="p">,</span> <span class="n">solids</span><span class="o">=</span><span class="s2">"solids.json"</span><span class="p">)</span>
+</span></code></pre></div>
+<p>The route is the design's mesher input (the one <code>axmp mesh</code> writes), <code>axmp-mesher --export-regions</code> on it, and
+<code>solids.from_partition</code> on the partition it writes. The mesher's export builds the geometry of the electromagnetic mesh
+(the half disk, the regions in order, the curves, the fragmentation) and writes, instead of a mesh, the partition of
+that geometry to the <code>info</code> path of its input: <code>regions</code> (the design's regions and the background <code>air</code>, each with its
+<code>attr</code>, its <code>area_m2</code> and its <code>volume_m3</code>, computed from the exact curves), <code>entities</code> (every curve with the keys above;
+<code>side</code> names a region, <code>air</code> for the background, or <code>exterior</code> beyond the outer arc and the axis) and <code>faces</code>. The tags
+are those of the mesh of the same input. A contour's elliptical segment, a B-spline in gmsh, is an <code>ellipse</code> with the
+contour's own centre and axes. The mesher exits with status 1 and <code>{"ok": false, "error": ...}</code> in that file when the
+construction fails, and refuses inputs of the bounded and plane modes (use the bounded mode's own info file with
+<code>resolve_only</code>: it carries the same keys). A 3D input has its own partition (<a href="#3d-designs">3D designs</a>).</p>
+<ul>
+<li><code>composition</code>: <code>{material: block}</code>, the block of <a href="#materials">Materials</a> with an optional <code>density</code> in kg/m3. Each
+  region takes its design <code>material</code>; the background region takes the material named <code>air</code> (the design's vacuum
+  material of that name, or the design's own definition of <code>air</code>). Entries for materials no region uses are ignored;
+  sheets (<code>curves</code>) have no volume and need no entry; disabled regions are not in the partition.</li>
+<li>The density of a material is the design's, as the electromagnetic parser resolves it (iron 7874, copper 8960 and nb
+  8570 are built in; an expression is evaluated), when it is positive; otherwise the <code>density</code> of the block. Two
+  different positive values are <code>particle.composition_invalid</code> (naming the material and both values); none is
+  <code>particle.density_missing</code>; a used material without a block is <code>particle.composition_missing</code>.</li>
+<li><code>solids</code>: a path; the solids document is also written there as <code>solids.json</code>. <code>chord_tol_m</code> is passed to the
+  conversion, and so are its warnings.</li>
+<li><code>workdir</code>: keeps <code>regions_in.json</code> (the mesher input) and <code>regions.json</code> (the partition, the mesher's <code>info</code>) there.
+  Without it a temporary directory is used and removed; nothing is written in the current directory.</li>
+<li><code>mesher</code>: the program (default: <code>$AXMP_MESHER</code>, else the package's).</li>
+</ul>
+<p>Refused, with nothing written: a model document (<code>model.em_only_operation</code>); a 3D design with <code>mesh.symmetry</code>, a design on an imported mesh (<code>mesh.file</code>) and a mesher without the export mode
+(<code>particle.partition_unavailable</code>); a mesher that cannot be run or
+loaded, as the model path reports it (<code>build.requires_mesher</code>, with the loader's message); a planar or cross-section
+design (<code>particle.planar_not_offered</code>); a mesher run that fails (<code>mesh.generation_failed</code>, the message carrying the
+mesher's error and the last lines of its log in the hint; with <code>workdir</code> the log stays there as <code>regions_mesher.log</code>).
+The input is made by the code that <code>axmp mesh</code> runs, which also meshes the design once into a temporary directory.</p>
+<h2 id="3d-designs">3D designs<a class="headerlink" href="#3d-designs" title="Permanent link">&para;</a></h2>
+<p><code>Design.export_gdml</code> also exports a 3D electromagnetic design (<code>"symmetry": "3d"</code>), with the same arguments and the same
+composition rules. Every volume becomes a <strong><code>tessellated</code></strong> solid: a closed triangulated surface, which Geant4 builds as a
+<code>G4TessellatedSolid</code>. The route is the design's 3D mesher input (the <code>mesh3d_in.json</code> that <code>axmp mesh</code> writes, made by
+a library function that the 3D engine also uses, compiled into every build: the sequential build exports 3D designs
+too, and the engine is not run), <code>axmp-mesher --export-regions</code> on it and <code>solids.from_partition</code> on the partition. Each
+rank of a parallel program (<code>mpirun -n 4 python script.py</code>) exports on its own, with the same files; nothing is
+collective. The mesher runs only with the export flag, never for an electromagnetic mesh. The engine's own refusals of a
+design (sheets, in a 3D design) are reported as themselves. A design reduced by symmetry planes (<code>mesh.symmetry</code>) is
+refused with <code>particle.partition_unavailable</code>: a reduced model is not the device.</p>
+<p>The mesher builds the 3D geometry as for the electromagnetic mesh (the solids, the domain sphere, the <strong>infinity shell</strong>,
+the fragmentation, the region of each volume by priority) and writes, instead of a mesh, the 3D partition to the <code>info</code>
+path of its input. The infinity shell is not part of it: the transport's domain ends at the domain sphere, the inner
+radius <code>domain_radius</code>. The conductors that the electromagnetic mesh removes (<code>remove_pec</code>) are volumes of the partition.
+The file has <code>geometry</code> <code>"3d"</code>, <code>domain_radius</code>, <code>domain_center</code>, <code>diagonal_m</code> (of the union of the faces' boxes),
+<code>tolerance_m</code> (1e-9 × <code>diagonal_m</code>), <code>chord_tol_m</code> and:</p>
+<ul>
+<li><code>regions</code>: <code>{name: {"attr", "volume_m3"}}</code> for the design's regions and the background <code>air</code>; <code>volume_m3</code> is the exact
+  volume (OpenCASCADE's).</li>
+<li><code>entities</code>: one record per face, in the order of <code>tag</code>, with <code>dim</code> 2, <code>side</code> ([A, B]: the face's triangles' normal points
+  from the region A into the region B; <code>air</code> for the background, <strong><code>exterior</code></strong> beyond the domain sphere, where the
+  infinity shell was), <code>curves</code> (<code>[]</code>), <code>axis</code> (false), <code>type</code> (gmsh's surface type in lower case: <code>plane</code>, <code>cylinder</code>,
+  <code>cone</code>, <code>sphere</code>, <code>torus</code>, <code>bspline_surface</code>, ...), <code>lo</code> and <code>hi</code> (a box that holds the face), <code>point</code> and <code>normal</code> (a
+  point of the face and the unit normal of the surface there, turned like the triangles) and <code>area_m2</code>.</li>
+<li><code>volumes</code>: <code>[{"tag", "region", "shells", "volume_m3"}]</code>, every volume but the shell's. <code>tag</code> is the volume's tag in the
+  mesh of the same input. <code>shells</code> lists signed face tags, the outer shell first: <code>+tag</code> where the volume is the face's
+  <code>side[0]</code> (the triangles' normal points out of it), <code>-tag</code> where it is <code>side[1]</code>. A shell with its faces turned by their
+  signs is a closed manifold surface oriented outwards (every edge used once in each direction in the shell); a cavity
+  is an inner shell. Faces belong to one shell when an edge of the shell pairs them, so the air around two boxes that
+  meet along an edge has a shell for each. A domain without regions exports the air alone (one volume).</li>
+<li><code>triangulation</code>: <code>{"nodes": [[x, y, z], ...], "faces": [{"tag", "triangles", "sagitta_m"}, ...]}</code>. One node list serves
+  the whole partition; each face is triangulated once and listed once (the volumes on its two sides use the same
+  triangles, one with the reversed orientation, and the faces that meet at a curve share its nodes, so that coordinates
+  agree bit for bit with no matching tolerance). <code>sagitta_m</code> is the largest distance of a triangle's centroid or edge
+  midpoint from the face (0 for a plane).</li>
+</ul>
+<p><strong>The chord tolerance.</strong> <code>chord_tol_m</code> is the largest distance a triangle may lie from its face. It is the input's key
+<code>chord_tol_m</code> (the <code>chord_tol_m</code> of <code>Design.export_gdml</code>), by default <code>min(1 mm, 1e-4 × diagonal_m)</code>. The triangulation is
+the export's own, made for that tolerance, and depends on the geometry and the tolerance only, not on the sizes of the
+electromagnetic mesh. A region's triangulated volume differs from its exact one only under the triangles of curved
+faces (reported per region, and warned about above <code>VOLUME_WARN</code>: lower <code>chord_tol_m</code>); planar regions are exact to
+rounding.</p>
+<p><strong>The solids.</strong> One solid per volume, of kind <code>tessellated</code> with <code>params</code> <code>{"vertices_m": [[x, y, z], ...], "triangles":
+[[i, j, k], ...]}</code>: the triangles of the volume's outer shell, counter-clockwise seen from outside, with its own vertex
+list copied bit for bit from the partition's nodes, so that solids that touch have the same facets on the face between
+them. Position and rotation are zero (the vertices are absolute); <code>discretized</code> is true and <code>sagitta_m</code> the largest of
+the outer shell's faces. Names are <code>&lt;region&gt;_&lt;k&gt;</code> in a geometric order. The volumes in a cavity of a volume (inside one of
+its inner shells, directly or as a cluster of volumes touching across faces of their outer shells) are that volume's
+daughters; a volume in no cavity is a daughter of the world, a vacuum <code>orb</code> around every node. In the report,
+<code>volume_solids_m3</code> is the volume of the region's solids minus their daughters', which is the triangulated volume of the
+region.</p>
+<p><strong>Thin layers.</strong> The triangles are chords of the exact surfaces, so a layer thinner than about the chord tolerance
+cannot be represented: the chords of its two surfaces cross. The conversion refuses such a partition with
+<code>particle.partition_invalid</code> (the message names the region, the hint says to lower <code>chord_tol_m</code> well below the layer's
+thickness) when a daughter's triangulated surface is not inside its mother's, when two siblings overlap, or when a
+solid's own triangles cross each other. Triangles that two solids share exactly are contact, not overlap. The mesher
+still exports the partition at any tolerance (its sides are facts of the topology), and the same partition converts
+at a finer <code>chord_tol_m</code>. The checks use a sweep over the triangles' boxes, exact piercing tests of triangle edges
+against triangles (the tolerance is <code>tolerance_m</code>) and ray casting for containment; on the window-frame dipole
+(29 000 triangles) they take about 2 s. Pairs of triangles are found with a uniform 3D grid, so the time grows about as
+the number of triangles; a solid that is star-shaped about the centre of its box (a ball, a box, a cylinder: every
+triangle faces away from the centre and their solid angles add up to 4 pi) cannot cross itself and skips the
+self-crossing test. A fine <code>chord_tol_m</code> costs mostly in triangles, not in the checks: the count of a curved face grows as
+1 / <code>chord_tol_m</code> (a sphere of 0.5 m radius: 64 000 triangles at 1.5e-4 m, 425 000 at 3.3e-5 m, converted in 1.7 s and
+8.9 s with the self-crossing test forced on, 0.2 s and 1.1 s without), and the export, the JSON files and Geant4's
+tessellated solids grow with it.</p>
+<p><strong>GDML.</strong> A tessellated solid is a <code>&lt;tessellated name="&lt;gdml_name&gt;_solid" lunit="m"&gt;</code> of <code>&lt;triangular vertex1= vertex2=
+vertex3= type="ABSOLUTE"/&gt;</code> in the list's order and orientation; its vertices are <code>&lt;position unit="m"&gt;</code> entries of
+<code>&lt;define&gt;</code> named <code>&lt;gdml_name&gt;_v&lt;k&gt;</code>, written with 17 digits. <code>axmp-transport --geometry</code> builds a <code>G4TessellatedSolid</code> of
+<code>G4TriangularFacet</code> (<code>ABSOLUTE</code>, lengths in m) set closed, after checking that the triangles close (every edge once in
+each direction) and enclose a positive volume: Geant4 only warns about an open solid, the program refuses it as an
+invalid file (exit status 2, the solid named).</p>
+<p>Every 3D volume is tessellated, including the primitives: a native solid that touches a tessellated one across a curved
+face would overlap it by the sagitta, which Geant4's overlap check (a tolerance of zero) refuses.</p>
+<h2 id="the-solids">The solids<a class="headerlink" href="#the-solids" title="Permanent link">&para;</a></h2>
+<p>Each face becomes one solid, a full revolution about the z axis:</p>
+<ol>
+<li><strong>Notches at the axis are filled.</strong> The solid of a face is the revolution of its outer loop with every notch at
+   the axis filled: of the parts of the loop between consecutive points on the axis, the one that runs upwards is
+   kept and the others are replaced by the axis. Whatever lies in a notch (a face, or a hole of the domain) becomes a
+   daughter of the solid, as whatever lies in a hole does. This is what makes a sphere on the axis exact: the face
+   around it is a full tube, and the sphere is placed in it.</li>
+<li><strong>The kind of solid.</strong> One closed circle off the axis is a <code>torus</code>; one half circle centred on the axis, its ends
+   on the axis, is an <code>orb</code>; straight edges that make a rectangle (after merging collinear edges) a <code>tube</code>; anything
+   else a <code>genericPolycone</code>, exact when its edges are straight and <strong>discretized</strong> when it has arcs. A circle split
+   into several curves, an ellipse and a fillet are polycones.</li>
+<li><strong>Holes of the domain are vacuum.</strong> The boundary curves of the domain, followed with the domain on their left,
+   form closed chains (or chains from the axis to the axis, closed along it). A chain that turns clockwise encloses a
+   part of the exterior: it becomes a vacuum solid <code>void_&lt;k&gt;</code> (<code>G4_Galactic</code>), so that a hole is never filled with
+   the material around it.</li>
+<li><strong>The mother</strong> of a face or a void is the smallest filled loop that contains it; one that nothing contains is a
+   daughter of the world. Siblings do not overlap and every daughter lies inside its mother by construction, provided
+   no two curves come closer than about the chord tolerance (the chords of a curve stray from it by up to its
+   sagitta). The conversion checks it: when a layer is thinner than that, so that a face or a void would lose its
+   place in the tree, a daughter would leave its mother, two siblings would overlap or a polycone would cross itself,
+   it refuses the partition with <code>particle.partition_invalid</code>, whose hint is to lower <code>chord_tol_m</code> well below the
+   layer's thickness. It never writes a list without a face or with overlapping solids. Curves that touch
+   convert when the discretized chords stay on their own side (two circles or ellipses touching from outside, a
+   torus on the edge of a box, an ellipse inscribed in a box). Where a discretized curve is concave towards the other
+   solid (a shape touching the inside of an ellipse, say), the chords pass through that solid by about 0.8 of the
+   chord tolerance at every tolerance, so lowering <code>chord_tol_m</code> does not help: the partition is refused, and the
+   curves must be separated there by a few chord tolerances. A face whose outline passes twice through one point (a
+   pinch: a notch whose tip touches the face's own boundary) is refused too, naming the region and the point, because
+   whether Geant4 builds such a polycone depends on rounding in its crossing test; separate the touching
+   boundaries. The checks work to 1e-12 of the partition's diagonal but never above 5e-13 m (half of
+   Geant4's overlap tolerance), so that a partition admitted here is not refused by Geant4's overlap check.</li>
+<li><strong>The world</strong> is a vacuum tube (<code>G4_Galactic</code>) centred at the origin, enclosing the partition with a margin of
+   1e-3 of its diagonal.</li>
+<li><strong>Names.</strong> The solids of a region are <code>&lt;region&gt;_0</code>, <code>&lt;region&gt;_1</code>, ... in a geometric order (their bounding box,
+   their area, then their vertices); the voids <code>void_0</code>, <code>void_1</code>, ... (skipping a name that the solids of a region
+   called <code>void</code> already have); the world <code>world</code>. Any region or material name is accepted: the names that GDML and
+   Geant4 use are mapped from them (<code>gdml_name</code>, below).</li>
+</ol>
+<p><strong>Discretization.</strong> Every arc of a polycone is cut into chords once, from its curve, and every solid that has it uses
+the same points, so neighbours share their vertices bit for bit and leave no gap or sliver. The end points are the
+partition's; the points between are at equal steps of the curve parameter. A circular arc of radius R and sweep θ is
+cut into the fewest equal angles N whose sagitta R (1 - cos(θ/2N)) is within the tolerance; an elliptical arc uses the
+same rule with its major semi-axis, whose sagitta bounds the true one. The tolerance <code>chord_tol</code> of a region is
+min(1 µm, 1e-5 × the diagonal of the box of its curves); a curve between two regions uses the smaller of their two;
+<code>chord_tol_m=</code> sets every region's. Tori and orbs are never discretized.</p>
+<h2 id="solidsjson"><code>solids.json</code><a class="headerlink" href="#solidsjson" title="Permanent link">&para;</a></h2>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span><span class="nt">"schema"</span><span class="p">:</span><span class="w"> </span><span class="s2">"axionmultiphysics.solids/1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"generator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"axionmultiphysics &lt;version&gt;"</span><span class="p">,</span><span class="w"> </span><span class="nt">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="s2">"axisymmetric"</span><span class="p">,</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w"> </span><span class="nt">"units"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"length"</span><span class="p">:</span><span class="w"> </span><span class="s2">"m"</span><span class="p">,</span><span class="w"> </span><span class="nt">"angle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"deg"</span><span class="p">,</span><span class="w"> </span><span class="nt">"density"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kg/m3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"volume"</span><span class="p">:</span><span class="w"> </span><span class="s2">"m3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"mass"</span><span class="p">:</span><span class="w"> </span><span class="s2">"kg"</span><span class="p">},</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w"> </span><span class="nt">"chord_tol_m"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"world"</span><span class="p">:</span><span class="w"> </span><span class="s2">"world"</span><span class="p">,</span><span class="w"> </span><span class="nt">"materials"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span><span class="w"> </span><span class="nt">"solids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span><span class="w"> </span><span class="nt">"regions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span><span class="w"> </span><span class="nt">"warnings"</span><span class="p">:</span><span class="w"> </span><span class="p">[]}</span>
+</span></code></pre></div>
+<p>The file holds no time, host name or path, and the same partition gives the same bytes on every run (strict JSON,
+UTF-8, numbers as the shortest text that reads back as the same double).</p>
+<ul>
+<li><code>materials</code>: the materials that some region uses, sorted by name: <code>{"name", "gdml_name", "density_kg_m3",
+  "composition"}</code> and, when given, <code>mean_excitation_eV</code>, <code>state</code>, <code>T_K</code>, <code>pressure_Pa</code>. <code>composition</code> is <code>{"nist": "G4_..."}</code> or
+  <code>{"elements": {symbol: value}, "by": "mass" | "atoms"}</code>.</li>
+<li><code>solids</code>: every solid after its mother (the world first, children in name order), each <code>{"name", "gdml_name",
+  "kind", "params", "mother", "position_m", "rotation_deg", "region", "material", "discretized", "sagitta_m"}</code>.
+  <code>region</code> and <code>material</code> are the document's names.
+  <code>position_m</code> is relative to the mother; <code>rotation_deg</code> is [0, 0, 0] for an axisymmetric design. <code>region</code> is null for
+  the world and the voids, whose material is <code>G4_Galactic</code>. <code>sagitta_m</code> is the largest sagitta of the chords in the
+  solid (0 when none).</li>
+<li>The parameters of each kind are named as GDML's attributes, with a unit suffix:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>kind</th>
+<th>params</th>
+<th>frame</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tube</code></td>
+<td><code>rmin_m</code>, <code>rmax_m</code>, <code>z_m</code> (the full length), <code>startphi_deg</code>, <code>deltaphi_deg</code></td>
+<td>its centre</td>
+</tr>
+<tr>
+<td><code>torus</code></td>
+<td><code>rmin_m</code> (0), <code>rmax_m</code>, <code>rtor_m</code>, <code>startphi_deg</code>, <code>deltaphi_deg</code></td>
+<td>the centre of its circle</td>
+</tr>
+<tr>
+<td><code>orb</code></td>
+<td><code>r_m</code></td>
+<td>its centre</td>
+</tr>
+<tr>
+<td><code>genericPolycone</code></td>
+<td><code>startphi_deg</code>, <code>deltaphi_deg</code>, <code>rz_m</code> ([[r, z], ...], counter-clockwise)</td>
+<td>the origin: its points are absolute</td>
+</tr>
+<tr>
+<td><code>tessellated</code> (3D lists)</td>
+<td><code>vertices_m</code> ([[x, y, z], ...]), <code>triangles</code> ([[i, j, k], ...], counter-clockwise seen from outside)</td>
+<td>the origin: its vertices are absolute</td>
+</tr>
+</tbody>
+</table>
+<p>Values that the partition states (radii, vertices) are copied bit for bit.
+- <code>regions</code>: per region with faces, in document order: <code>material</code>, <code>density_kg_m3</code>, <code>solids</code> (its solids' names),
+  <code>volume_m3</code>, <code>volume_solids_m3</code>, <code>volume_rel_diff</code>, <code>mass_kg</code>, <code>mass_solids_kg</code>, <code>mass_rel_diff</code>,
+  <code>sagitta_max_m</code>, <code>chord_tol_m</code>.
+- <code>warnings</code>: one entry <code>{"code": "particle.volume_deficit", "region", ...}</code> per region above the threshold.</p>
+<h2 id="the-volume-and-mass-report">The volume and mass report<a class="headerlink" href="#the-volume-and-mass-report" title="Permanent link">&para;</a></h2>
+<p><code>volume_m3</code> is the volume of the exact solid of revolution of the region's faces: by Pappus' theorem, π times the
+closed integral of r² dz around every loop of every face, evaluated in closed form on lines and arcs from the curve
+parameters. <code>volume_solids_m3</code> is what the solids hold: for each of the region's solids, its volume minus its
+daughters' (the closed forms Geant4 uses: a tube, a torus, a sphere, and the sum of cone frusta of a polycone).
+<code>volume_rel_diff</code> is <code>volume_solids_m3 / volume_m3 - 1</code>; it is zero to rounding for exact solids, and for discretized
+ones the chords move the volume by at most 2π r_max s L (s the sagitta, L the length of the curved boundary). The
+masses are the volumes times the material's <code>density</code>. When <code>|volume_rel_diff|</code> or <code>|mass_rel_diff|</code> exceeds
+<code>VOLUME_WARN</code> (1e-4), the region is warned about (<code>SolidsWarning</code>, message <code>particle.volume_deficit: region
+'&lt;name&gt;' ...</code>) and listed in <code>warnings</code>: lower <code>chord_tol_m</code>.</p>
+<h2 id="materials">Materials<a class="headerlink" href="#materials" title="Permanent link">&para;</a></h2>
+<p>A material in the transport's domain needs a <code>particle</code> block and a density; nothing is ever treated as vacuum
+(vacuum is written explicitly, as <code>{"nist": "G4_Galactic"}</code>):</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">"iron"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"density"</span><span class="p">:</span><span class="w"> </span><span class="mf">7874.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"particle"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"nist"</span><span class="p">:</span><span class="w"> </span><span class="s2">"G4_Fe"</span><span class="p">}},</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">"steel"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"density"</span><span class="p">:</span><span class="w"> </span><span class="mf">7930.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"particle"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"Fe"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.70</span><span class="p">,</span><span class="w"> </span><span class="nt">"Cr"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.19</span><span class="p">,</span><span class="w"> </span><span class="nt">"Ni"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.11</span><span class="p">},</span><span class="w"> </span><span class="nt">"by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mass"</span><span class="p">}},</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nt">"pe"</span><span class="p">:</span><span class="w">    </span><span class="p">{</span><span class="nt">"density"</span><span class="p">:</span><span class="w"> </span><span class="mf">940.0</span><span class="p">,</span><span class="w">  </span><span class="nt">"particle"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"elements"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"C"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"H"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="nt">"by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"atoms"</span><span class="p">,</span><span class="w"> </span><span class="nt">"mean_excitation_eV"</span><span class="p">:</span><span class="w"> </span><span class="mf">57.4</span><span class="p">}}</span>
+</span></code></pre></div>
+<ul>
+<li><code>nist</code>: the name of a NIST material of Geant4 (<code>G4_...</code>); the material is that composition at the document's
+  density.</li>
+<li><code>elements</code> with <code>by: "mass"</code>: mass fractions, positive and summing to 1 within 1e-9 (they are not renormalized);
+  with <code>by: "atoms"</code>: positive integer atom counts. Elements are given by their symbols, from H to Bh (Z = 1 to
+  107, the elements Geant4's NIST tables build); a heavier element is refused, so that no exported file names an element
+  Geant4 cannot build.</li>
+<li>Optional: <code>mean_excitation_eV</code>, <code>state</code> (<code>solid</code>, <code>liquid</code> or <code>gas</code>), <code>T_K</code>, <code>pressure_Pa</code> (positive).</li>
+<li><strong>NIST compositions are resolved before a run.</strong> <code>from_partition</code> writes a NIST composition as a material of one
+  component (the NIST material) at the document's density, and Geant4 would then compute its mean excitation energy
+  from the elements by Bragg additivity and set its state from the density, instead of using NIST's values (water
+  69.0 eV, solid, instead of 78.0 eV, liquid; NaI 400 eV instead of 452 eV). The transport therefore resolves every
+  NIST composition against the Geant4 it runs with (<code>particles.resolve_materials</code>, which reads
+  <code>axmp-transport --nist</code>; the driver runs it before every run and writes the resolved list to the run's
+  <code>exchange/solids.json</code>):<ul>
+<li>a material whose block is exactly <code>{"nist": X}</code> at X's own density (within 1e-9, relative) becomes <strong>the NIST
+  material itself</strong>: its solids name <code>X</code>, the GDML file references <code>X</code>, and the material record is dropped when
+  no solid uses it (the region keeps its document material name in <code>regions</code>);</li>
+<li>any other NIST composition keeps its one component and takes X's <code>mean_excitation_eV</code> and <code>state</code> where the
+  document gives none (written as <code>&lt;MEE&gt;</code> and <code>state=</code> in GDML, set the same way natively);</li>
+<li>a density more than 1 % from NIST's warns <code>particle.density_differs_from_nist</code> (the document's density is
+  used).</li>
+</ul>
+</li>
+</ul>
+<p>The residual of the second case, measured with Geant4 11.4.3's <code>G4EmCalculator</code> (total dE/dx at NIST's density
+  against the NIST material itself):</p>
+<table>
+<thead>
+<tr>
+<th>material</th>
+<th>1 GeV/c muons</th>
+<th>100 GeV/c muons</th>
+<th>10 MeV protons</th>
+<th>1 MeV electrons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G4_WATER</td>
+<td>+1.01 %</td>
+<td>0.00 %</td>
+<td>+0.58 %</td>
+<td>+0.61 %</td>
+</tr>
+<tr>
+<td>G4_SODIUM_IODIDE</td>
+<td>+1.41 %</td>
+<td>+0.06 %</td>
+<td>+1.23 %</td>
+<td>+0.45 %</td>
+</tr>
+<tr>
+<td>G4_CESIUM_IODIDE</td>
+<td>+1.69 %</td>
+<td>+0.04 %</td>
+<td>+1.61 %</td>
+<td>+0.40 %</td>
+</tr>
+<tr>
+<td>G4_BGO</td>
+<td>+1.99 %</td>
+<td>+0.10 %</td>
+<td>0</td>
+<td>+1.18 %</td>
+</tr>
+<tr>
+<td>G4_POLYSTYRENE</td>
+<td>+0.82 %</td>
+<td>0</td>
+<td>+1.05 %</td>
+<td>+0.79 %</td>
+</tr>
+<tr>
+<td>G4_KAPTON</td>
+<td>+1.02 %</td>
+<td>0</td>
+<td>+0.81 %</td>
+<td>+0.98 %</td>
+</tr>
+<tr>
+<td>G4_AIR, G4_PbWO4, G4_lAr</td>
+<td>within 0.09 %</td>
+<td>within 0.09 %</td>
+<td>within 0.09 %</td>
+<td>within 0.09 %</td>
+</tr>
+<tr>
+<td>G4_Fe, G4_Si</td>
+<td>0</td>
+<td>0</td>
+<td>+0.16 %, +0.21 %</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>It comes from data Geant4 looks up by the NIST material's name (the density-effect table, ICRU 90 water, proton
+  stopping tables), which only the NIST material itself carries. Where it matters, use the NIST density, or give an
+  explicit element composition with <code>mean_excitation_eV</code>.
+- A document material may not have a name that starts with <code>G4_</code>: that prefix always names a NIST material.
+- The density is the material's <code>density</code> in kg/m3 and is always the one used. (Comparing it with the NIST density of
+  a NIST material is a check of the transport set-up, where Geant4's tables are.)</p>
+<h2 id="gdml">GDML<a class="headerlink" href="#gdml" title="Permanent link">&para;</a></h2>
+<p><code>write_gdml(doc, path)</code> writes the same list as GDML (<code>define</code>, <code>materials</code>, <code>solids</code>, <code>structure</code>, <code>setup</code>), so that
+any Geant4 application can read it. Three rules make Geant4 read from it the same numbers as <code>axmp-transport</code> builds
+from <code>solids.json</code>:</p>
+<ol>
+<li><strong>17 significant digits.</strong> Every number is written with 17 significant digits (<code>%.17g</code>), which reads back as the
+   same double (Geant4's own writer uses 15, which does not). Lengths are in <code>m</code> and angles in <code>deg</code>, units Geant4
+   multiplies exactly as the native path does; a density is <code>&lt;D value=... unit="kg/m3"/&gt;</code> with the document's value.</li>
+<li><strong>NIST by name, never defined.</strong> The file defines no element, no isotope and no material with a NIST name: Geant4's
+   reader prefers a file's definition to its NIST table, which would change the material's data. Every document
+   material is a material of the file, named by its <code>gdml_name</code>, with its density and its components: one
+   <code>&lt;fraction n="1" ref="G4_Fe"/&gt;</code> for a NIST composition, <code>&lt;fraction n=... ref="Fe"/&gt;</code> by mass,
+   <code>&lt;composite n=... ref="H"/&gt;</code> by atoms (Geant4's NIST manager resolves the elements from their symbols), after
+   <code>T</code>, <code>P</code>, <code>MEE</code> and <code>D</code>. The world and the voids reference <code>G4_Galactic</code>; so does every solid whose material a
+   resolved list names directly (<code>G4_WATER</code> at NIST's density, say): its volume's <code>materialref</code> is the NIST name.</li>
+<li><strong>Rotations</strong> are written as the document's angles, x then y then z (none in an axisymmetric design).</li>
+</ol>
+<p>One <code>volume</code> per solid, named by the solid's <code>gdml_name</code>, is defined after its daughters (the world last); each
+daughter is a <code>physvol</code> with a <code>position</code> in m. The volume's solid, placement and position are named after it, with
+<code>_solid</code>, <code>_pv</code> and <code>_pos</code>.</p>
+<p><strong>Names in the file.</strong> A GDML <code>name</code> is an XML ID: ASCII letters, digits, <code>_</code>, <code>.</code> and <code>-</code>, not starting with a digit,
+unique across the file; and Geant4's reader cuts a name where it contains <code>0x</code>. A document may name its regions and
+materials as it likes (<code>316L steel</code>, <code>1st</code>, <code>world</code>), so each solid and each material carries a <code>gdml_name</code>: its own
+name when that is valid, contains no <code>0x</code>, does not start with <code>G4_</code> and collides with no other name of the file
+(including the <code>_solid</code>, <code>_pv</code> and <code>_pos</code> names, and <code>Default</code>, the name of the file's <code>setup</code>); otherwise the name with every other character replaced by <code>_</code>, a <code>_</code>
+in front of a leading digit, <code>0x</code> written <code>0_x</code>, and <code>_1</code>, <code>_2</code>, ... appended until it is unique. Solids are named
+before materials, each set in name order, so the mapping depends only on the names, never on the order of the input.
+<code>axmp-transport</code> gives its Geant4 volumes and materials the same names, and its placements the names Geant4's GDML
+reader gives them (<code>&lt;gdml_name&gt;_pv</code>, and <code>&lt;gdml_name&gt;_PV</code> for the world's), so a GDML application and the native path
+name everything alike; <code>solids.json</code> keeps the document's names beside them. With these names the file follows the GDML
+schema of Geant4 11.4.3 (the schema is not part of this repository).</p>
+<h2 id="the-geometry-mode-of-axmp-transport">The geometry mode of <code>axmp-transport</code><a class="headerlink" href="#the-geometry-mode-of-axmp-transport" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>axmp-transport<span class="w"> </span>--geometry<span class="w"> </span>solids.json
+</span></code></pre></div>
+<p>builds the list in Geant4 (see <a href="../particles/">Particle transport</a> for building the program): the materials through
+Geant4's NIST manager as above (a NIST composition is a material of the document's density with one component, the
+NIST material; a solid whose material is a NIST name uses that NIST material), one <code>G4Tubs</code>, <code>G4Torus</code>, <code>G4Orb</code>, <code>G4GenericPolycone</code> or (3D lists) <code>G4TessellatedSolid</code> per solid, one logical volume per solid placed
+in its mother's, with the lengths read in metres and the angles in degrees, and every volume and material named by its
+<code>gdml_name</code>. It then runs Geant4's overlap check (<code>CheckOverlaps</code>, 1000 points per placement, a tolerance of zero) on
+every placement and prints one JSON document on stdout:</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span><span class="nt">"ok"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w"> </span><span class="nt">"volumes"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="s2">"g4_name"</span><span class="p">,</span><span class="w"> </span><span class="s2">"placement"</span><span class="p">,</span><span class="w"> </span><span class="s2">"region"</span><span class="p">,</span><span class="w"> </span><span class="s2">"material"</span><span class="p">,</span><span class="w"> </span><span class="s2">"solid_volume_m3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"volume_m3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"density_kg_m3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"mass_kg"</span><span class="p">}],</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w"> </span><span class="nt">"materials"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="s2">"name"</span><span class="p">,</span><span class="w"> </span><span class="s2">"g4_name"</span><span class="p">,</span><span class="w"> </span><span class="s2">"density_kg_m3"</span><span class="p">,</span><span class="w"> </span><span class="s2">"mean_excitation_eV"</span><span class="p">,</span><span class="w"> </span><span class="s2">"state"</span><span class="p">,</span><span class="w"> </span><span class="s2">"T_K"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pressure_Pa"</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">                </span><span class="s2">"elements"</span><span class="p">}],</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w"> </span><span class="nt">"overlaps"</span><span class="p">:</span><span class="w"> </span><span class="p">[]}</span>
+</span></code></pre></div>
+<p><code>name</code>, <code>region</code> and <code>material</code> are the names of the solids list, <code>g4_name</code> the name the Geant4 volume or material
+holds (the <code>gdml_name</code>; a NIST material keeps its name) and <code>placement</code> the name of the volume's placement. <code>solid_volume_m3</code> is Geant4's volume of the solid,
+<code>volume_m3</code> that minus its daughters', <code>density_kg_m3</code> the density of its Geant4 material and <code>mass_kg</code> their product.
+They agree with the report's <code>volume_solids_m3</code> and <code>mass_solids_kg</code> within 1e-9. <code>materials</code> lists every material the
+volumes use (<code>G4_Galactic</code> included) as Geant4 built it: its density, mean excitation energy (the document's
+<code>mean_excitation_eV</code>, or the one Geant4 computes from the elements), state (<code>solid</code>, <code>liquid</code> or <code>gas</code>; Geant4 makes a
+material of undefined state solid above 10 kg/m3 and a gas below), temperature and pressure (293.15 K and 101325 Pa
+unless the document gives them) and <code>elements</code>, the mass fraction of each element. These are what a GDML application
+reading the exported file must reproduce. Every value is converted from Geant4's units once, on output.</p>
+<p>An overlap refuses the geometry: exit status 3 and <code>{"ok": false, "code": "particle.geometry_overlap", "error": ...,
+"overlaps": [{"volume", "mother", "message"}]}</code>. A file that is not a valid solids list is refused with exit status 2,
+a message on stderr and nothing on stdout; that includes a polycone that Geant4 refuses to build (an outline of
+almost no area, edges that cross, or fewer than three points left after Geant4 merges the vertices closer than its
+length tolerance, 1e-12 m, in both R and Z; Geant4's own message is on stderr) or one whose outline runs back over
+itself along a stretch of an edge (the program's own check). <code>--check</code> reports <code>"geometry": true</code> for a program
+that has this mode.</p>
+<h2 id="codes">Codes<a class="headerlink" href="#codes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>code</th>
+<th>kind</th>
+<th>raised for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>particle.planar_not_offered</code></td>
+<td>error</td>
+<td>A planar partition: transport is offered for axisymmetric and 3D designs.</td>
+</tr>
+<tr>
+<td><code>particle.partition_unavailable</code></td>
+<td>error</td>
+<td><code>Design.export_gdml</code> on a design whose partition cannot be exported in this version or with this mesher: a 3D design reduced by symmetry planes (<code>mesh.symmetry</code>), an imported mesh (<code>mesh.file</code>), or an <code>axmp-mesher</code> without <code>--export-regions</code>.</td>
+</tr>
+<tr>
+<td><code>particle.partition_invalid</code></td>
+<td>error</td>
+<td>A table that does not describe closed faces with exact curves (see <a href="#the-partition">The partition</a>), or a layer thinner than about the chord tolerance, whose solids would overlap, cross themselves or lose their place in the tree (lower <code>chord_tol_m</code>).</td>
+</tr>
+<tr>
+<td><code>particle.composition_missing</code></td>
+<td>error</td>
+<td>A region without a material, a material that is not defined, or a material without a <code>particle</code> block.</td>
+</tr>
+<tr>
+<td><code>particle.density_missing</code></td>
+<td>error</td>
+<td>A material used by a region without a positive, finite <code>density</code>.</td>
+</tr>
+<tr>
+<td><code>particle.composition_invalid</code></td>
+<td>error</td>
+<td>A <code>particle</code> block that is not one of the forms above: an unknown key, both or neither of <code>nist</code> and <code>elements</code>, a <code>nist</code> name without <code>G4_</code>, <code>by</code> missing or not <code>mass</code>/<code>atoms</code>, an unknown element symbol or one heavier than Bh (Z = 107), mass fractions that are not positive or do not sum to 1, atom counts that are not positive integers, a <code>state</code> other than solid, liquid or gas, a non-positive <code>mean_excitation_eV</code>, <code>T_K</code> or <code>pressure_Pa</code>, or a document material named <code>G4_...</code>; for <code>Design.export_gdml</code> also a composition density that differs from the design's.</td>
+</tr>
+<tr>
+<td><code>particle.volume_deficit</code></td>
+<td>warning</td>
+<td>A region whose solids differ from the exact solid of revolution by more than <code>VOLUME_WARN</code> in volume or mass.</td>
+</tr>
+<tr>
+<td><code>particle.geometry_overlap</code></td>
+<td>error</td>
+<td><code>axmp-transport --geometry</code>: Geant4's overlap check found a placement that leaves its mother or enters a sibling.</td>
+</tr>
+<tr>
+<td><code>particle.density_differs_from_nist</code></td>
+<td>warning</td>
+<td><code>particles.resolve_materials</code>: a NIST composition whose density differs from NIST's by more than 1 %.</td>
+</tr>
+</tbody>
+</table>
+<p>The messages name the region, the material, the element or the key concerned.</p>
+<h2 id="limits-of-this-version">Limits of this version<a class="headerlink" href="#limits-of-this-version" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Axisymmetric designs (full revolutions only) and 3D designs without symmetry planes; model documents come later.</li>
+<li>A 3D design is exported as tessellated solids only (native solids for primitives are not offered), to the chord
+  tolerance of the export. A layer thinner than the chord tolerance is refused by the conversion (see "Thin layers" in
+  <a href="#3d-designs">3D designs</a>); a very thin layer needs a fine <code>chord_tol_m</code> and a large triangulation.</li>
+<li>The partition must carry the extended entity table (exact curve parameters and face loops). B-splines are not read:
+  the mesher writes a contour's elliptical arc as an <code>ellipse</code>.</li>
+<li><code>Design.export_gdml</code> has no <code>mesh.file</code> route, and it meshes an axisymmetric design once to obtain the mesher's input
+  (a 3D design is not meshed: its mesher input is written without the engine).</li>
+<li>Elements up to Z = 107 only (Geant4's NIST tables build no heavier one).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../field_maps/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Field maps">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Field maps
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../particles/" class="md-footer__link md-footer__link--next" aria-label="Next: Transport and its driver">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Transport and its driver
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026, Joshua N. Benabou, Joshua W. Foster, Benjamin R. Safdi. BSD 3-Clause license. COMSOL and COMSOL Multiphysics are registered trademarks of COMSOL AB. axionMultiPhysics is not affiliated with, sponsored by or endorsed by COMSOL AB.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/bsafdi/axionMultiPhysics" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "content.code.annotate", "content.action.view", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+      
+    
+  <script data-mkdocs-jupyter-mathjax="{&quot;url&quot;: &quot;https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js&quot;, &quot;version&quot;: 4}">
+/* Shared by full pages and Material's instant navigation. */
+(() => {
+  const config = JSON.parse(document.currentScript.dataset.mkdocsJupyterMathjax);
+  if (window.mkdocsJupyterMathJax) return;
+
+  let loading;
+  let queue = Promise.resolve();
+  let previous = [];
+
+  const ready = async () => {
+    if (!loading) {
+      loading = (async () => {
+        let math = window.MathJax;
+        if (!math?.typesetPromise) {
+          const url = new URL(config.url, document.baseURI).href;
+          const existing = Array.from(document.scripts).find(script =>
+            script.src && (script.src === url || script.id === 'MathJax-script' ||
+              (/mathjax/i.test(script.src) &&
+               /\/(?:MathJax|latest|(?:tex|mml)(?:-mml)?-(?:chtml|svg))\.js(?:[?#]|$)/i.test(script.src))));
+          if (existing) {
+            if (!math?.startup?.promise) {
+              await new Promise((resolve, reject) => {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+              });
+            }
+          } else {
+            // Keep site macros, delimiters and startup hooks when supplied.
+            const options = math || {};
+            window.MathJax = {
+              ...options,
+              loader: {
+                ...options.loader,
+                load: Array.from(new Set(['ui/safe', ...(options.loader?.load || [])]))
+              },
+              startup: { typeset: false, ...options.startup },
+              tex: {
+                tags: 'ams',
+                useLabelIds: true,
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                ...options.tex
+              }
+            };
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = config.url;
+              script.id = 'MathJax-script';
+              script.async = true;
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+        }
+        math = window.MathJax;
+        await math.startup.promise;
+        return math;
+      })();
+    }
+    const math = await loading;
+    // A site owner can extend the v3 queue again on each navigation.
+    await math.startup.promise;
+    return math;
+  };
+
+  const unrendered = node => {
+    if (node.matches('mjx-container')) return [];
+    if (!node.querySelector('mjx-container')) return [node];
+    // In v3, scanning generated assistive MathML again produces nested output.
+    return Array.from(node.children).flatMap(unrendered);
+  };
+
+  const refresh = () => {
+    // A separate chain also serializes v3, without changing v4's startup promise.
+    queue = queue.then(async () => {
+      const notebooks = Array.from(document.querySelectorAll('.jupyter-wrapper'));
+      if (!notebooks.length && !previous.length) return;
+      if (notebooks.length === previous.length &&
+          notebooks.every((node, index) => node === previous[index])) return;
+      const math = await ready();
+      if (previous.length) {
+        math.typesetClear(previous);
+        math.texReset();
+      }
+      previous = notebooks.filter(node => node.isConnected);
+      const pending = previous.flatMap(unrendered);
+      if (pending.length) await math.typesetPromise(pending);
+    }).catch(error => console.error('mkdocs-jupyter: MathJax rendering failed', error));
+    return queue;
+  };
+
+  window.mkdocsJupyterMathJax = { refresh };
+  const start = () => {
+    if (typeof document$ !== 'undefined') document$.subscribe(refresh);
+    else refresh();
+  };
+  // Theme bundles and user-provided MathJax scripts can follow notebook content.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else start();
+})();
+
+</script>
+</body>
+</html>

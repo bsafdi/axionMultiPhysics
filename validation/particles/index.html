@@ -1,0 +1,2382 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Finite-element simulation of electromagnetics, mechanics, heat conduction, fluid flow and electrochemistry, built for axion dark-matter detectors">
+      
+      
+        <meta name="author" content="Joshua N. Benabou, Joshua W. Foster, Benjamin R. Safdi">
+      
+      
+        <link rel="canonical" href="https://bsafdi.github.io/axionMultiPhysics/validation/particles/">
+      
+      
+        <link rel="prev" href="../../guides/particles/">
+      
+      
+        <link rel="next" href="../../guides/mcp/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../images/logo/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Validation - axionMultiPhysics</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#particle-transport-validation-beta" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="axionMultiPhysics" class="md-header__button md-logo" aria-label="axionMultiPhysics" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            axionMultiPhysics
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Validation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="deep-purple"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bsafdi/axionMultiPhysics" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    bsafdi/axionMultiPhysics
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="axionMultiPhysics" class="md-nav__button md-logo" aria-label="axionMultiPhysics" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    axionMultiPhysics
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bsafdi/axionMultiPhysics" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    bsafdi/axionMultiPhysics
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/install/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/notebook_quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lumped-element detectors
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Lumped-element detectors
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/lumped_element_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/readout_multiband/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Readout and multi-band scans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/optimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Shape optimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/mechanics_thermal_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mechanics and thermal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    dc SQUID readout chains
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    dc SQUID readout chains
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/squid_chain_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cavity haloscopes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Cavity haloscopes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/cavity_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SRF heterodyne cavities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    SRF heterodyne cavities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/srf_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    COMSOL
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    COMSOL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/comsol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export and import
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/solvers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Designs and solvers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model documents (beta)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Model documents (beta)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/model_meshes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meshes and named boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/physics_catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Physics catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/error_codes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fluids and chemistry (beta)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Fluids and chemistry (beta)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/fluids/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fluids
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/fluids_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fluids walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/chemistry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chemistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/chemistry_demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chemistry walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export to Geant4 and particle transport (beta)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Export to Geant4 and particle transport (beta)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/field_maps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field maps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/solids/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solids and GDML
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/particles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Transport and its driver
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fields-and-tracking-deterministic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields and tracking (deterministic)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-scattering-and-resolution-monte-carlo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple scattering and resolution (Monte Carlo)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproducibility-and-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducibility and statistics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-demonstration-a-solved-solenoid-and-a-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The demonstration: a solved solenoid and a tracker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-not-validated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is not validated
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/mcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chat assistants (MCP)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fields-and-tracking-deterministic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields and tracking (deterministic)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-scattering-and-resolution-monte-carlo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple scattering and resolution (Monte Carlo)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reproducibility-and-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducibility and statistics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-demonstration-a-solved-solenoid-and-a-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The demonstration: a solved solenoid and a tracker
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-not-validated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What is not validated
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+    
+      
+    
+    <a href="https://github.com/bsafdi/axionMultiPhysics/raw/main/docs/validation/particles.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<h1 id="particle-transport-validation-beta">Particle transport validation (beta)<a class="headerlink" href="#particle-transport-validation-beta" title="Permanent link">&para;</a></h1>
+<p>Particle transport (<code>axionmultiphysics.particles</code> and <code>axmp-transport</code>, see the <a href="../../guides/particles/">guide</a>) is
+<strong>beta</strong>. This page lists every check of the transport against an independent reference, what its last run measured,
+with its seed and number of events, and what is not checked. The checks are the tests
+<code>tests/test_particles_transport.py</code>, <code>tests/test_particles_demo.py</code> and <code>tests/test_particles_driver.py</code>; the references
+are written from physics and the design note in <code>tests/_particles_ref.py</code>, never from the implementation.</p>
+<p>Run: Geant4 11.4.3 (multithreaded, tasking run manager), <code>FTFP_BERT</code>, production cut 0.7 mm, Geant4's default
+integrator (<code>G4TDormandPrince45</code> with <code>G4IntegrationDriver</code>, deltaChord 0.25 mm, deltaOneStep 0.01 mm,
+deltaIntersection 1 um, epsilon 5e-5 to 1e-3), the sequential build of the package, AMD nodes of the cluster's <code>cm1</code>
+and <code>cm2</code> partitions (identical values on both), <code>AXMP_SLOW=1</code>. A single track is deterministic; every other number
+is Monte Carlo, given with its statistical error (one standard deviation: of the binomial count; of a standard
+deviation from N samples, 1/sqrt(2(N - 1)) relative; of a Gaussian core of N events, by 200 bootstrap resamplings
+of the events, 0.9 % relative at N = 1e4, about 1.35 / sqrt(2N), which is the value given for P5). Tolerances are the design note's ceilings or the tests' own; the measured value is given beside
+them.</p>
+<h2 id="fields-and-tracking-deterministic">Fields and tracking (deterministic)<a class="headerlink" href="#fields-and-tracking-deterministic" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>row</th>
+<th>case</th>
+<th>reference</th>
+<th>measured</th>
+<th>asserted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>probe</td>
+<td>maps of kind 1 (B_r, B_z, B_phi all varying) and kind 3 (rotated, translated frame), a uniform field and a current loop, 1603 points in four regions, the world</td>
+<td><code>FieldMap.evaluate</code> and the loop's closed form (<code>tests/_particles_ref.py</code>)</td>
+<td>1.95e-12 T on a field scale of 5.15 T</td>
+<td>1e-12 of the scale</td>
+</tr>
+<tr>
+<td>F1</td>
+<td>mu+ at p_T = p_z = 1 GeV/c in 1 T, ten turns (path 297 m), a 1 mm plane at every turn; B along z (Geant4's uniform field, a kind-1 map) and along x (Geant4's, a kind-3 map); seed 1, 1 event each</td>
+<td>the exact helix</td>
+<td>1.12e-9 of R (z), 1.15e-9 of R (x), identical for the field and the map; |p| constant to 2.2e-16</td>
+<td>1e-4 of R; 1e-9</td>
+</tr>
+<tr>
+<td>F1</td>
+<td>the accuracy parameters at 4, 2 and 1 times Geant4's defaults</td>
+<td>the error falls at each halving</td>
+<td>3.37e-8, 6.12e-9, 1.12e-9 of R (a scratch Geant4 program on the same planes: 3.5e-8, 6.2e-9, 1.1e-9)</td>
+<td>decreasing</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>100 MeV/c protons through the field of a 0.5 m, 1 MA loop: two tracks through five planes and one through 13 planes near the loop's plane</td>
+<td>canonical angular momentum P_phi = r p_phi + q r A_phi conserved</td>
+<td>1.6e-7, 2.1e-7 and 2.3e-6 of max r|p| at the defaults; 5.1e-8, 7.1e-8 and 1.8e-7 with deltaOneStep 1e-6 m, deltaIntersection 1e-7 m, epsilon 5e-6 to 1e-4. The value belongs to the track: it is the integrator's accuracy (below deltaOneStep / r = 5e-5) and falls as the integrator is tightened</td>
+<td>2.5e-5 at the defaults; 1e-6 tightened, and at least 5 times smaller for the track above 1e-6</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>the first track through a kind-1 map of the closed form (1 cm grid)</td>
+<td>|dP_phi| below q c times the integral of r |B_map - B_exact| along the track, plus 2.5e-5 of max r|p|</td>
+<td>5 to 1198 eV/c m against bounds of 969 to 8014</td>
+<td>within the bound</td>
+</tr>
+<tr>
+<td>field jump</td>
+<td>a ball (a = 0.25 m) of 1 T in 0.2 T, two map patches each correct two cells beyond its region and zero beyond; mu+ at 0.5 and 0.1 GeV/c, 60 tracks each (seed 3, a 8 cm spot)</td>
+<td>piecewise circles with exact circle-circle intersections</td>
+<td>1.3e-6 m and 6e-7 rad (0.5 GeV/c), 1.1e-6 m and 3e-6 rad (0.1 GeV/c). This holds for entries deeper than about deltaChord (0.25 mm): a review measured, for tracks grazing the ball by 1e-7 to 5e-5 m, errors of up to 2.5e-3 m (0.5 GeV/c) and 7.6e-3 m (0.1 GeV/c), Geant4's miss distance, equivalent to at most deltaChord in the impact parameter; the 60 random tracks do not sample that band</td>
+<td>1e-4 m, 1e-4 rad</td>
+</tr>
+<tr>
+<td>interfaces</td>
+<td>1000 protons of 30 MeV/c, isotropic, on helices through 40 vacuum slabs of 1 cm (1 T in every second slab, 0 T or 0.2 T in the others) inside a 1 mm shell (seed 5)</td>
+<td>an interface between two regions is not the domain's boundary: every primary reaches the shell; no zero-length re-entry records a second hit</td>
+<td>0 of 1000 lost and 0 repeated hits in both cases; <code>exit_eV</code> equals each primary's kinetic energy with Geant4's proton mass (938.272013 MeV) to 1e-16</td>
+<td>none lost</td>
+</tr>
+<tr>
+<td>interfaces</td>
+<td>200 electrons of 200 MeV through 20 iron plates of 2 mm and 2 mm gaps in 1 T, inside a 1 mm shell (seed 7)</td>
+<td>per event, <code>exit_eV</code> at most the net kinetic energy carried into the shell (from every track's hits)</td>
+<td>0 of 200 events exceed it</td>
+<td>none</td>
+</tr>
+<tr>
+<td>stuck track</td>
+<td>a mu+ of 0.1 GeV/c crossing an interface where B_x reverses (-0.2 T / +0.2 T) at 1 mrad, 3 events (seed 1)</td>
+<td>Geant4 abandons the track as stuck (GeomNav0003); it is ended and counted, the chunk completes</td>
+<td>each event abandons its primary: <code>abandoned_killed</code> 1, <code>abandoned_eV</code> its kinetic energy (3.98e7 eV), <code>exit_eV</code> 0; all 3 events merged</td>
+<td>as stated</td>
+</tr>
+<tr>
+<td>deltaIntersection</td>
+<td>a job file with patches of 0.04 m and 0.02 m spacing, handed to the program directly</td>
+<td>refused above 0.1 of the finest spacing</td>
+<td>0.0021 m refused (exit status 2, nothing written), 0.002 m runs</td>
+<td>as stated</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>mu+ at 10 GeV/c in 1.5 T, 20 planes over 2 m, vacuum (seed 11, 1 event)</td>
+<td>the exact crossings</td>
+<td>5.85e-6 m at the last plane (the integration error of Geant4's default parameters, growing along the track)</td>
+<td>1e-5 m</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>the momentum from a circle fit to those 20 hits</td>
+<td>10 GeV/c</td>
+<td>p_fit / p - 1 = 4.8e-5, the integrator's scale bias</td>
+<td>3e-4 (a tenth of a spectrometer's resolution, the design's requirement)</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>the same with deltaOneStep 1e-6 m, deltaIntersection 1e-7 m, epsilon 5e-6 to 1e-4</td>
+<td>the exact crossings; 10 GeV/c</td>
+<td>2.15e-7 m (27 times below the defaults); 7.2e-7</td>
+<td>2e-6 m and 1e-5, at least 5 times below the defaults</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>resolution, 1e4 smearings of the vacuum hits by 100 um</td>
+<td>exact least squares; Gluckstern (PDG 2024 eq. 35.61)</td>
+<td>(0.3050 +- 0.0022) % against 0.3017 % and 0.3045 %</td>
+<td>2.8 % of the least-squares value</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>a map that ends at z = 0 (plus its margin) inside a region</td>
+<td>refused at set-up with <code>outside="refuse"</code>; with <code>"zero"</code> the calls are counted and the direction after the map's end is the exact one</td>
+<td>refused; counted; within 3e-2 rad</td>
+<td>as stated</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>a field-free daughter inside a mother in 0.5 T</td>
+<td>a straight segment in the daughter</td>
+<td>y = 0.181319 m against 0.181319 m (an inherited field would give 0.303)</td>
+<td>2e-5 m</td>
+</tr>
+</tbody>
+</table>
+<h2 id="multiple-scattering-and-resolution-monte-carlo">Multiple scattering and resolution (Monte Carlo)<a class="headerlink" href="#multiple-scattering-and-resolution-monte-carlo" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>row</th>
+<th>case</th>
+<th>reference</th>
+<th>measured</th>
+<th>asserted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P5</td>
+<td>mu- at 1 GeV/c through 1 cm of Fe, 1e4 events (seed 17); the projected angle's Gaussian core (central 98 %, Lynch and Dahl's definition of Highland's width)</td>
+<td>Highland (PDG 2024 eq. 34.16): 10.10 mrad</td>
+<td>(10.27 +- 0.10) mrad (+1.7 %)</td>
+<td>10 %</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>5 mm Fe + 2.5 mm Pb</td>
+<td>Highland with the summed x/X0: 11.55 mrad</td>
+<td>(12.15 +- 0.12) mrad (+5.2 %)</td>
+<td>10 %</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>2 m of air, 1e4 events (seed 11): the Gaussian core (central 98 %) of the momentum fitted to unsmeared hits</td>
+<td>PDG 2024 eq. 35.63 with Highland's logarithm at the whole length: 0.1168 %</td>
+<td>(0.1077 +- 0.0009) % (-7.8 %); the standard deviation, which includes single-scattering tails, is 0.1441 %</td>
+<td>15 % + 4 sigma of the estimator (20.4 %)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="reproducibility-and-statistics">Reproducibility and statistics<a class="headerlink" href="#reproducibility-and-statistics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>row</th>
+<th>case</th>
+<th>measured</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td>200 MeV electrons showering in 2 cm of Fe in 1 T (1000 events, 5 chunks, seed 7): 1 against 4 threads, 1 against 3 processes, the same seed twice, a run extended from 700 events (a short last chunk)</td>
+<td>every chunk array, the merged 128-bit tallies and <code>results.json</code> bitwise equal; per-event hit limits reached and the same</td>
+</tr>
+<tr>
+<td>S1</td>
+<td>a chunk run alone, after other chunks, and in a 25 000-event chunk (beyond Geant4's refill of its seeds at 10 000); 1 and 4 threads</td>
+<td>bitwise equal; the first number of each event equals the MixMax references of the hello mode</td>
+</tr>
+<tr>
+<td>S1</td>
+<td>a stop rule (2 % on the mean deposit, 80 planned chunks) with 1 and 4 workers</td>
+<td>the same prefix and <code>results.json</code></td>
+</tr>
+<tr>
+<td>S1</td>
+<td>81 one-event chunks of a 1 GeV electron in 20 cm of Pb with a quantum of (E + m) / 2^63 x 1.1</td>
+<td>the 128-bit batch sums exceed 2^63 and equal the exact integer sums of the chunks</td>
+</tr>
+<tr>
+<td>S2</td>
+<td>10 seeds x 2000 muons at 1 GeV/c in 1 cm of Fe, mean deposit</td>
+<td>chi2 = 13.99 for 9 degrees of freedom (P(chi2 &gt;) = 0.12)</td>
+</tr>
+<tr>
+<td>S3</td>
+<td>1e7 isotropic geantinos (seed 2024, 1000 chunks of 1e4, 8 processes), a disk of 10 deg half-angle</td>
+<td>the 1 sigma interval of the mean covers (1 - cos 10 deg) / 2 in (69.6 +- 1.5) % of the chunks, Clopper-Pearson's in (71.8 +- 1.4) % (asserted 68.3 +- 5.9 % and &gt;= 62.4 %); acceptance (7.590 +- 0.027)e-3 against 7.596e-3</td>
+</tr>
+<tr>
+<td>S4</td>
+<td>1000 geantinos away from the disk</td>
+<td>0 hits: no error, the 95 % limit 1 - 0.05^(1/1000)</td>
+</tr>
+</tbody>
+</table>
+<p>The driver's own guarantees (seeds, the order of the merge, extension, prefixes and partial runs, retries, the
+128-bit sums, the estimators and their printing) are checked bit for bit with a stand-in program in
+<code>tests/test_particles_driver.py</code>, including S3 at the level of the estimator (1000 experiments drawn by numpy) and S4
+(0 of 10 and of 1e4).</p>
+<h2 id="the-demonstration-a-solved-solenoid-and-a-tracker">The demonstration: a solved solenoid and a tracker<a class="headerlink" href="#the-demonstration-a-solved-solenoid-and-a-tracker" title="Permanent link">&para;</a></h2>
+<p>A solenoid (radius 0.5 m, length 1 m, winding 0.05 m thick, 2e5 ampere-turns, domain radius 1.5 m) with eight layers
+of air 2 mm thick at r = 0.10 to 0.38 m, |z| &lt;= 0.4 m, solved by the package (order 2) and exported as a map at tol
+1e-4 with a track volume over the tracker; the partition written by hand with the same regions (the demonstration does
+not use the mesher's export); mu+ at 0.2 GeV/c from the centre along +x (bore field 0.181 T, radius of curvature about
+3.7 m).</p>
+<table>
+<thead>
+<tr>
+<th>check</th>
+<th>reference</th>
+<th>measured</th>
+<th>asserted</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hits in vacuum (seed 1, 1 event)</td>
+<td>the map's own trajectory (a test-side Runge-Kutta through <code>FieldMap.evaluate</code>)</td>
+<td>2.1e-7 m</td>
+<td>2e-5 m</td>
+</tr>
+<tr>
+<td>momentum scale</td>
+<td>the same circle fit on the trajectory through the exact closed-form field</td>
+<td>R(map) / R(exact) - 1 = 7.6e-6, against the map-and-solve error along the path 7.3e-5</td>
+<td>2 x 7.3e-5 + 2e-5</td>
+</tr>
+<tr>
+<td>circle fit with the path-averaged field</td>
+<td></td>
+<td>1.0018</td>
+<td>2 % (a model)</td>
+</tr>
+<tr>
+<td>resolution, 1e4 smearings by 50 um</td>
+<td>exact least squares; Gluckstern (large-N form; the equal-spacing form for 8 layers gives 1.765 %)</td>
+<td>(1.769 +- 0.013) % against 1.771 % and 1.808 %</td>
+<td>2.8 %; 5 %</td>
+</tr>
+<tr>
+<td>scattering term in air (4000 events, seed 3): the Gaussian core (central 98 %) of the fitted curvature</td>
+<td>PDG 2024 eq. 35.63 with Highland's logarithm (a formula for many planes; eight here: approximate)</td>
+<td>(2.365 +- 0.044) % against 2.669 % (-11 %) (the standard deviation, with single-scattering tails, is 3.049 %)</td>
+<td>30 %</td>
+</tr>
+</tbody>
+</table>
+<p>The 3D iron dipole of the demonstration skips: its test calls <code>particles.transport</code> without <code>solids=</code>, which this
+version does not serve (<code>capabilities()["partition_export"]</code> is false), although the mesher exports 3D partitions
+(<code>Design.export_gdml</code>).</p>
+<h2 id="test-status">Test status<a class="headerlink" href="#test-status" title="Permanent link">&para;</a></h2>
+<p>Every assertion of the three files passes on the program and the driver of this version (the 3D dipole and, where
+the application is absent, X1 skip).</p>
+<p>X1 (the solids list read back from the exported GDML file by a standalone Geant4 application, <code>axmp-x1</code>, with a Geant4
+built with GDML and Xerces-C 3.3.0) applies the same exit and hit rules as the program (interfaces are not exits; a
+step after a zero-length step records no hit). Against the transport as it was during the development of this version,
+with the interface rule in place, its three tests passed: volumes and materials bitwise equal, 1e4 geantino crossings
+and their first random numbers bitwise equal, per-region mean deposits of 2000 electrons of 200 MeV in 0.3 T within 4
+sigma (and per-event deposits bitwise equal). The comparison has not been run again against the program of this
+release, which added the handling of stuck tracks, the per-writer temporary directories and the checks of the gun
+afterwards.</p>
+<h2 id="what-is-not-validated">What is not validated<a class="headerlink" href="#what-is-not-validated" title="Permanent link">&para;</a></h2>
+<ul>
+<li>No comparison with measured data, and no estimate of the physics-list dependence (the three lists run; their
+  differences are not quantified).</li>
+<li>The convergence evidence of the design note's rule 3 (results with the production cut, the step and the map
+  tolerance halved) is missing; it is left to the next milestone.</li>
+<li>X1 runs only where its application and a Geant4 built with GDML exist; its tests skip elsewhere.</li>
+<li>The energy balance of an event (deposits plus escaping energy against the primary's) is not checked: decays and
+  hadronic interactions change the rest-mass energy, which the per-event arrays do not account for.</li>
+<li>The 3D dipole of the demonstration, and the transport through 3D (<code>tessellated</code>) solids lists in general (they are
+  built and checked by <code>--geometry</code> only).</li>
+<li>Field maps of 3D solves through the transport (kind-3 maps are checked with analytic fields only).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../guides/particles/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Transport and its driver">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Transport and its driver
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../guides/mcp/" class="md-footer__link md-footer__link--next" aria-label="Next: Chat assistants (MCP)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Chat assistants (MCP)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026, Joshua N. Benabou, Joshua W. Foster, Benjamin R. Safdi. BSD 3-Clause license. COMSOL and COMSOL Multiphysics are registered trademarks of COMSOL AB. axionMultiPhysics is not affiliated with, sponsored by or endorsed by COMSOL AB.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/bsafdi/axionMultiPhysics" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "content.code.annotate", "content.action.view", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+      
+    
+  <script data-mkdocs-jupyter-mathjax="{&quot;url&quot;: &quot;https://cdn.jsdelivr.net/npm/mathjax@4.1.3/tex-mml-chtml.js&quot;, &quot;version&quot;: 4}">
+/* Shared by full pages and Material's instant navigation. */
+(() => {
+  const config = JSON.parse(document.currentScript.dataset.mkdocsJupyterMathjax);
+  if (window.mkdocsJupyterMathJax) return;
+
+  let loading;
+  let queue = Promise.resolve();
+  let previous = [];
+
+  const ready = async () => {
+    if (!loading) {
+      loading = (async () => {
+        let math = window.MathJax;
+        if (!math?.typesetPromise) {
+          const url = new URL(config.url, document.baseURI).href;
+          const existing = Array.from(document.scripts).find(script =>
+            script.src && (script.src === url || script.id === 'MathJax-script' ||
+              (/mathjax/i.test(script.src) &&
+               /\/(?:MathJax|latest|(?:tex|mml)(?:-mml)?-(?:chtml|svg))\.js(?:[?#]|$)/i.test(script.src))));
+          if (existing) {
+            if (!math?.startup?.promise) {
+              await new Promise((resolve, reject) => {
+                existing.addEventListener('load', resolve, { once: true });
+                existing.addEventListener('error', reject, { once: true });
+              });
+            }
+          } else {
+            // Keep site macros, delimiters and startup hooks when supplied.
+            const options = math || {};
+            window.MathJax = {
+              ...options,
+              loader: {
+                ...options.loader,
+                load: Array.from(new Set(['ui/safe', ...(options.loader?.load || [])]))
+              },
+              startup: { typeset: false, ...options.startup },
+              tex: {
+                tags: 'ams',
+                useLabelIds: true,
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true,
+                ...options.tex
+              }
+            };
+            await new Promise((resolve, reject) => {
+              const script = document.createElement('script');
+              script.src = config.url;
+              script.id = 'MathJax-script';
+              script.async = true;
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+        }
+        math = window.MathJax;
+        await math.startup.promise;
+        return math;
+      })();
+    }
+    const math = await loading;
+    // A site owner can extend the v3 queue again on each navigation.
+    await math.startup.promise;
+    return math;
+  };
+
+  const unrendered = node => {
+    if (node.matches('mjx-container')) return [];
+    if (!node.querySelector('mjx-container')) return [node];
+    // In v3, scanning generated assistive MathML again produces nested output.
+    return Array.from(node.children).flatMap(unrendered);
+  };
+
+  const refresh = () => {
+    // A separate chain also serializes v3, without changing v4's startup promise.
+    queue = queue.then(async () => {
+      const notebooks = Array.from(document.querySelectorAll('.jupyter-wrapper'));
+      if (!notebooks.length && !previous.length) return;
+      if (notebooks.length === previous.length &&
+          notebooks.every((node, index) => node === previous[index])) return;
+      const math = await ready();
+      if (previous.length) {
+        math.typesetClear(previous);
+        math.texReset();
+      }
+      previous = notebooks.filter(node => node.isConnected);
+      const pending = previous.flatMap(unrendered);
+      if (pending.length) await math.typesetPromise(pending);
+    }).catch(error => console.error('mkdocs-jupyter: MathJax rendering failed', error));
+    return queue;
+  };
+
+  window.mkdocsJupyterMathJax = { refresh };
+  const start = () => {
+    if (typeof document$ !== 'undefined') document$.subscribe(refresh);
+    else refresh();
+  };
+  // Theme bundles and user-provided MathJax scripts can follow notebook content.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else start();
+})();
+
+</script>
+</body>
+</html>
