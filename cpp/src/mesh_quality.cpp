@@ -1,13 +1,17 @@
-// Worst elements of a mesh for solver-failure messages (axionmultiphysics/mesh_quality.hpp).
+// Worst elements of a mesh for solver-failure messages, and the refusal of a tangled 2D curved mesh on read
+// (axionmultiphysics/mesh_quality.hpp).
 #include "axionmultiphysics/mesh_quality.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <map>
+#include <vector>
 
 #include <mfem.hpp>
 
 #include "axionmultiphysics/core.hpp"
+#include "model_errors.hpp"
 
 namespace axmp::mesh_quality {
 
@@ -235,6 +239,122 @@ nlohmann::json to_json(const Summary& s, const RegionName& region) {
           {"flat", s.flat},
           {"thresholds", {{"distorted_min_over_max_det_J", kDistortedDetRatio}, {"flat_aspect_ratio", kFlatAspect}}},
           {"worst", rows}};
+}
+
+void require_untangled(mfem::Mesh& m, const RegionName& region, const std::string& file, const UntangledOptions& o) {
+  if (m.Dimension() != 2 || m.SpaceDimension() != 2) return;
+  const mfem::GridFunction* nodes = m.GetNodes();
+  if (!nodes || nodes->FESpace()->GetMaxElementOrder() <= 1) return;
+  const mfem::FiniteElementSpace* nfes = nodes->FESpace();
+  // the lattice (i/12, j/12) for elements other than second-order triangles: i + j <= 12 on the reference triangle,
+  // every i, j on the reference square
+  constexpr int n = 12;
+  mfem::IntegrationRule triangle, square;
+  for (int i = 0; i <= n; ++i)
+    for (int j = 0; j <= n; ++j) {
+      mfem::IntegrationPoint ip;
+      ip.Set2(double(i) / n, double(j) / n);
+      if (i + j <= n) triangle.Append(ip);
+      square.Append(ip);
+    }
+  const int ne = m.GetNE();
+  std::vector<double> lo(static_cast<size_t>(ne), kInf), hi(static_cast<size_t>(ne), -kInf);
+  std::vector<char> checked(static_cast<size_t>(ne), 0);
+  std::map<int, std::array<long long, 2>> signs;  // attribute -> elements with det J > 0, < 0 throughout
+  long long curved = 0;
+  // J = X dN at the sample points, X the element's node coordinates (2 x ndof) and dN the reference derivatives of the
+  // nodal basis (ndof x 2), as MFEM's isoparametric transformation computes it; dN is tabulated once per finite
+  // element. A second-order triangle's det J is quadratic: its six values at kP2Points give its exact range
+  // (det_range_p2). Other elements are sampled on the lattice.
+  struct Table {
+    const mfem::FiniteElement* fe;
+    bool exact;              // a second-order triangle: kP2Points and det_range_p2
+    std::vector<double> dN;  // per sample point, ndof x 2, row-major
+  };
+  mfem::IntegrationRule p2_points;
+  for (const auto& uv : kP2Points) {
+    mfem::IntegrationPoint ip;
+    ip.Set2(uv[0], uv[1]);
+    p2_points.Append(ip);
+  }
+  std::vector<Table> tables;
+  mfem::Array<int> vdofs;
+  mfem::Vector X;
+  std::vector<double> dets;
+  for (int e = 0; e < ne; ++e) {
+    const mfem::FiniteElement* fe = nfes->GetFE(e);
+    if (fe->GetOrder() <= 1) continue;
+    auto table = std::find_if(tables.begin(), tables.end(), [&](const Table& t) { return t.fe == fe; });
+    if (table == tables.end()) {
+      const bool exact = fe->GetGeomType() == mfem::Geometry::TRIANGLE && fe->GetOrder() == 2;
+      const mfem::IntegrationRule& points =
+          exact ? p2_points : fe->GetGeomType() == mfem::Geometry::TRIANGLE ? triangle : square;
+      const int nd = fe->GetDof();
+      Table t{fe, exact, std::vector<double>(static_cast<size_t>(points.GetNPoints()) * nd * 2)};
+      mfem::DenseMatrix dshape(nd, 2);
+      for (int q = 0; q < points.GetNPoints(); ++q) {
+        fe->CalcDShape(points.IntPoint(q), dshape);
+        for (int k = 0; k < nd; ++k)
+          for (int b = 0; b < 2; ++b) t.dN[(static_cast<size_t>(q) * nd + k) * 2 + b] = dshape(k, b);
+      }
+      tables.push_back(std::move(t));
+      table = tables.end() - 1;
+    }
+    nfes->GetElementVDofs(e, vdofs);  // the x components of the nodes, then the y components
+    nodes->GetSubVector(vdofs, X);
+    const int nd = fe->GetDof();
+    const size_t npoints = table->dN.size() / (static_cast<size_t>(nd) * 2);
+    dets.resize(npoints);
+    for (size_t q = 0; q < npoints; ++q) {
+      const double* d = &table->dN[q * nd * 2];
+      double J[2][2] = {{0, 0}, {0, 0}};
+      for (int k = 0; k < nd; ++k)
+        for (int a = 0; a < 2; ++a) {
+          J[a][0] += X(a * nd + k) * d[2 * k];
+          J[a][1] += X(a * nd + k) * d[2 * k + 1];
+        }
+      dets[q] = J[0][0] * J[1][1] - J[0][1] * J[1][0];  // signed
+    }
+    if (table->exact) {
+      det_range_p2(dets.data(), lo[e], hi[e]);
+    } else {
+      lo[e] = *std::min_element(dets.begin(), dets.end());
+      hi[e] = *std::max_element(dets.begin(), dets.end());
+    }
+    checked[e] = 1;
+    ++curved;
+    if (lo[e] > 0) ++signs[m.GetAttribute(e)][0];
+    else if (hi[e] < 0) ++signs[m.GetAttribute(e)][1];
+  }
+  long long tangled = 0;
+  int first = -1;
+  for (int e = 0; e < ne; ++e) {
+    if (!checked[e]) continue;
+    const auto& s = signs[m.GetAttribute(e)];
+    if (s[1] > s[0] ? hi[e] < 0 : lo[e] > 0) continue;
+    if (tangled++ == 0) first = e;
+  }
+  if (tangled == 0) return;
+  const std::string name = region(m.GetAttribute(first));
+  mfem::ElementTransformation* T = m.GetElementTransformation(first);
+  mfem::Vector x(2);
+  T->Transform(mfem::Geometries.GetCenter(m.GetElementBaseGeometry(first)), x);
+  const std::string what =
+      strcat(tangled, " of ", curved, " curved elements of the mesh '", file, "' are tangled: their Jacobian ",
+             "determinant changes sign, vanishes, or is inverted against the other elements of their region; the first ",
+             "is element ", first, " in region '", name, "' near ", o.coords_2d, " = (", x(0), ", ", x(1), "), where det J ",
+             "runs from ", lo[first], " to ", hi[first]);
+  const std::string cause =
+      "Nothing is solved on a tangled element: it has no inverse map and its quadrature weights change sign. Curved "
+      "(order-2) elements fold over where a region is much thinner than the mesh size. ";
+  const std::string hint =
+      o.imported ? cause + "Regenerate the file with the mesh refined in or around region '" + name +
+                           "', or with straight-sided elements (geometry order 1)."
+                 : cause + "axmp-mesher repairs or refuses such a mesh when it makes it, so this file was changed after "
+                           "it was written, or written by a mesher without that check. Refine the mesh in or around "
+                           "region '" + name + "' (a smaller surface_size or mesh_size there), or use geometry order 1 (" +
+                           o.order_one + ").";
+  throw Error(what, o.where, hint, model::codes::mesh_tangled);
 }
 
 }  // namespace axmp::mesh_quality

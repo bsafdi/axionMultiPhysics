@@ -13,11 +13,40 @@
 
 # --- Schema, spec and input validation; packaging (seconds) ---
 tests/test_schema.py
+tests/test_physics_catalogue.py               # the physics catalogue: axmp physics, axmp.physics(), the generated reference page (seconds)
+tests/test_error_codes_doc.py                 # the codes of model documents: one table, the generated reference page (seconds)
+tests/test_arc_span.py                       # arc paths: more than one turn, below the axis; EM and model documents, validate and mesh in subprocesses (about 1 min)
+tests/test_model_explain.py                   # axmp explain / Design.explain against the golden files of the four model documents (seconds)
+tests/test_model_patch.py                     # axmp patch / Design.patch: atomic RFC 6902 patches, on model and electromagnetic documents (seconds)
 tests/test_multiport_fem_spec.py
 tests/test_packaging.py                       # versions, pins, the sequential build's MPI-free files, the 3D guards
+tests/test_process_rule.py                    # the process rule for Geant4 and Pythia: what _core, the library and axmp link, the import probe, the rule in the docs (seconds)
+tests/test_transport_cmake.py                 # axmp-transport's CMake branch: off by default and in wheels, the Geant4 check called (pure Python)
+tests/test_transport_hello.py::test_splitmix64_matches_its_published_test_vector  # the rest of the file needs axmp-transport (AXMP_TRANSPORT)
 tests/test_scan_reach.py
+tests/test_g0.py                              # the compatibility gate G0 (docs/developer/g0.md): tier A; AXMP_SLOW adds B and C
 tests/test_prescribed_source.py
+tests/test_field_expr_corpus.py               # the committed expression corpus is what its generator produces (1 s)
 tests/test_mpi_output_parser.py               # rank 0's summary among UCX/OpenMPI warnings (pure Python)
+tests/test_error_fields.py                    # an error's code and details: the exception's fields, the command line's JSON, the MCP payload (seconds)
+tests/test_model_guard.py                     # a model document at the electromagnetic entry points: the guard, named refusals, solve not implemented (seconds; two MCP worker jobs)
+tests/test_parse_design_sites.py              # the call sites of parse_design against their manifest (pure Python, < 1 s)
+tests/test_json_duplicate_key.py              # a repeated key: unchanged for electromagnetic files, refused in a model document (seconds)
+tests/test_solids.py                          # solids from a partition, the GDML writer, the volume and mass report (hand-built partitions; seconds)
+tests/test_particles_driver.py                # the particle-transport driver with a stand-in program: seeds, plan, merge, extension, estimators, locks (about 3 min)
+tests/test_mesher_partition.py::test_bounded_info_files_are_unchanged_but_for_the_partition_keys  # the mesher's partition keys; the bounded modes otherwise unchanged (seconds; the mesher; the whole file is about 20 s)
+tests/test_mesher_partition.py::test_faces_are_the_mesh_s_faces_bounded_by_closed_oriented_loops
+tests/test_export_gdml.py                     # Design.export_gdml: an EM design through --export-regions to solids and GDML (about 30 s; the mesher)
+tests/test_mesher_partition_3d.py::test_each_volume_is_closed_and_consistently_oriented  # the 3D partition: closed, oriented shells (the mesher; the file's fixture meshes two 3D designs, about 3 min)
+tests/test_solids_3d.py                       # tessellated solids of a 3D partition, the mother tree, the report, GDML (about 20 s; the mesher)
+tests/test_export_gdml_3d.py::test_export_gdml_writes_the_solids_of_a_3d_design[dipole]  # Design.export_gdml of a 3D design: axmp mesh's input, the export, the solids (the 3D engine; about 2 min)
+tests/test_model_cli.py                       # axmp validate / resolve of a model document: the report, --strict, all_errors, exit statuses (seconds)
+tests/test_model_boundaries.py                # axmp boundaries / Design.boundaries: the resolved table and the full check of a model document (seconds; the mesher)
+tests/test_model_mesh_cli.py                  # axmp mesh / axmp.mesh of a model document: files, maps, face points, refusals (seconds; the mesher)
+tests/test_model_requires_mesher.py           # build.requires_mesher: a mesher that does not load, with stub meshers (seconds)
+tests/test_fluids_model_bridge.py             # instance meshes to the fluids engines: the copy, heat slab, two regions in one flow, the label rule, the post, the pipe axis, Poiseuille with both forms (seconds; MPI build)
+tests/test_chem_model_bridge.py               # instance meshes to the chemistry engine: the parallel-plate cell, edge nodes on the circles, the P1 refusal (seconds)
+tests/test_model_bridge_api.py               # the chemistry mesh of an instance owns its arrays; the field order is an integer (seconds)
 
 # --- Circuit, scan, reach, SQUID chains, sensitivity layers (closed forms, seconds) ---
 tests/test_circuit.py
@@ -56,9 +85,17 @@ tests/test_fluids_mhd_api.py                  # fluids API, inductionless MHD: H
 tests/test_fluids_gls_api.py                  # fluids API, GLS stabilization: residual = numpy residual, Jacobian = derivative, patch reproduced, tau_at, refusals (seconds)
 tests/test_fluids_transport_api.py            # fluids API, scalar transport: 2-rank refusal, flux sign, outflow/robin semantics, Boussinesq and gravity (seconds)
 tests/test_fluids_transient_api.py            # fluids API, transient Navier-Stokes: BDF2 exactness in time, variable steps, projection, adaptive control, refusals (seconds)
+tests/test_fluids_lu_chain.py                 # fluids sparse LU retry chain at every caller: lu_retry, attempt records, run counts, escalation per caller, projection on its own gate, rescue cases, aliases, texts (seconds)
+tests/test_fluids_trust.py                    # fluids accuracy gates: the Leray projection's verdict, per-step and dual-norm mass solve residuals, the convective rule refusal, the case/doc texts (seconds)
 
 # --- Axisymmetric engine: MQS, nonlinear iron, persistent circuits, forces, direct solvers ---
 tests/test_thin_magnetic_layer.py             # thin layers, their junctions with sheets, regions and pickups; background drive (60 s)
+tests/test_fieldmap_format.py                 # field maps (beta): format, evaluator, interpolation, helix and loop through maps, Halton, the guard (30 s)
+tests/test_fieldmap_build.py::test_sphere_map_accuracy_and_acceptance  # field maps of a solve: recovery, chords, accuracy (seconds)
+tests/test_fieldmap_build.py::test_an_open_sheet_is_refused
+tests/test_fieldmap_build.py::test_chords_cover_the_exact_intersection_with_the_region  # chord completeness (seconds)
+tests/test_fieldmap_build.py::test_accuracy_and_reproducibility_at_the_default_tolerance[closed_sheet]  # tol 1e-4 (AXMP_SLOW)
+tests/test_fieldmap_3d.py::test_kind3_statistic_and_f3b  # kind-3 maps of one 3D solve (the sphere revolved; minutes)
 tests/test_regression.py::test_mutual_inductance_vs_maxwell
 tests/test_regression.py::test_core_pickup_inductance_exact
 tests/test_regression.py::test_persistent_nonzero_linkage
@@ -220,6 +257,7 @@ tests/test_mesh3d_curved_process.py::test_closed_standard_descriptors
 tests/test_mesh3d_curved_process.py::test_a_long_output_name
 tests/test_mesh3d_curved_process.py::test_a_stopped_run_cleans_up
 tests/test_mesh3d_degenerate_element.py
+tests/test_mesher_tangled.py                 # 2D curved elements: the mesher repairs or refuses a tangled mesh, the library refuses one on read (about 1 min)
 
 # --- COMSOL export and import; viewer, widget, MCP ---
 tests/test_comsol_export.py
@@ -233,5 +271,12 @@ tests/test_mcp_chat.py
 # --- Not represented ---
 exclude tests/test_fullwave3d_radiating_source.py   # one 35-min test (4 ranks); the radiating exterior is covered above
 exclude tests/test_fullwave3d_strumpack_mpi.py      # needs a build against an MPI STRUMPACK; skips with build/
+exclude tests/test_fluids_rank_invariance.py   # launches 1 and 4 ranks itself (AXMP_MPI, a launcher); the same property is asserted by the C++ test's multi-rank ctest
 exclude tests/test_gpu.py                           # needs a CUDA build and a visible GPU; skips without one (run it on a GPU node: docs/validation/gpu.md)
 exclude tests/test_mesh3d_curved_elements.py        # 7 min; the reproducibility cases run its optimizer on the same probe shell (the inverted count: full suite)
+exclude tests/test_solids_transport.py         # needs the axmp-transport program with its geometry mode ($AXMP_TRANSPORT); skips without it
+exclude tests/test_particles_transport.py     # needs the axmp-transport program ($AXMP_TRANSPORT); skips without it; the driver tests represent it
+exclude tests/test_particles_demo.py          # needs the program and a solve; skips without them
+exclude tests/test_particles_x1.py            # needs the program and the standalone GDML application ($AXMP_X1_APP); skips without them
+exclude tests/test_export_gdml_transport.py    # needs the axmp-transport program with its geometry mode ($AXMP_TRANSPORT) and the mesher; skips without them
+exclude tests/test_export_gdml_3d_transport.py # needs the axmp-transport program with its geometry mode ($AXMP_TRANSPORT) and the mesher; skips without them

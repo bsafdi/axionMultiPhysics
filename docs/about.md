@@ -45,7 +45,7 @@ each release also has its own DOI (0.1.0: [10.5281/zenodo.24298306](https://doi.
 @software{axionMultiPhysics,
   author  = {Benabou, Joshua N. and Foster, Joshua W. and Safdi, Benjamin R.},
   title   = {axionMultiPhysics},
-  version = {0.1.0},
+  version = {0.2.0},
   year    = {2026},
   doi     = {10.5281/zenodo.24298305},
   url     = {https://github.com/bsafdi/axionMultiPhysics}

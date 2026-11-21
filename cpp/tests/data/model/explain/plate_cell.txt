@@ -1,0 +1,21 @@
+plate_cell  (model document; planar, bounded; results per metre of depth)
+  parameters  Hc=0.02  V_cell=0.05  gap=0.01  i0=10  kappa=1
+  materials   bath: electrolyte(kappa 1 S/m)
+  regions     bulk [bath]
+  boundaries  anode  of bulk where x = 0  used by cell  deferred: resolved by `axmp boundaries`
+              cathode  of bulk where x = 0.01  used by cell  deferred: resolved by `axmp boundaries`
+              remaining  every boundary no entry names  used by cell  deferred: resolved by `axmp boundaries`
+  reactions   electrode plate: linear i0_A_m2=10 E_eq_V=0 alpha_a=0.5 alpha_c=0.5
+  physics     cell  [electrochem.current_distribution, beta]  on bulk
+                T_K 298.15                                                                    [written]
+                kinetics secondary                                                            [written]
+                order 2                                                                       [written]
+                anode  electrode  phi_s_V=V_cell reactions=plate  -> kinetic: kappa dphi/dn = i(eta)
+                cathode  electrode  phi_s_V=0 reactions=plate  -> kinetic: kappa dphi/dn = i(eta)
+                remaining  insulation  -> natural: kappa dphi/dn = 0
+  mesh        size 0.000625 m, geometry order 2                                               [geometry_order: default]
+  study       default  stationary over [cell]                                                 [implicit]
+              cell: newton_rtol 1e-12, newton_maxit 60                                        [defaults]
+  outputs     I_anode  I_cathode  eta_worst  i_avg
+  route       cell: electrochem.current_distribution / stationary / planar -> current_distribution_planar (not implemented yet)
+  needs       the mesher; one rank for the solve

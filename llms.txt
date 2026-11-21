@@ -6,9 +6,16 @@
 > viewer and an MCP server.
 > For lumped-element detectors it computes the signal coupling Psi = (1/I) int A_I . B_lab, the pickup inductance
 > L_p, the scan figure of merit F = Psi^4/L_p^2 against the optimal-scan requirement F_req, fields, forces and a
-> size/cost metric. Install: `pip install "axionmultiphysics[mesh]"` (wheels for Linux x86_64 and macOS, CPython
-> 3.10-3.14); the wheels have no 3D engine and no fluids module; an MPI source build adds both. Modules marked beta
+> size/cost metric. Install: the 0.2.0 wheels follow on PyPI after the release; until `pip index versions axionmultiphysics` lists
+> 0.2.0, `pip install axionmultiphysics` installs 0.1.0 (no 0.2.0 API), so install 0.2.0 from source
+> (docs/guides/install.md). Wheels, once listed: `pip install "axionmultiphysics[mesh]"` (planned for Linux x86_64 and
+> macOS, CPython 3.10-3.14; 0.2.0 was built and tested on Linux x86_64 only); the wheels have no 3D engine and no fluids module; an MPI source build adds both. Modules marked beta
 > below are usable but less validated.
+> Also beta: model documents (one physics-based input format for fluids, heat, electrochemistry and coupled physics:
+> catalogue, validation, explain, patch, JSON Schema, named boundaries and bounded 2D meshes; not solved yet), the
+> export to Geant4 (field maps, solids and GDML of axisymmetric and 3D designs) and particle transport
+> (`axmp-transport`, a separate Geant4 program built with `-DAXMP_BUILD_TRANSPORT=ON`, driven by
+> `axionmultiphysics.particles`).
 
 Repository paths below are relative to the repository root. Documentation site:
 https://bsafdi.github.io/axionMultiPhysics/
@@ -21,6 +28,10 @@ https://bsafdi.github.io/axionMultiPhysics/
 - [Shape optimization](docs/guides/optimization.md): adjoint sensitivities and optimizers
 - [COMSOL export and import](docs/guides/comsol.md)
 - [AI assistants (MCP)](docs/guides/mcp.md): client configuration and the tool list
+- [Meshes of model documents (beta)](docs/guides/model_meshes.md): named boundaries (`axmp boundaries`), bounded 2D meshes (`axmp mesh`, `axmp.mesh(d)`), instance meshes for the fluids and chemistry engines
+- [Field maps for particle transport (beta)](docs/guides/field_maps.md): `Results.export_field_map`, `axionmultiphysics.fieldmap`
+- [Particle transport (beta)](docs/guides/particles.md): `axionmultiphysics.particles`, the driver of `axmp-transport`, the separate Geant4 program (build option `AXMP_BUILD_TRANSPORT`, off by default); validation in docs/validation/particles.md
+- [Solids for particle transport (beta)](docs/guides/solids.md): `axionmultiphysics.solids`, the solids list and GDML from a partition; `Design.export_gdml` (an axisymmetric or 3D electromagnetic design to GDML via `axmp-mesher --export-regions`; a 3D design, in every build, becomes `tessellated` solids, one per volume, to a chord tolerance; layers thinner than it are refused); `axmp-transport --geometry` (also `G4TessellatedSolid`)
 - [Fluids](docs/guides/fluids.md) and [chemistry](docs/guides/chemistry.md) (beta), [running the tests](docs/developer/testing.md)
 - Executed notebooks (`examples/`): notebook_quickstart, lumped_element_demo, mechanics_thermal_demo,
   squid_chain_demo (beta), cavity_demo (beta), srf_demo (beta), fluids_demo (beta), chemistry_demo (beta)
@@ -40,9 +51,65 @@ https://bsafdi.github.io/axionMultiPhysics/
   out-of-range literals (`1e400`, `1e-310`), NaN arguments of min/max and nesting deeper than 1000 levels are
   errors. Grammar: docs/design_format.md.
 
+## Errors
+- Python: `axionmultiphysics.AxionMultiPhysicsError` (base `Exception`) has the attributes `code` (str, default ""),
+  `where` (str, ""), `hint` (str, "") and `details` (dict or None); `str(e)` is the whole message. The CLI prints
+  `ok`, `error`, `where`, `hint` and, only when the error has them, `code` and `details`; the MCP failure payload adds
+  `code` and `details` the same way. `details` is a non-empty dict exactly when the CLI prints the key (details
+  nested deeper than 64 levels are dropped everywhere). An error of `Design.solve(mpi_ranks=N)` has the four
+  attributes from rank 0's JSON. The errors of an electromagnetic design carry no code (except
+  `model.section_needs_physics`, below, and the three of an `arc` path: `geometry.arc_span` at `<path>/arc/angles` for
+  angles that span more than one turn, 2 pi radians, with the angles in radians; `geometry.arc_degenerate` for a radius
+  <= 0 (`<path>/arc/radius`) or an arc of 1e-7 m or less (`<path>/arc/angles`); and `geometry.arc_negative_r` at
+  `<path>/arc` for an arc that reaches r < 0 in every electromagnetic design except xsec (planar designs on an imported mesh
+  included) and in an axisymmetric model document; and also `mesh.tangled`: a 2D mesh of geometry order 2 with a
+  tangled curved element (det J changing sign or inverted), refused where the mesh file is read, an imported
+  `mesh.file` too; axmp-mesher itself repairs such a mesh (mesh info `high_order`) or refuses it, reported as `mesh
+  generation failed: ...`, see "Curved elements in 2D" in docs/design_format.md); `axmp.physics(type=...)` with an
+  unknown type raises with the code
+  `physics.unknown_type`, and the refusals of a model document below carry theirs.
+- Beta: the codes of the findings about a model document (a design with a `physics` section) are listed in
+  docs/reference/error_codes.md, generated from `axionmultiphysics._core.error_codes()` (JSON text of a list of
+  `{code, kinds, summary, status}` sorted by code; kinds are error, unavailable, deferred, warning). The grammar and
+  the validation of model documents are in the C++ core; `axmp explain` / `Design.explain()` list one and `axmp patch` /
+  `Design.patch()` edit one (RFC 6902, atomic, the result validated; a failed operation is `patch.operation_failed` with
+  `where` `/<index>`); `explain` also lists the `time`, `save`, `initial_from` and `given` that a step writes, tagged `[written]`; `axmp boundaries` / `Design.boundaries()` list its named boundaries with the checks on them and `axmp mesh` / `axmp.mesh(d)` mesh a planar or axisymmetric one; none solves one yet. `axmp schema` covers both kinds of document (model sections `x-status: beta`). Most
+  findings carry a code; the page says which do not. A `deferred` finding names a check that waits for the resolved
+  boundaries or for an imported mesh file (`boundary.empty_selection`, `physics.boundary_uncovered`, ...).
+
+- Beta: model documents at the entry points (a document with a top-level `physics` key). `axmp validate doc.json
+  [--strict]` prints the report `{ok, name, parameters, errors, unavailable, deferred, warnings}` (each finding:
+  `error`, `where`, `hint`, and `code` and `details` when it has them; most have a code); with an error `ok` is false,
+  the first error's fields are also at the top level, exit 1; `--strict` does the same for the first `unavailable`
+  finding when there is no error. `axmp resolve` prints the resolved geometry. `Design.validate(strict=False,
+  all_errors=False)` and `_core.validate(design, strict=False, all_errors=False)` return the report and raise the
+  first error (with strict, the first unavailable) unless all_errors. `axmp boundaries doc.json [--json] [--mesh] [-o DIR]
+  [--mesher M]` and `Design.boundaries(mesh=False, all_errors=False)` print the table of the named boundaries (`symmetry`,
+  `boundaries`, `edges`; no master numbers) after the full check (partition rule, empty selections, partial matches);
+  `axmp mesh` / `_core.mesh` / `axmp.mesh(d, workdir=None, mesher=None)` mesh a planar or axisymmetric model document
+  (`MeshedModel`, `.instance(domain=None)` -> `InstanceMesh` with `face_points(name=None, *, order, attribute=None)`); a
+  geometry with no running mesher is the unavailable finding `build.requires_mesher`, a failed run `mesh.generation_failed`,
+  an elliptical contour segment `model.shape_not_offered`. `axmp validate --mesher M` probes M. A `where` filter decides a straight edge exactly (a touching edge is no partial match) and a curved edge by its box, with an enclosure exception. `axmp mesh` first removes an earlier mesh in `-o`. `axmp.mesh` of a document with no geometry, a 3D one or one on an imported mesh raises `route.not_implemented`. `InstanceMesh.fluids_mesh()` / `MeshedModel.fluids_mesh(domain=None)` give a `fluids.Mesh` that copies the instance mesh (`Mesh.has_nodes`; MPI builds; elsewhere the unavailable code `build.requires_fluids`), and `InstanceMesh.chem_mesh(order=2)` / `MeshedModel.chem_mesh(domain=None, order=2)` a `chem.TriMesh` (`geometry_order`, `edge_nodes()`) for `chem.CurrentDistribution`; a field of order 1 on a mesh with nodes is a ValueError. Conditions go on `im.attributes[name]`, `im.remaining_attributes` and `im.axis_attributes`, never on master numbers. Solving (`axmp solve`, `_core.run_3d`, `Design.solve`, MCP
+  `solve_design`/`sweep`) and meshing a 3D or imported-mesh model document refuse with `route.not_implemented`; the
+  electromagnetic-only operations (`axmp sensitivities`, `_core.Model`/`Model3D`/`XsecModel`/`Fw2DModel`,
+  `Design.gradient`/`optimize`, `axmp.optimize`/`global_optimize`, `sensitivity.optimize`, `convert.to_3d`, `axmp
+  export-comsol`/`comsol.export_comsol` (a design, its `.json` or a run directory's `design.json`), MCP `make_3d`,
+  `set_fullwave`, `set_hts`, `sensitivities`, `optimize_design`, `optimize_global`, `optimize`, `export_comsol`)
+  refuse one with `model.em_only_operation`; both carry `details.operation` and `details.serves_model_documents`
+  (`["validate", "resolve", "explain", "patch", "boundaries", "mesh"]`). Without `physics`, a top-level `domains`, `boundaries`, `reactions`, `couplings`,
+  `study` or `outputs` is `model.section_needs_physics`. `axmp` and `axmp.load` refuse a model document that repeats a
+  key in an object (`json.duplicate_key`, `where` = the JSON pointer of the second occurrence; a file read from a pipe
+  too); an electromagnetic file keeps JSON's last value. `axmp export-comsol` prints an error that has a code as the
+  MCP payload (`ok`, `error`, `where`, `hint`, `code`, `details`), any other error as before.
+
 ## Python API
 - `axmp.templates()`, `axmp.template(name, **params)` -> `Design`; `Design.set(**params)`, `.validate()`, `.solve()` -> `Results`;
-  `axmp.load(path)`, `axmp.schema()`, `axmp.requirement(benchmark)`
+  `axmp.load(path)`, `axmp.schema()`, `Design.explain(json=False)` (beta, model documents), `Design.boundaries()` and `axmp.mesh(d)` (beta, model documents), `Design.patch(ops)` (beta; model documents and electromagnetic designs; the patched document has its keys sorted), `axmp.requirement(benchmark)`
+- Beta: `axmp.physics(routes=False, type=None)` -> the physics catalogue of model documents (dict, schema
+  `axionmultiphysics.physics_catalogue/1`): types, coupling terms, reserved instance ids and, with `routes=True`, the
+  route table. No route is implemented yet (every row has `"implemented": false` and `"status": "not_implemented"`;
+  `axmp physics --routes` prints "not implemented yet"). An unknown `type` raises `AxionMultiPhysicsError` whose hint
+  lists the types.
 - `Results`: `.Psi`, `.L_p`, `.F`, `.W`, `.g`, `.data` (the results document), `.benchmark(name)`, `.summary()`,
   `.reach(...)`, `.sample(r, z)` (lists of points), `.scene()`, `.png(view=...)`, `.export_html()`, `.write_vtu()`,
   `.show()` (Jupyter widget)
@@ -137,16 +204,90 @@ https://bsafdi.github.io/axionMultiPhysics/
   `solve_stokes` (Taylor-Hood, planar or axisymmetric with swirl), `Mesh3D` / `solve_stokes_3d` (distributed 3D),
   `solve_navier_stokes` (steady, planar or axisymmetric with swirl; `mhd={...}` with `geometry="planar25d"` for
   inductionless MHD on one rank), `solve_gls` (stabilized P1/P1, planar), `TransientNavierStokes` (BDF1/BDF2),
-  `solve_heat` and `solve_boussinesq` (one rank). Meshes come from arrays: no design document, mesher, CLI or viewer
-  integration. Point evaluation needs one rank
+  `solve_heat` and `solve_boussinesq` (one rank). The nonlinear solvers gate their verdicts on the accuracy of the linear
+  algebra: `solve_navier_stokes`, `TransientNavierStokes`, `solve_heat`, `solve_boussinesq` and `solve_gls` report
+  `mass_lu_residual_max` (dual-norm mass solves, bound 1e-10; `solve_gls` also refuses a mass matrix it cannot
+  factorize); `solve_navier_stokes` and `TransientNavierStokes` report `lu_residual_max` / history `lu_residual`
+  (per-step direct solves, the final step bounded by `max(newton_rtol, 1e-11)`); `TransientNavierStokes.initialize`
+  reports `projection_residual` / `projection_converged` (the backward error of the projection's saddle solve, per
+  block: residual norm over the norm of the sizes of the block's terms; about 5e-17 for an accurate solve on any
+  mesh, domain shape and length unit; gate `1e-13` at every `newton_rtol`; a failed projection returns False and
+  makes `advance`, `step_trial`, `adapt` and `snapshot` raise; the error lists the attempts and names the other
+  pressure treatment: the pinned pressure `nullspace="pin"` passed on the measured scaled or stretched domains where the
+  mean-value multiplier was refused, but not everywhere: on `1e9 x 1e4` it is refused with Eigen's LU (`lu="eigen"`) and the multiplier passes with
+  STRUMPACK; the default STRUMPACK chain accepts the pin there with MC64 job 2).
+  Every direct solve walks a recorded chain of LU configurations, each accepted on the caller's own gate
+  (`lu=` names the first; `lu_retry="auto"`, the default, or `"off"` for the first alone): diagnostics `lu_stage`
+  (the configuration that produced the solution; `lu_backend` is its backend, `solver` the configured one),
+  `lu_attempts` (one record per configuration tried), `lu_backward_error`, `projection_lu_attempts`, the counts of the
+  call (`lu_solves`, `lu_escalated`, `lu_attempts_total`, `lu_failed`, ...; summed over the steps in
+  `TransientNavierStokes.stats`), history `lu_attempts` / `lu_stage`; `lu_fallbacks`, `lu_fallback_backend` and
+  `lu_matching_retry` are aliases for one release. `solve_stokes` and `solve_stokes_3d` carry none of the nonlinear
+  gates;
+  `quad_order_convection` whose rule does not integrate the convective form exactly is refused (exact degree, P2/Q2:
+  5 planar / 6 axisymmetric on straight triangles, 6 / 7 on straight quadrilaterals, more on curved meshes; the
+  default is the exact degree). Eigen's direct solver (`lu="eigen"`, and the fallback of a build without STRUMPACK; also
+  that of `solve_stokes_3d`) runs on rank 0 alone and is limited by that rank's memory: STRUMPACK for large 3D (an
+  out-of-memory factorization raises an error with the sizes and the remedies on every rank). Meshes come from arrays: no
+  design document, mesher, CLI or viewer integration. Point evaluation needs one rank. With `strategy="newton"` only,
+  a steady Navier-Stokes or MHD solve whose step stops reducing the residual at its measured round-off floor, still
+  within a decade of `newton_rtol`, stops there and counts as converged, reporting `residual_floor` and
+  `stopped_at_floor` (so `converged` bounds `relative_residual` by ten times `newton_rtol`; the stop accepts the
+  iterate it fired on and can differ by a step between rank counts; `residual_floor_factor=0` switches that off, and
+  the picard and ptc strategies, the time steps, GLS and Boussinesq ignore it; the accuracy gates above still apply to
+  a floor stop, which then keeps `stopped_at_floor` and reports `converged = false`)
 - `axionmultiphysics.transport.ScalarTransport` (MPI builds, one rank): the SUPG scalar-transport operator
 - `axionmultiphysics.chem`: `CurrentDistribution` (primary and secondary current distribution, planar or axisymmetric;
   Butler-Volmer, Tafel or linearized kinetics), `CurrentDistribution3D` (MPI builds only), `PorousElectrode` (1D,
   linearized Butler-Volmer only), `Reaction`, `meshes`; `axionmultiphysics.chem.kinetics`: mechanisms, 0D reactors
   (`batch`, `cstr`, `semibatch`, `const_p_gas`, `adiabatic_liquid`, `pfr`), `equilibrium` (index-1 DAE) and `adaptive`
   (variable-step BDF2, ESDIRK3(2) or variable-order BDF). No species transport
+- `axionmultiphysics.fieldmap` (field maps for particle transport): `Results.export_field_map(path, regions=None,
+  tol=1e-4, merge=True, track_volumes=None, iterate_on_track_volumes=False, outside="refuse", max_patch_MB=512,
+  max_total_MB=2048)` writes per-region patches of the recovered static field (kind 1: (B_r, B_z, B_phi) on an (r, z)
+  grid; kind 3 from `Results3D`: (B_x, B_y, B_z)) with chord-RMS error control, format `axionmultiphysics.fieldmap/1`;
+  `load(path)`, `write_map(path, patches)`, `FieldMap.evaluate(points, patch=name)` (Cartesian, m -> T; outside a
+  patch's box by more than its `margin` (one level-0 spacing; nearer points are clamped onto the box)
+  `fieldmap.outside_map` unless `outside="zero"`), `recovered_field`, `chord_error`, `decide`. Only superconducting
+  sheets and thin magnetic layers split a region (an open one is refused); conductor curves are ignored. An unaccepted
+  patch is written with `fieldmap.FieldMapWarning`; a chord that cannot be walked raises `fieldmap.chord_incomplete`; a patch with tangled curved elements (det J not of one sign)
+  raises `fieldmap.tangled_mesh` (a second guard: a solve refuses a tangled mesh first, `mesh.tangled`). Beyond a curved interface inside the box the continuation holds only about one
+  final-level cell (the margin applies at box faces).
+  Seed spread of E up to 3-7 next to singular iron corners (reported). Codes `fieldmap.*` (docs/guides/field_maps.md)
 - `axionmultiphysics.cavity_coupling`: a coaxial probe on the axis of an axisymmetric pillbox, TM0np modes only
   (`ProbePillbox`, `coupling_study`, `driven_coupling`, `to_haloscope_cavity`)
+- `axionmultiphysics.solids` (beta; numpy only): `from_partition(partition, materials, region_materials,
+  chord_tol_m=None)` turns an axisymmetric partition (the mesher's entity table with exact curves and face loops) into
+  the solids list `axionmultiphysics.solids/1` (tube, torus, orb, generic polycone; notches at the axis filled, holes of
+  the domain as vacuum daughters; arcs discretized once within min(1 um, 1e-5 x region size)) with a per-region Pappus
+  volume and mass report (`particle.volume_deficit` above 1e-4); a layer thinner than the chord tolerance is refused
+  (`particle.partition_invalid`: lower `chord_tol_m`; a discretized curve concave towards a solid it touches, and a face pinched at a point, are refused); `write(doc, path)`, `write_gdml(doc, path)` (17 significant
+  digits, NIST materials referenced, never defined; names mapped to valid GDML names, `gdml_name`). `axmp-transport
+  --geometry solids.json` builds it in Geant4 under the GDML names, runs the overlap check and prints the volumes,
+  masses and materials as Geant4 built them. Codes `particle.*` (docs/guides/solids.md)
+- `axionmultiphysics.particles` (beta; pure Python, drives `axmp-transport`, needs `AXMP_TRANSPORT` or the program
+  next to `axmp`, else `build.requires_program`): `plan(workdir, *, solids, sources, outputs, events, fields=(),
+  seed=1, chunk_events=1000, jobs=1, physics_list="FTFP_BERT" | "FTFP_BERT_EMZ" | "QGSP_BIC", production_cut_m=7e-4,
+  integrator=None, outside="refuse" | "zero", quantum_eV=1e-3, stop=None, threads=1, program=None)`, `execute(workdir,
+  workers=1)`, `merge`, `run` (all three), `extend(workdir, events=N2)` (bitwise equal to a direct run), `load`,
+  `transport(design, results, *, sources, outputs, events, solids=..., field_map=None, map_tol=1e-4, ...)` (needs `solids=`: it does not run the partition export itself, `particle.partition_unavailable`;
+  the solids document of `Design.export_gdml` can be passed), `resolve_materials(doc)` (a NIST
+  composition at NIST's density becomes the NIST material itself, otherwise it carries NIST's I-value and state;
+  `axmp-transport --nist`), `capabilities()`. One gun source (`particle`, `energy_eV` | `momentum_eV_c`, `at_m`,
+  `direction` or "isotropic", `spot_sigma_m`); outputs: per-event `deposit`, `hit`, `primary`; aggregates `mean`,
+  `std`, `quantile`, `fraction`, `count` (a `Measured` float with `stat_error`; Clopper-Pearson, exact zero-count 95 %
+  limits, batch means over 20 batches), `histogram`, `tally` (exact 128-bit batch sums of quanta), `hits` (entry
+  records). Fields: `uniform`, `current_loop`, `map` patches (per logical volume, pinned
+  G4TDormandPrince45+G4IntegrationDriver, deltaIntersection <= 0.1 x the finest map spacing; regions beyond a patch's
+  box refused with `particle.field_outside_map` unless `outside="zero"`). Merges the longest complete prefix of
+  chunks (partial -> `events.partial`); a failed process is retried once; stop rules on prefixes from 20 chunks.
+  Command line `python -m axionmultiphysics.particles {execute,merge,extend} WORKDIR` (exit status 5 when partial).
+  One driver per workdir (an exclusive lock; `events.workdir_busy`); seeds in [0, 2^64); a map inside the workdir is
+  named relative to it in job files, others by real path, and a map changed since the plan is refused
+  (`events.field_map_changed`); a track Geant4 abandons as stuck is ended and counted (`abandoned_killed`,
+  `abandoned_eV`, warning `particle.track_abandoned`). The world and voids end the
+  domain only where a track really is (an interface between regions is never an exit). Statistical errors only.
+  Codes `events.*`, `stat.*`, `particle.*`, `build.requires_program` (docs/guides/particles.md)
 
 ## MCP server
 `axionmultiphysics-mcp` or `python -m axionmultiphysics.mcp_server` (stdio; workspace `$AXMP_WORKSPACE`, default
@@ -167,7 +308,8 @@ subprocess: they send MCP progress notifications, and `cancel_job(job_id)` (or t
 `axmp solve design.json [-o DIR] [--order P] [-v N] [--scene] [--vtu] [--save] [--no-self-force] [--force-samples N]
 [--status-file F]`, `axmp sensitivities design.json [--param P]... [--objective Q]... [--method adjoint|fd_morph|fd_remesh]
 [--step S] [--benchmark NAME]`, `axmp validate design.json`, `axmp mesh design.json [-o DIR]`, `axmp resolve
-design.json`, `axmp schema`, `axmp requirement [--benchmark NAME]`, `axmp templates`,
+design.json`, `axmp schema`, `axmp physics [--json] [--type T] [--routes] [--all]` (beta: the physics catalogue,
+no design file needed), `axmp requirement [--benchmark NAME]`, `axmp templates`,
 `axmp template NAME [--set key=value ...]`,
 `axmp render scene.json -o out.png [--view section|3d] [--quantity Q] [--log] [--theme dark]`,
 `axmp export-comsol --help`, `axmp import-comsol model.mph --help`,

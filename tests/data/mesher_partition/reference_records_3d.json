@@ -1,0 +1,578 @@
+{
+ "about": "Records of an axmp-mesher built before the 3D partition export, on the 3D electromagnetic inputs of tests/_partition3d_ref.py's designs: the input, the mesh's sha256 and the info file without its timings (_partition3d_ref.strip_seconds). Made with a sequential build on a Xeon Gold 6330; read by test_mesher_partition_3d.py.",
+ "em": {
+  "dipole": {
+   "input": {
+    "dim": 3,
+    "domain_radius": 1.0,
+    "infinity_shell": 1.25,
+    "shell_attr": 898,
+    "size": 0.08,
+    "symmetry": [],
+    "surface_size": 0.04,
+    "order": 2,
+    "outer_attr": 901,
+    "air_attr": 1,
+    "regions": [
+     {
+      "name": "yoke",
+      "attr": 2,
+      "solid": {
+       "difference": [
+        {
+         "box": {
+          "min": [
+           -0.3,
+           -0.25,
+           -0.2
+          ],
+          "max": [
+           0.3,
+           0.25,
+           0.2
+          ]
+         }
+        },
+        {
+         "box": {
+          "min": [
+           -0.18,
+           -0.13,
+           -0.25
+          ],
+          "max": [
+           0.18,
+           0.13,
+           0.25
+          ]
+         }
+        }
+       ]
+      }
+     },
+     {
+      "name": "pole_top",
+      "attr": 3,
+      "solid": {
+       "cylinder": {
+        "base": [
+         0.0,
+         0.05,
+         0.0
+        ],
+        "axis": [
+         0.0,
+         0.1,
+         0.0
+        ],
+        "radius": 0.08
+       }
+      }
+     },
+     {
+      "name": "pole_bottom",
+      "attr": 4,
+      "solid": {
+       "cylinder": {
+        "base": [
+         0.0,
+         -0.15,
+         0.0
+        ],
+        "axis": [
+         0.0,
+         0.1,
+         0.0
+        ],
+        "radius": 0.08
+       }
+      }
+     },
+     {
+      "name": "coil_top",
+      "attr": 5,
+      "solid": {
+       "revolve": {
+        "profile": {
+         "rect": {
+          "r": [
+           0.1,
+           0.14
+          ],
+          "z": [
+           0.06,
+           0.12
+          ],
+          "fillet": 0.0
+         }
+        },
+        "angles": [
+         0.0,
+         360.0
+        ],
+        "center": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "axis": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      }
+     },
+     {
+      "name": "coil_bottom",
+      "attr": 6,
+      "solid": {
+       "revolve": {
+        "profile": {
+         "rect": {
+          "r": [
+           0.1,
+           0.14
+          ],
+          "z": [
+           -0.12,
+           -0.06
+          ],
+          "fillet": 0.0
+         }
+        },
+        "angles": [
+         0.0,
+         360.0
+        ],
+        "center": [
+         0.0,
+         0.0,
+         0.0
+        ],
+        "axis": [
+         0.0,
+         1.0,
+         0.0
+        ]
+       }
+      }
+     },
+     {
+      "name": "tracker_up",
+      "attr": 7,
+      "solid": {
+       "box": {
+        "min": [
+         -0.1,
+         -0.1,
+         -0.45
+        ],
+        "max": [
+         0.1,
+         0.1,
+         -0.44
+        ]
+       }
+      }
+     },
+     {
+      "name": "tracker_down",
+      "attr": 8,
+      "solid": {
+       "box": {
+        "min": [
+         -0.1,
+         -0.1,
+         0.44
+        ],
+        "max": [
+         0.1,
+         0.1,
+         0.45
+        ]
+       }
+      }
+     }
+    ],
+    "refine_regions": [
+     "yoke",
+     "pole_top",
+     "pole_bottom",
+     "coil_top",
+     "coil_bottom"
+    ],
+    "threads": 1
+   },
+   "mesh_sha256": "695cd59b6d02384fbd3556e6aa3a0244214d5e56e705553c24408111e7f71ba1",
+   "info": {
+    "address_randomization": "off",
+    "boundary_groups": [
+     {
+      "attr": 901,
+      "name": "outer",
+      "type": "pec"
+     }
+    ],
+    "device_radius": 0.5958189783819033,
+    "domain_center": [
+     0,
+     0,
+     0
+    ],
+    "domain_radius": 1.0,
+    "elements_3d": 92549,
+    "gmsh_version": "4.15.2",
+    "groups": [
+     {
+      "attr": 1,
+      "dim": 3,
+      "entities": 1,
+      "name": "air"
+     },
+     {
+      "attr": 2,
+      "dim": 3,
+      "entities": 1,
+      "name": "yoke"
+     },
+     {
+      "attr": 3,
+      "dim": 3,
+      "entities": 2,
+      "name": "pole_top"
+     },
+     {
+      "attr": 4,
+      "dim": 3,
+      "entities": 2,
+      "name": "pole_bottom"
+     },
+     {
+      "attr": 5,
+      "dim": 3,
+      "entities": 1,
+      "name": "coil_top"
+     },
+     {
+      "attr": 6,
+      "dim": 3,
+      "entities": 1,
+      "name": "coil_bottom"
+     },
+     {
+      "attr": 7,
+      "dim": 3,
+      "entities": 1,
+      "name": "tracker_up"
+     },
+     {
+      "attr": 8,
+      "dim": 3,
+      "entities": 1,
+      "name": "tracker_down"
+     },
+     {
+      "attr": 898,
+      "dim": 3,
+      "entities": 1,
+      "name": "infinity_shell"
+     },
+     {
+      "attr": 901,
+      "dim": 2,
+      "entities": 1,
+      "name": "outer"
+     }
+    ],
+    "high_order_canonical": "on",
+    "high_order_counts": {
+     "invalid_after_elastic": 0
+    },
+    "high_order_executable": "in memory",
+    "high_order_isolation": "isolated",
+    "high_order_optimize": "auto",
+    "high_order_passes": [],
+    "high_order_patch_optimizer": "not_run",
+    "high_order_threads_before_fork": 1,
+    "mesh_size_min": 0.01,
+    "min_curve_radius": 0.08,
+    "ok": true,
+    "pec_conductors": [],
+    "quality": {
+     "gamma_below_0.1": 1,
+     "gamma_min": 0.09631099387226533,
+     "minSJ_min": 0.7032978545293425
+    },
+    "removed_pec_volumes": 0,
+    "shell_attr": 898,
+    "shell_inner_radius": 1.0,
+    "shell_outer_radius": 1.25,
+    "size": 0.08,
+    "surface_size": 0.04,
+    "symmetry": [],
+    "tet_optimize": "default"
+   }
+  },
+  "shapes": {
+   "input": {
+    "dim": 3,
+    "domain_radius": 0.9,
+    "infinity_shell": 1.25,
+    "shell_attr": 898,
+    "size": 0.08,
+    "symmetry": [],
+    "surface_size": 0.03,
+    "order": 2,
+    "outer_attr": 901,
+    "air_attr": 1,
+    "regions": [
+     {
+      "name": "can",
+      "attr": 2,
+      "solid": {
+       "difference": [
+        {
+         "box": {
+          "min": [
+           0.1,
+           -0.15,
+           -0.15
+          ],
+          "max": [
+           0.4,
+           0.15,
+           0.15
+          ]
+         }
+        },
+        {
+         "box": {
+          "min": [
+           0.13,
+           -0.12,
+           -0.12
+          ],
+          "max": [
+           0.37,
+           0.12,
+           0.12
+          ]
+         }
+        }
+       ]
+      }
+     },
+     {
+      "name": "ball",
+      "attr": 3,
+      "solid": {
+       "sphere": {
+        "center": [
+         0.25,
+         0.0,
+         0.0
+        ],
+        "radius": 0.06
+       }
+      }
+     },
+     {
+      "name": "torus",
+      "attr": 4,
+      "solid": {
+       "torus": {
+        "center": [
+         -0.25,
+         0.0,
+         0.1
+        ],
+        "axis": [
+         0.0,
+         0.0,
+         1.0
+        ],
+        "major": 0.08,
+        "minor": 0.025
+       }
+      }
+     },
+     {
+      "name": "cone",
+      "attr": 5,
+      "solid": {
+       "cone": {
+        "base": [
+         -0.25,
+         0.0,
+         -0.25
+        ],
+        "axis": [
+         0.0,
+         0.0,
+         0.15
+        ],
+        "r1": 0.07,
+        "r2": 0.03
+       }
+      }
+     },
+     {
+      "name": "block",
+      "attr": 6,
+      "solid": {
+       "box": {
+        "min": [
+         -0.1,
+         -0.35,
+         -0.1
+        ],
+        "max": [
+         0.1,
+         -0.2,
+         0.1
+        ]
+       }
+      }
+     },
+     {
+      "name": "rod",
+      "attr": 7,
+      "solid": {
+       "cylinder": {
+        "base": [
+         -0.2,
+         -0.275,
+         0.0
+        ],
+        "axis": [
+         0.4,
+         0.0,
+         0.0
+        ],
+        "radius": 0.03
+       }
+      }
+     }
+    ],
+    "refine_regions": [
+     "can",
+     "torus",
+     "block",
+     "rod"
+    ],
+    "threads": 1
+   },
+   "mesh_sha256": "34f400f7f7ee56c5920f2e90798fd78d8fe0d02ac4d48969d985dfef62047955",
+   "info": {
+    "address_randomization": "off",
+    "boundary_groups": [
+     {
+      "attr": 901,
+      "name": "outer",
+      "type": "pec"
+     }
+    ],
+    "device_radius": 0.5873671764748436,
+    "domain_center": [
+     0,
+     0,
+     0
+    ],
+    "domain_radius": 0.9,
+    "elements_3d": 85521,
+    "gmsh_version": "4.15.2",
+    "groups": [
+     {
+      "attr": 1,
+      "dim": 3,
+      "entities": 2,
+      "name": "air"
+     },
+     {
+      "attr": 2,
+      "dim": 3,
+      "entities": 1,
+      "name": "can"
+     },
+     {
+      "attr": 3,
+      "dim": 3,
+      "entities": 1,
+      "name": "ball"
+     },
+     {
+      "attr": 4,
+      "dim": 3,
+      "entities": 1,
+      "name": "torus"
+     },
+     {
+      "attr": 5,
+      "dim": 3,
+      "entities": 1,
+      "name": "cone"
+     },
+     {
+      "attr": 6,
+      "dim": 3,
+      "entities": 1,
+      "name": "block"
+     },
+     {
+      "attr": 7,
+      "dim": 3,
+      "entities": 3,
+      "name": "rod"
+     },
+     {
+      "attr": 898,
+      "dim": 3,
+      "entities": 1,
+      "name": "infinity_shell"
+     },
+     {
+      "attr": 901,
+      "dim": 2,
+      "entities": 1,
+      "name": "outer"
+     }
+    ],
+    "high_order_canonical": "on",
+    "high_order_counts": {
+     "invalid_after_elastic": 79,
+     "invalid_after_high_order": 0
+    },
+    "high_order_executable": "in memory",
+    "high_order_isolation": "isolated",
+    "high_order_optimize": "auto",
+    "high_order_passes": [
+     {
+      "invalid_after": 0,
+      "kept": true,
+      "layers": 6.0
+     }
+    ],
+    "high_order_patch_optimizer": "isolated",
+    "high_order_threads_before_fork": 1,
+    "mesh_size_min": 0.0075,
+    "min_curve_radius": 0.025,
+    "ok": true,
+    "pec_conductors": [],
+    "quality": {
+     "gamma_below_0.1": 148,
+     "gamma_min": 0.055031205568289276,
+     "minSJ_min": 0.12242069586572182
+    },
+    "removed_pec_volumes": 0,
+    "shell_attr": 898,
+    "shell_inner_radius": 0.9,
+    "shell_outer_radius": 1.125,
+    "size": 0.08,
+    "surface_size": 0.03,
+    "symmetry": [],
+    "tet_optimize": "default"
+   }
+  }
+ }
+}

@@ -23,6 +23,7 @@
 #include <Eigen/Dense>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -79,8 +80,16 @@ struct Stats {
 // G(y) = c0 M y - w - f(t, y) - s(t) = 0 by full Newton from the initial guess y.
 NewtonResult newton_solve(const Problem& P, double t, double c0, const Vec& w, Vec& y, const NewtonOptions& o);
 
+// Thrown by consistent_derivative when the derivative it computes is not finite (f is not finite at the point, or the
+// differentiated constraints cannot be solved there).  Nothing else is signalled by this type: exceptions raised by
+// the problem's own callbacks propagate unchanged.
+struct ConsistentDerivativeError : std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
 // y'(t) consistent with M y' = f: ODE / invertible M: M^{-1} f; singular M: the algebraic rows differentiated,
-// [M; W^T J] y' = [f; -W^T f_t] (W spans null(M^T); f_t by a central difference), least squares.
+// [M; W^T J] y' = [f; -W^T f_t] (W spans null(M^T); f_t by a central difference), least squares.  Throws
+// ConsistentDerivativeError when the result is not finite.
 Vec consistent_derivative(const Problem& P, double t, const Vec& y);
 
 // ------------------------------------------------------------------------------------------------------------ BDF

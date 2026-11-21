@@ -13,10 +13,13 @@
 # authenticates with the workflow's own OIDC token (permissions below).
 name: docs
 
+# Changes only under dev/ (the development tracker of the private repository; removed at a release) build nothing.
 on:
   pull_request:
+    paths-ignore: ["dev/**"]
   push:
     branches: [main]
+    paths-ignore: ["dev/**"]
   workflow_dispatch:
 
 permissions:

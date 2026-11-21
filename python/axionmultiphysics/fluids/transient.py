@@ -14,10 +14,18 @@ nodal P2 interpolation of the boundary data.  Boundary conditions: dirichlet, ax
 symmetry, periodic, skew convection, BDF order above 2, generalized-alpha and the MHD coupling are refused).  A
 snapshot keeps its solver alive.  One MPI rank is needed for point evaluation.  Axisymmetric components are
 (u_r, u_z, u_theta) as in solve_navier_stokes.  The relative residual of every step is the steady solver's dual-norm
-residual relative to the step's lifted residual."""
+residual relative to the step's lifted residual.
+
+lu_retry="auto" (default): a direct solve whose solution misses its accuracy gate (a step's: its relative residual
+at max(newton_rtol, 1e-11); the initial projection's: its own gate, 1e-13) is solved again with the next configuration
+of a recorded chain (docs/physics/fluids.md, "Linear solvers"); "off": the first configuration (lu) alone.
+diagnostics holds the records of the last step (solve_navier_stokes's keys) and projection_lu_attempts; stats sums
+the step solves' counts over the run (lu_solves, lu_escalated, lu_escalated_final, lu_attempts_total, lu_rejected,
+lu_failed, lu_accepted_by, lu_rejected_seconds, mass_lu_escalated; reset_stats() clears them; the initial projection
+is never counted as a step), with the aliases lu_fallbacks and lu_fallback_backend kept for one release."""
 from __future__ import annotations
 
-from . import _f, _vectorize, default_lu
+from . import _f, _lu_retry, _vectorize, default_lu
 
 
 class _Clock:
@@ -52,7 +60,7 @@ class Snapshot:
 class TransientNavierStokes:
     def __init__(self, mesh, mu, rho, force=None, bcs=(), *, form="stress", geometry="planar", scheme="newton",
                  max_order=2, order=2, lu=None, nullspace="auto", newton_rtol=1e-12, newton_maxit=30,
-                 quad_order_convection=0, direct_tol=1e-10, lu_threads=1, vectorized=False):
+                 quad_order_convection=0, direct_tol=1e-10, lu_threads=1, vectorized=False, lu_retry="auto"):
         if scheme not in ("newton", "semi"):
             raise ValueError("scheme must be 'newton' or 'semi'")
         if int(max_order) not in (1, 2):
@@ -82,7 +90,7 @@ class TransientNavierStokes:
                                     else "stress", geometry, int(order), lu or default_lu(), nullspace, scheme,
                                     int(max_order), float(newton_rtol), int(newton_maxit),
                                     int(quad_order_convection), float(direct_tol), int(lu_threads), bool(vectorized),
-                                    ck.set)
+                                    ck.set, lu_retry=_lu_retry(lu_retry))
         self._mesh = mesh
 
     def _wrap0(self, fn):
@@ -90,8 +98,27 @@ class TransientNavierStokes:
 
     # -- state
     def initialize(self, u0, t0=0.0, project=True):
-        """Initial state: nodal P2 interpolation of u0(x, y), L2 (Leray) projection onto the discretely divergence-free
-        fields with the nodal Dirichlet data at t0 (project=False: the interpolant).  Returns True on success."""
+        """Initial state: the nodal P2 interpolant of u0(x, y) and, with project=True, its L2 (Leray) projection onto
+        the discretely divergence-free fields with the nodal Dirichlet data at t0 (project=False keeps the interpolant).
+
+        The projection is a saddle-point solve, accepted on the backward error of that solve (formed with the
+        assembled operators): for the momentum and for the continuity block, the norm of the residual over the norm
+        of the sizes of the terms of that block, and the larger of the two.  An accurate solve gives about 5e-17
+        whatever the mesh, the shape of the domain, the length unit and newton_rtol are, and the gate is 1e-13 at
+        every newton_rtol (docs/physics/fluids.md gives the measurements behind it).  The sparse LU accepts a
+        configuration on this very gate, and when the first misses it the next configuration of the chain solves
+        again (lu_retry); diagnostics["projection_lu_attempts"] records each attempt.  When no configuration passes,
+        the error names the other pressure treatment: where the mean-value multiplier (the default with STRUMPACK) was
+        refused on scaled or stretched domains the pinned pressure (nullspace="pin") passed with both backends, but
+        the pin is not accurate everywhere (with Eigen's LU, lu="eigen", it is refused on 1e9 x 1e4 where the
+        multiplier passes with STRUMPACK; the default STRUMPACK chain accepts the pin there with MC64 job 2).
+
+        Returns True when the state is set, and False when the projection solve failed or missed the gate.  After a
+        False return the solver holds no valid state: advance, step_trial, adapt, snapshot and trial_snapshot raise an
+        error that names the projection and its residual, until a later initialize() returns True or set_history()
+        supplies a state.  diagnostics["projection_residual"] (-1: no projection has run) and
+        diagnostics["projection_converged"] hold the residual and the verdict of the last projection that ran;
+        initialize(project=False) runs none and leaves them as they are."""
         return self._c.initialize(self._wrap0(u0), float(t0), bool(project))
 
     def set_history(self, times, fields):

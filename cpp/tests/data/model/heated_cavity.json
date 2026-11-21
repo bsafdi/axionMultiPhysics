@@ -1,0 +1,40 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "heated_cavity",
+  "description": "differentially heated square air cavity, Boussinesq natural convection, Ra = 1.0e5, Pr = 0.70",
+  "symmetry": "planar",
+  "parameters": {"Lc": 0.046, "T_hot": 303.15, "T_cold": 293.15,
+                 "rho": 1.2, "mu": 1.8e-5, "k": 0.026, "cp": 1005.0, "beta": 3.4e-3},
+  "materials": {"air": {"density": "rho",
+                        "fluid": {"mu_Pa_s": "mu", "beta_1_K": "beta"},
+                        "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+  "regions": [{"name": "cavity", "shape": {"rect": {"x": [0, "Lc"], "y": [0, "Lc"]}}, "material": "air"}],
+  "boundaries": {
+    "hot":  {"of": "cavity", "where": {"x": 0}},
+    "cold": {"of": "cavity", "where": {"x": "Lc"}}
+  },
+  "physics": {
+    "flow": {"type": "fluid.incompressible",
+             "options": {"equation": "navier_stokes"},
+             "boundary_conditions": {"remaining": {"kind": "wall"}}},
+    "heat": {"type": "heat.transfer",
+             "boundary_conditions": {"hot":  {"kind": "temperature", "T_K": "T_hot"},
+                                     "cold": {"kind": "temperature", "T_K": "T_cold"},
+                                     "remaining": {"kind": "insulation"}}}
+  },
+  "couplings": [
+    {"term": "advection", "from": "flow", "to": "heat"},
+    {"term": "buoyancy",  "from": "heat", "to": "flow",
+     "T_ref_K": "0.5*(T_hot+T_cold)", "gravity_m_s2": [0, -9.81]}
+  ],
+  "study": [{"id": "steady", "type": "stationary", "physics": ["flow", "heat"],
+             "coupling": {"strategy": "monolithic"},
+             "continuation": {"scale": "buoyancy", "factors": [0.01, 0.1, 1.0]}}],
+  "outputs": {
+    "Q_hot":  {"kind": "flux", "of": "heat", "on": "hot"},
+    "Q_cold": {"kind": "flux", "of": "heat", "on": "cold"},
+    "Nu":     {"kind": "expression", "expr": "-Q_hot/(k*(T_hot-T_cold))"},
+    "u_max":  {"kind": "maximum", "of": "u_mag", "in": "cavity"}
+  },
+  "mesh": {"size": "Lc/32"}
+}

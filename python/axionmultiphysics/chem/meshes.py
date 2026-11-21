@@ -57,6 +57,27 @@ class TriMesh:
         raise ValueError(f"unknown edge-node rule {self.curved!r}")
 
 
+class InstanceTriMesh(TriMesh):
+    """The chemistry mesh of an instance mesh of a model document (``InstanceMesh.chem_mesh``): the instance's arrays
+    in its order, its ``geometry_order``, and the exporter's P2 edge nodes. ``CurrentDistribution`` refuses a field of
+    order 1 on one that records geometry order 2."""
+
+    def __init__(self, X, T, eattr, B, battr, geometry_order, edge_pairs, edge_xy, p1_refusal=""):
+        super().__init__(X=X, T=T, eattr=eattr, B=B, battr=battr, h_nominal=0.0, name="instance")
+        self.geometry_order = int(geometry_order)
+        self._edge_pairs, self._edge_xy = edge_pairs, edge_xy
+        self.p1_refusal = p1_refusal
+
+    @classmethod
+    def from_instance(cls, core, order: int, geometry_order: int):
+        d = core.chem_mesh_input(order)
+        return cls(d["vertices"], d["triangles"], d["element_attributes"], d["boundary"], d["boundary_attributes"],
+                   geometry_order, d["edge_node_vertices"], d["edge_node_xy"], core.p1_refusal())
+
+    def edge_nodes(self):
+        return self._edge_pairs.copy(), self._edge_xy.copy()
+
+
 def _bfaces(T):
     cnt = Counter()
     for t in T:
@@ -102,7 +123,12 @@ def rect(N, Ny=None, x0=0.0, x1=1.0, y0=0.0, y1=1.0, eattr_fn=None, geomap=None)
 
 
 def red_refine(m: TriMesh) -> TriMesh:
-    """Uniform red refinement in parametric coordinates."""
+    """Uniform red refinement in parametric coordinates. The chemistry mesh of an instance mesh with curved edges (edge
+    nodes off their chords) is refused with a ValueError: the refined mesh would lose its nodes. A bridge mesh with straight
+    edges is refined as any mesh is."""
+    if getattr(m, "geometry_order", 1) == 2 and len(m.edge_nodes()[0]):
+        raise ValueError("red_refine: this mesh has curved edges (its P2 edge nodes are off their chords), and a refined "
+                         "mesh would lose them; mesh the model again with a smaller mesh.size instead")
     X, T = m.X, m.T
     edges, newX = {}, [*X]
 

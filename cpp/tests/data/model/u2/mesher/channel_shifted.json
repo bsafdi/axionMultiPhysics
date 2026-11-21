@@ -1,0 +1,42 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "channel",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0.0005,
+      0.0405
+     ],
+     "z": [
+      0,
+      0.01
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "hot": {
+   "of": [
+    "channel"
+   ],
+   "where": {
+    "x": [
+     0
+    ]
+   }
+  }
+ },
+ "size": 0.00125,
+ "surface_size": 0.00125,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": true,
+ "verbose": 0
+}

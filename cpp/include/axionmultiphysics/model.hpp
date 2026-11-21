@@ -109,6 +109,13 @@ class AxiModel {
   };
   std::vector<MechSample> sample_mech(const std::vector<double>& r, const std::vector<double>& z) const;
   bool has_mechanics() const { return elast_ != nullptr; }
+  // The elasticity problem and its solution from the last solve with mechanics enabled, for callers that need more
+  // than point samples (displacement at every DOF, reactions, closure checks).  They belong to the current mesh and
+  // space: set_mesh() and mesh() discard them, and so does any solve (the next one replaces them, or, with mechanics
+  // disabled or skipped by minimal_post, leaves none).
+  // elasticity() is nullptr when no mechanics has been solved; elastic_solution() throws std::logic_error then.
+  const axi::Elasticity* elasticity() const { return elast_solved_ ? elast_.get() : nullptr; }
+  const axi::ElasticSolution& elastic_solution() const;
 
   // ---- vibrations: axisymmetric m = 0 torsional dynamics (cpp/src/model_torsion.cpp) ----
   // One JSON in, one JSON out, so that a study can drive it without new bindings:
@@ -218,6 +225,8 @@ class AxiModel {
   std::unique_ptr<axi::Elasticity> elast_;
   std::unique_ptr<axi::Conduction> cond_;
   axi::ElasticSolution elast_sol_;
+  bool elast_solved_ = false;  // elast_ and elast_sol_ are a finished solve on the current mesh
+  void drop_mechanics();       // the mechanics and thermal problems refer to the space: discard them with it
   axi::ThermalSolution cond_sol_;
   std::vector<std::unique_ptr<axi::KTable>> ktables_;
   // ---- end mechanics/thermal ----

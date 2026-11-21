@@ -1,5 +1,9 @@
 #include "axionmultiphysics/spec.hpp"
+#include "axionmultiphysics/model_schema.hpp"
 #include "axionmultiphysics/pml.hpp"
+#include "axionmultiphysics/spec_model.hpp"
+#include "model_errors.hpp"
+#include "spec_internal.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -12,76 +16,9 @@
 #include "axionmultiphysics/units.hpp"
 
 namespace axmp::spec {
-namespace {
+namespace detail {
 
-// True while a "symmetry": "xsec" design is parsed: shapes and paths live in the (x, y) cross-section plane
-// (no r >= 0 restriction; rect also accepts "x"/"y" for "r"/"z"; disks may be placed by pivot, arm and angle).
 thread_local bool g_planar = false;
-struct PlanarGuard {
-  explicit PlanarGuard(bool on) { g_planar = on; }
-  ~PlanarGuard() { g_planar = false; }
-};
-
-// Reads values from a JSON node while tracking its path for error messages.
-struct Node {
-  const json& j;
-  std::string path;
-  const ParamMap* params;
-
-  Node at(const std::string& key) const {
-    return Node{j.at(key), path + "/" + key, params};
-  }
-  Node at(size_t i) const { return Node{j.at(i), strcat(path, "/", i), params}; }
-  bool has(const std::string& key) const { return j.is_object() && j.contains(key); }
-
-  double num() const {
-    if (j.is_number()) return j.get<double>();
-    if (j.is_string()) return eval_expr(j.get<std::string>(), *params, path);
-    throw Error("expected a number or an expression string", path, "Example: 2.5 or \"0.6*R\".");
-  }
-  double num(const std::string& key, double def) const { return has(key) ? at(key).num() : def; }
-  double req_num(const std::string& key) const {
-    if (!has(key)) throw Error("missing required field '" + key + "'", path);
-    return at(key).num();
-  }
-  std::string str() const {
-    if (!j.is_string()) throw Error("expected a string", path);
-    return j.get<std::string>();
-  }
-  std::string str(const std::string& key, const std::string& def) const {
-    return has(key) ? at(key).str() : def;
-  }
-  std::string req_str(const std::string& key) const {
-    if (!has(key)) throw Error("missing required field '" + key + "'", path);
-    return at(key).str();
-  }
-  bool boolean(const std::string& key, bool def) const {
-    if (!has(key)) return def;
-    if (!j.at(key).is_boolean()) throw Error("expected true or false", path + "/" + key);
-    return j.at(key).get<bool>();
-  }
-  Vec2 vec2() const {
-    if (!j.is_array() || j.size() != 2) throw Error("expected a point [r, z]", path);
-    return Vec2{at(size_t(0)).num(), at(size_t(1)).num()};
-  }
-  std::pair<double, double> range() const {
-    if (!j.is_array() || j.size() != 2) throw Error("expected a range [min, max]", path);
-    double a = at(size_t(0)).num(), b = at(size_t(1)).num();
-    if (!(b > a)) throw Error(strcat("range must satisfy min < max (got ", a, ", ", b, ")"), path);
-    return {a, b};
-  }
-  void only(std::initializer_list<const char*> allowed) const {
-    if (!j.is_object()) throw Error("expected an object", path);
-    std::set<std::string> ok(allowed.begin(), allowed.end());
-    for (auto it = j.begin(); it != j.end(); ++it) {
-      if (!ok.count(it.key())) {
-        std::string list;
-        for (auto& a : ok) list += (list.empty() ? "" : ", ") + a;
-        throw Error("unknown field '" + it.key() + "'", path, "Allowed fields here: " + list + ".");
-      }
-    }
-  }
-};
 
 void check_nonneg_r(double r, const std::string& path) {
   if (g_planar) return;  // cross-section designs: (x, y) anywhere in the plane
@@ -345,6 +282,21 @@ Path parse_path(const Node& n) {
     p.radius = b.req_num("radius");
     auto [a0, a1] = b.at("angles").range();
     p.angle0 = a0; p.angle1 = a1;
+    const Node an = b.at("angles");
+    if (!(p.radius > 0)) throw model::msg::arc_radius(p.radius, b.path + "/radius");
+    // a full turn is allowed, with the slack of the rounding of 2 * pi written as a sum or a product
+    if (!std::isfinite(a0) || !std::isfinite(a1) || std::fabs(a1 - a0) > 2 * M_PI * (1 + 1e-12)) {
+      throw model::msg::arc_span(a0, a1, an.path);
+    }
+    if (p.radius * std::fabs(a1 - a0) <= 1e-7) throw model::msg::arc_length(p.radius * std::fabs(a1 - a0), an.path);
+    if (!g_planar) {  // designs in (r, z) have an axis; planar and cross-section designs do not. Smallest r of the arc: the
+                      // leftmost point if it is swept, else an end point
+      const double k = std::ceil((a0 - M_PI) / (2 * M_PI));
+      const double min_r = (M_PI + 2 * M_PI * k <= a1)
+                               ? p.center.r - p.radius
+                               : std::min(p.center.r + p.radius * std::cos(a0), p.center.r + p.radius * std::cos(a1));
+      if (min_r < -1e-12) throw model::msg::arc_negative_r(min_r, b.path);
+    }
   } else {
     throw Error("unknown path type '" + k + "'", n.path, "Use one of segment, polyline, rect, arc.");
   }
@@ -947,7 +899,9 @@ Conductor parse_conductor(const std::string& name, const Node& n, const Conducto
   return c;
 }
 
-}  // namespace
+}  // namespace detail
+
+using namespace detail;
 
 double RFLoss::Rs_flux_flow(double f, double B, double s) const {
   if (!flux_flow) return 0.0;
@@ -1507,6 +1461,12 @@ static void parse_cavity_3d(const Node& n, Design& d) {
 }
 
 Design parse_design(const json& doc) {
+  // The switch between the two parsers (design note 3.2): a model document never reaches the electromagnetic parser.
+  // The entry points that take one, or refuse one by name, test it before they call this; this is the backstop, which
+  // cannot name its caller.  A section of a model document without "physics" is named before any unknown key.
+  if (is_model_document(doc)) throw model::msg::em_only_operation(doc, nullptr);
+  for (const char* key : {"domains", "boundaries", "reactions", "couplings", "study", "outputs"})
+    if (doc.contains(key)) throw model::msg::section_needs_physics(key);
   Design d;
   d.source = doc;
   ParamMap none;
@@ -2779,7 +2739,8 @@ Design parse_design(const json& doc) {
   return d;
 }
 
-json design_schema() {
+// The schema of the electromagnetic design format, as of 0.1.0.
+static json em_design_schema() {
   // Hand-maintained; kept in sync with parse_design by tests/test_schema.py.
   json num = {{"oneOf", {{{"type", "number"}}, {{"type", "string"}, {"description", "expression over parameters"}}}}};
   json pt = {{"type", "array"}, {"items", num}, {"minItems", 2}, {"maxItems", 2}};
@@ -2975,6 +2936,8 @@ json design_schema() {
         {"mechanics", mechanics},
         {"thermal", thermal_spec}}}};
 }
+
+json design_schema() { return model::add_model_branch(em_design_schema()); }
 
 json resolved_geometry(const Design& d) {
   auto kind_name = [](MaterialKind k) -> const char* {

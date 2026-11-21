@@ -3,6 +3,7 @@
  "capability": "F13a",
  "title": "Hartmann flow: Ha sweep 0-1000 with thin layers on layer-adapted nested meshes; short/open circuit; in-plane (J_z) and duct (phi) pathways; two-layer conductivity",
  "physics": "Fully developed channel flow between Hartmann walls y = +-1, B = (0, B0, 0)",
+ "notes": "The Ha = 0 variant (the hydrodynamic limit: B = 0, so the Lorentz coupling vanishes, the potential decouples and the exact solution is the Poiseuille profile, which lies in the P2 velocity and P1 pressure spaces) sets the solver criterion of this case. The problem is linear (rho = 0): the Stokes start solves it in one direct solve, and the Picard and Newton steps that follow only move the residual around at the level of its own round-off - after the first step, which gains 17%, no further step of the 33-step budget changes it by as much as 10%. That floor grows like h^(-3/2) here (the interior momentum rows cancel to O(h^2) while the terms summed are O(1), the dual norm weights the resulting high-frequency round-off by 1/h, and the dual norm of the traction load grows only like h^(-1/2)), and so does the attainable relative residual, from 2.8e-14 on the coarsest level to 1.1e-12 on the finest, against measured floors of 3.8e-14 to 2.2e-12: on the finest level both are above the newton_rtol of 1e-12 the runner asks for. The solve therefore stops at the first step that does not reduce the residual at all, which stands at the measured floor and at 1.14 times the newton_rtol asked for (1.15 with the Eigen fallback), inside the decade a floor stop is allowed to miss it by (diagnostics residual_floor and stopped_at_floor; docs/physics/fluids.md derives the floor, lists the measurement and states the conditions): 1.144e-12 with STRUMPACK and 1.146e-12 with the Eigen fallback, against 9.97e-13 and 1.011e-12 for the whole budget, which the fixed gate of 1e-12 therefore rejects in the Eigen build and accepts, by round-off, at the 22nd step with STRUMPACK. The accuracy of the state accepted at the floor is gated on that level by the comparison inplane_short_Ha0_Q_h_finest (bound 1e-10) and by the checks Ha0_patch_u_rel_finest (1e-10) and Ha0_patch_p_rel_finest (1e-11). The exact solution lies in the discrete space, so those three numbers are round-off measures of the direct solve; they grow about fourfold per refinement and are 1.7e-11, 6.7e-12 and about 2e-13 on the finest level (the last two differ between the LU backends in their last digit), so the bounds leave a factor of about eight or more (7.8 on Q, 15 on the velocity patch, 47 on the pressure patch). Ha >> 1 keeps orders of magnitude of room at the same refinement (1.0e-15 at Ha = 1000 on the finest level), because u ~ Ha^-2 at the same drive while the Lorentz term is mass-like and does not cancel: of the 61 solves of this case in full mode exactly this one stops at the floor, and the next closest, Ha = 1 on the same level, reaches 7.7e-13 against a floor of 1.8e-12 that is itself above the gate. The floor stop accepts the iterate it fired on, so its residual is the 1.14e-12 above and not the smallest value the budget would have wandered to. Independently of the scaled dual norm the solver stops on, the unscaled Euclidean relative residual of every solve is bounded by the check relative_residual_unscaled_euclid_max (1e-11: a decade above newton_rtol, like the floor stop's own ceiling; measured largest 1.5e-12, on the floor-stopped solve, then 1.0e-12 at Ha = 1 on the same level), and relative_residual_unscaled_euclid_missing (0) requires that no solve of the case failed to report one.",
  "levels": [
   "analytic",
   "conservation"
@@ -28,7 +29,8 @@
    "dirichlet_data": "P2 Lagrange NODAL interpolation of the fixed callables (velocity and potential)",
    "solver": {
     "kind": "direct sparse LU (Newton for rho > 0)",
-    "tight": "same, plus 2 steps of iterative refinement / Newton to 1e-14 (vacuous for a direct linear solve; meaningful for an iterative path)"
+    "tight": "same, plus 2 steps of iterative refinement / Newton to 1e-14 (vacuous for a direct linear solve; meaningful for an iterative path)",
+    "stopping": "newton_rtol 1e-12 on the steady relative residual in the dual norm, or a stop at the measured round-off floor of the residual evaluation when a step no longer reduces the residual and the residual is still within a decade of newton_rtol (the default residual_floor_factor 4; see notes)"
    },
    "shared_node_rule": "At a node shared by several boundary attributes: (1) velocity Dirichlet beats every natural velocity condition; potential Dirichlet beats insulation and normal-current data; (2) between Dirichlet attributes the fixed data AGREE at shared nodes (one exact callable per MMS field; the Hartmann/duct data vanish or are consistent at the corners), checked by dirichlet_shared_node_mismatch, so the result is independent of attribute order.",
    "series_magnitude_keys": {
@@ -155,6 +157,15 @@
  },
  "reference": {
   "quantities": {
+   "inplane_short_Ha0_Q": {
+    "kind": "scalar",
+    "source": "closed_form",
+    "value": 1.3333333333333333,
+    "uncertainty": 0.0,
+    "uncertainty_kind": "exact",
+    "unit": "1",
+    "locator": "analytic_reference.json: hartmann.inplane_short_Ha0.Q"
+   },
    "inplane_short_Ha1_Q": {
     "kind": "scalar",
     "source": "closed_form",
@@ -790,6 +801,14 @@
   ],
   "comparisons": [
    {
+    "quantity": "inplane_short_Ha0_Q_h_finest",
+    "reference": "inplane_short_Ha0_Q",
+    "level": "analytic",
+    "tolerance": {
+     "rel": 1e-10
+    }
+   },
+   {
     "quantity": "inplane_short_Ha1_Q_h_finest",
     "reference": "inplane_short_Ha1_Q",
     "level": "analytic",
@@ -900,6 +919,16 @@
     "abs_max": 1e-09
    },
    {
+    "quantity": "Ha0_patch_u_rel_finest",
+    "level": "analytic",
+    "abs_max": 1e-10
+   },
+   {
+    "quantity": "Ha0_patch_p_rel_finest",
+    "level": "analytic",
+    "abs_max": 1e-11
+   },
+   {
     "quantity": "inplane_phi_spread_max",
     "level": "analytic",
     "abs_max": 1e-12
@@ -933,6 +962,16 @@
     "quantity": "layer_robustness_ratio",
     "level": "analytic",
     "abs_max": 7.0
+   },
+   {
+    "quantity": "relative_residual_unscaled_euclid_max",
+    "level": "analytic",
+    "abs_max": 1e-11
+   },
+   {
+    "quantity": "relative_residual_unscaled_euclid_missing",
+    "level": "analytic",
+    "abs_max": 0
    }
   ],
   "solver": {

@@ -22,6 +22,28 @@ incompressible flow and electrochemistry. Geometries are axisymmetric profiles
 or 3D solids, including imported CAD (STEP). Axisymmetric problems run on one
 machine; 3D problems use MPI.
 
+**New in 0.2.0, all in beta:**
+
+- *Model documents:* one physics-based input format for fluids, heat,
+  electrochemistry and coupled physics, with a physics catalogue, validation,
+  `axmp explain`, `axmp patch` and a JSON Schema
+  ([design format](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/design_format.md#model-documents-beta)).
+  Planar and axisymmetric documents are meshed with named boundaries
+  (`axmp boundaries`, `axmp mesh`; [meshes of model documents](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/model_meshes.md)),
+  and the meshes can be handed to the fluids and chemistry engines; solving a
+  model document is not available yet.
+- *Export to Geant4:* field maps of solved designs
+  ([field maps](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/field_maps.md)) and solids and GDML of axisymmetric and 3D
+  designs ([solids and GDML](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/solids.md)), checked in Geant4 by
+  `axmp-transport --geometry`.
+- *Particle transport:* `axmp-transport`, a separate Geant4 program built on
+  request, driven from Python by `axionmultiphysics.particles` (reproducible
+  runs, estimates with statistical errors)
+  ([particle transport](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/particles.md),
+  [validation](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/validation/particles.md)).
+- *Fluids:* every sparse direct solve is accepted on its caller's own accuracy
+  gate through a recorded retry chain (`lu_retry`, `lu_stage`, `lu_attempts`).
+
 **Documentation:** [bsafdi.github.io/axionMultiPhysics](https://bsafdi.github.io/axionMultiPhysics/) (installation, tutorials, API reference)
 
 ![The axionMultiPhysics viewer on the quick-start toroid](https://raw.githubusercontent.com/bsafdi/axionMultiPhysics/main/docs/images/viewer_toroid.png)
@@ -71,15 +93,17 @@ drawn by the package itself: `readout.draw(annotate=False)` (with values: `reado
 by [docs/images/make_readme_panels.py](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/images/make_readme_panels.py); the plain SVG versions come from
 [docs/images/make_circuit_figure.py](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/images/make_circuit_figure.py).*
 
-> Status: version 0.1.0 (alpha). Axisymmetric and MPI 3D solvers, full-wave analysis, circuits, HTS, mechanics and
+> Status: version 0.2.0 (alpha). Axisymmetric and MPI 3D solvers, full-wave analysis, circuits, HTS, mechanics and
 > heat conduction, and the design tools are checked against closed-form solutions, manufactured solutions,
 > independent solvers or published results ([validation](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/validation/index.md)). Beta (working and tested, but
 > with an interface or a validation that is not complete): cavity haloscopes, SRF heterodyne cavities, dc SQUID
 > chains, multi-band and multipole scans, torsional dynamics, the COMSOL import, the fluids, scalar-transport and
-> chemistry modules, the surface-resistance models, and in 3D full wave everything except current ports (prescribed
-> sources, the imposed background field, perfectly matched layers, the error indicator, the Gauss-law guard, the
-> adaptive sweep, the tree-cotree solve, eigenmodes, closed RF-only models and the energy-matrix, field-export and
-> reactive-load diagnostics). The 3D engine and the fluids module need the MPI source build.
+> chemistry modules, the surface-resistance models, model documents, the export to Geant4 and particle transport,
+> and in 3D full wave everything except current ports (prescribed sources, the imposed background field, perfectly
+> matched layers, the error indicator, the Gauss-law guard, the adaptive sweep, the tree-cotree solve, eigenmodes,
+> closed RF-only models and the energy-matrix, field-export and reactive-load diagnostics). The 3D engine and the
+> fluids module need the MPI source build; particle transport needs a Geant4 installation and a source build with
+> `-DAXMP_BUILD_TRANSPORT=ON`.
 
 ## What it computes for lumped-element detectors
 
@@ -102,8 +126,11 @@ lumped-element axion search:
 
 ## Quick start
 
-We install the wheel from PyPI with meshing and notebook support. The wheels are built for Linux x86_64 and macOS
-(x86_64 and arm64), CPython 3.10–3.14:
+The 0.2.0 wheels follow on PyPI after the release. Until `pip index versions axionmultiphysics` lists 0.2.0,
+`pip install axionmultiphysics` installs 0.1.0, whose API lacks the 0.2.0 features, and we install 0.2.0 from source
+([installation](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/install.md#build-and-installation)).
+Once the wheels are listed, we install the wheel from PyPI with meshing and notebook support. The wheels are planned for
+Linux x86_64 and macOS (x86_64 and arm64), CPython 3.10–3.14; 0.2.0 itself was built and tested on Linux x86_64 only:
 
 ```bash
 pip install "axionmultiphysics[mesh,notebook]"
@@ -147,10 +174,10 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build build
 
 | Path | Contents |
 |---|---|
-| `cpp/` | C++ library `libaxionmultiphysics`, CLI `axmp`, mesher `axmp-mesher` (gmsh, separate process) |
+| `cpp/` | C++ library `libaxionmultiphysics`, CLI `axmp`, mesher `axmp-mesher` (gmsh, separate process), particle transport `axmp-transport` (Geant4, separate process, built on request; beta) |
 | `python/axionmultiphysics` | Python package: builder API, templates, viewer server, MCP server |
 | `viewer/` | three.js viewer shipped with the package |
-| `docs/` | [installation](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/install.md), [build options](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/install.md), [viewer](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/viewer.md), [COMSOL export](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/comsol_export.md), [COMSOL import](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/comsol_import.md) (`axmp import-comsol model.mph`, beta), physics notes, design-format reference, [validation](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/validation/index.md) |
+| `docs/` | [installation](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/install.md), [build options](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/install.md), [viewer](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/viewer.md), [COMSOL export](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/comsol_export.md), [COMSOL import](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/comsol_import.md) (`axmp import-comsol model.mph`, beta), [particle transport](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/guides/particles.md) (beta), physics notes, design-format reference, [validation](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/validation/index.md) |
 | `benchmarks/` | validation cases and their records (e.g. [SRF cell](https://github.com/bsafdi/axionMultiPhysics/tree/main/benchmarks/srf/): 2D/3D convergence) |
 | `examples/` | example designs and notebooks: [quick start](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/notebook_quickstart.ipynb), [lumped-element detectors](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/lumped_element_demo.ipynb) (toroid, solenoid, CORE: geometry → $`\Psi`$, $`L_p`$ → $`\mathcal F`$ vs $`\mathcal F_\mathrm{req}`$ → scan), [mechanics and thermal](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/mechanics_thermal_demo.ipynb) (forces on the winding, support stresses, cooldown, heat load with $`k(T)`$), [dc SQUID amplifier chains](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/squid_chain_demo.ipynb) (beta), [cavity haloscope walkthrough](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/cavity_demo.ipynb) (beta; geometry → eigenmodes → $`C`$, $`Q_0`$ → reach), [SRF heterodyne cavities](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/srf_demo.ipynb) (beta; mode pair → $`\eta_{10}`$, $`G`$, $`\xi`$ → required volume), [fluids](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/fluids_demo.ipynb) (beta; Stokes flow), [chemistry](https://github.com/bsafdi/axionMultiPhysics/blob/main/examples/chemistry_demo.ipynb) (beta; current distributions) |
 
@@ -199,7 +226,8 @@ Joshua N. Benabou, Joshua W. Foster, Benjamin R. Safdi
 
 BSD 3-Clause ([LICENSE](https://github.com/bsafdi/axionMultiPhysics/blob/main/LICENSE)). The vendored three.js (`viewer/vendor/`, MIT) and stb_image_write
 (`cpp/third_party/`, MIT or public domain) keep their own licences. gmsh (GPL) is used only as an external program, is
-not redistributed in our wheels, and comes from its own PyPI package; licensing details are in
+not redistributed in our wheels, and comes from its own PyPI package. Geant4 (whose builds contain the LGPL-3 CLHEP)
+is linked only by `axmp-transport`, a separate program built from source on request, and is in no wheel; licensing details are in
 [docs/install.md](https://github.com/bsafdi/axionMultiPhysics/blob/main/docs/install.md#licensing-of-each-wheel), "Licensing of each wheel".
 
 ## Trademarks

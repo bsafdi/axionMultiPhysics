@@ -1,0 +1,58 @@
+{
+ "compared": {
+  "build": "sequential",
+  "compiler": "GCC: (Spack GCC) 13.2.0",
+  "cpu": "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz",
+  "dependency_pins": "49dc1122fc559d032d12d34a5635a918ce549eb73a63d8ea78834f177694db8d",
+  "libc": "glibc-2.28",
+  "machine": "x86_64",
+  "mesher": "4.15.2",
+  "os": "rocky-8.10",
+  "ranks": 1,
+  "strumpack": false,
+  "system": "linux"
+ },
+ "format": "axionmultiphysics.g0/1",
+ "informational": {
+  "blas": [],
+  "build_info": {
+   "device": "cpu",
+   "engine_3d": false,
+   "fluids": false,
+   "git_dirty": false,
+   "git_sha": "5fbfcaf78d6c5f4742ef58fb6012de1e0e5b97c0",
+   "gpu_backend": "",
+   "library": {
+    "git_dirty": false,
+    "git_sha": "5fbfcaf78d6c5f4742ef58fb6012de1e0e5b97c0"
+   },
+   "metis": true,
+   "mfem": "4.10.0",
+   "mpi": false,
+   "openmp": true,
+   "source_commit": "5fbfcaf78d6c5f4742ef58fb6012de1e0e5b97c0",
+   "source_dirty": "false",
+   "strumpack": false,
+   "strumpack_guard": "",
+   "strumpack_min_dofs": 300000,
+   "strumpack_mpi": false,
+   "strumpack_version": "",
+   "threads": 16,
+   "version": "0.1.0"
+  },
+  "ci": false,
+  "environment_cleared": [
+   "AXMP_MESHER_ASLR"
+  ],
+  "environment_forced": {
+   "MKL_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "OPENBLAS_CORETYPE": "HASWELL",
+   "OPENBLAS_NUM_THREADS": "1",
+   "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "python": "3.12.12",
+  "runner_image": ""
+ },
+ "platform": "lawrencium-x86_64-sequential"
+}

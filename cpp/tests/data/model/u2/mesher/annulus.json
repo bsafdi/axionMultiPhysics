@@ -1,0 +1,71 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "ring",
+   "attr": 1,
+   "shape": {
+    "difference": [
+     {
+      "disk": {
+       "center": [
+        0,
+        0
+       ],
+       "radius": 0.005
+      }
+     },
+     {
+      "disk": {
+       "center": [
+        0,
+        0
+       ],
+       "radius": 0.002
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "inner": {
+   "between": [
+    [
+     "ring"
+    ],
+    "exterior"
+   ],
+   "where": {
+    "x": [
+     -0.002,
+     0.002
+    ],
+    "y": [
+     -0.002,
+     0.002
+    ]
+   }
+  },
+  "outer": {
+   "between": [
+    [
+     "ring"
+    ],
+    "exterior"
+   ],
+   "except": [
+    "inner"
+   ]
+  }
+ },
+ "size": 0.0005,
+ "surface_size": 0.0005,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

@@ -2,7 +2,8 @@
 
 A design is one JSON document. The C++ core parses and validates it
 (`axmp validate`, `axionmultiphysics.Design.validate()`); `axmp schema` prints the JSON
-Schema. Units are SI: metres, amperes, tesla, kelvin, webers. Any numeric
+Schema (one schema for the electromagnetic designs described on this page and, when the key
+`physics` is present, for the model documents of [the beta section below](#model-documents-beta)). Units are SI: metres, amperes, tesla, kelvin, webers. Any numeric
 field may be a number or a string expression over `parameters`
 (`"0.6*R"`, `"sqrt(H*R)"`, `"exp(-0.5)"`; functions: sqrt exp log log10 sin
 cos tan asin acos atan atan2 abs min max pow; constants pi, e, mu0).
@@ -28,6 +29,16 @@ a literal must be 0 or have a magnitude between 2.2e-308 and 1.7e308 (`1e400`
 and the subnormal `1e-310` are errors). `min` and `max` take one or more
 arguments and reject a NaN argument. Nesting deeper than 1000 levels (signs,
 exponents, parentheses) is an error. A result that is not finite is an error.
+
+**Model documents (beta).** A document with a top-level `physics` key is a model document, read by a parser of its
+own (domains, boundaries, physics, couplings, study and outputs; `axmp physics` prints the catalogue). In this
+version `axmp validate`, `axmp resolve`, `axmp explain`, `axmp patch`, `axmp boundaries` and `axmp mesh` take one (see the [command line](cli.md)); solving one is
+refused with `route.not_implemented`, and the operations on electromagnetic designs (sensitivities, optimization, the
+3D conversion, the COMSOL export) refuse one with `model.em_only_operation`. In a document without `physics`, a
+top-level `domains`, `boundaries`, `reactions`, `couplings`, `study` or `outputs` is refused with
+`model.section_needs_physics` (it belongs to a model document), before any unknown key. A model document's file may
+not repeat a key in an object (`json.duplicate_key`); the electromagnetic design format is otherwise unchanged. The
+codes are listed in [error codes](reference/error_codes.md).
 
 Designs are **axisymmetric** by default: everything lives in the meridional
 half-plane (r ≥ 0, z) and is revolved about the z axis. `"symmetry": "3d"`
@@ -102,7 +113,13 @@ adds or removes them.
 
 PATH is one of `{"segment": [[r,z],[r,z]]}`, `{"polyline": {"points": [...], "closed": bool}}`,
 `{"rect": {"r": [...], "z": [...], "fillet": f}}` (outline) or
-`{"arc": {"center": [r,z], "radius": a, "angles": [θ0, θ1]}}`.
+`{"arc": {"center": [r,z], "radius": a, "angles": [θ0, θ1]}}` (the angles are in radians, counter-clockwise, and span at most one turn, 2π, with a slack of 1e-12 for rounding: a larger
+span is refused with `geometry.arc_span`, and when the numbers look like degrees the hint gives them in radians, ready to
+paste. The radius must be positive and the arc longer than 1e-7 m (radius times span), or `geometry.arc_degenerate`
+refuses it. In every electromagnetic design except a cross-section (`xsec`) one, and in an axisymmetric model document, the arc must also
+stay at r ≥ 0 (as the points of a polyline must), so it does not cross the axis: split it there, or
+`geometry.arc_negative_r` refuses it. This includes an electromagnetic design with `"symmetry": "planar"` on an imported
+mesh, whose arcs are read with the same rule. An `xsec` design and a planar model document have no axis and no such rule).
 Sheets are supported in the static poloidal and azimuthal-pickup problems and in cavity eigenmodes.
 Designs with a toroidal field (a poloidal winding or a port pickup) reject
 sheets with an error; use thin regions there. Field peaks at sheet edges are
@@ -1406,6 +1423,48 @@ A region or curve that names its own `surface_size` is taken out of the group
 that follows `mesh.surface_size`, so the two never fight; giving every refined
 region the same `surface_size` reproduces the global setting exactly.
 
+### Curved elements in 2D
+
+At `mesh.order` 2 or more the 2D meshes (axisymmetric, cross-section, and the bounded meshes of model documents at
+`mesh.geometry_order` 2) are made of second-order triangles whose mid-edge nodes lie on the curved boundaries. Where a
+curved region is much thinner than the element size (a 2 mm shell on a sphere of radius 0.5 m at a 0.05 m surface
+size), such triangles fold over. An element is **tangled** when its Jacobian determinant is not of one strict sign over
+the element (it changes sign or vanishes somewhere in it), or has the sign opposite to that of the majority of the
+elements meshed in one winding with it. For a 6-node triangle det J is a quadratic polynomial of the reference
+coordinates, so its minimum and maximum over the element are computed exactly (at the vertices, at the stationary
+point of each edge and at the interior stationary point), in the mesher and in the library alike; a fold between
+sample points is not missed. Other elements of an imported file are sampled on the lattice (i/12, j/12) of the
+reference element. The orientation does not matter: the mesher takes the majority per gmsh surface (the unit gmsh
+meshes in one winding, turned counter-clockwise after the check), so a region meshed clockwise, or a region whose
+parts are meshed in opposite windings (a union with a polygon listed clockwise), is not tangled; the library takes it
+per region of a mesh that MFEM has oriented on reading. Only the sign counts: a valid but strongly curved element (min
+det J / max det J = 0.0024 in `examples/pickup_capacitance.json`) is kept as it is.
+
+- `axmp-mesher` checks every element of a 2D mesh of geometry order 2. With no tangled element nothing else runs: the
+  mesh and its info file are those of the mesher without the check.
+- With a tangled element, gmsh's high-order optimisation runs: the elastic pass, then the HighOrder patch optimizer if
+  an element is still tangled. The nodes of curved boundaries stay on the curves. Then the check runs again. A
+  repaired mesh is written with the record `"high_order": {"checked", "tangled_before", "optimised": true,
+  "tangled_after": 0}` in the mesh info (and in `results.mesh.info.mesher`). The key appears only when an element was
+  tangled.
+- A mesh still tangled is refused: exit status 1, `"ok": false` with the same record, no mesh file, and an error that
+  gives the count, the region and location of the first tangled element, and the remedy: refine the mesh in or
+  around that region (a smaller `surface_size` or `mesh_size` there), or use geometry order 1. `Design.solve`, the
+  model path and `axmp mesh` report it as any failed mesher run (`mesh generation failed: ...`).
+- `AXMP_MESHER_HO=none` switches the optimisation off, so a tangled mesh is refused; `elastic`, `full` and `auto` (the
+  default) all mean the repair above in 2D; another value is refused.
+- Reproducibility: both gmsh passes order their work by memory address. So on Linux the mesher makes a mesh that
+  needs the repair again in the curved-mesh process of the 3D path (fixed inputs, see the curved-element bullet under
+  [3D designs](#3d-designs-symmetry-3d-requires-an-mpi-build)), and repairs it there. A repaired mesh is the same in
+  every run and every output directory; only meshes with a tangled element pay for the second meshing.
+  `AXMP_MESHER_HO_ISOLATE=0` repairs in the mesher's own process, with a warning that the mesh is not reproducible.
+- The library refuses a tangled curved mesh when it reads one, whoever wrote it: a mesher that reported success, a
+  hand-edited file, an imported `mesh.file`. It raises `mesh.tangled` before anything is solved, with the count, the
+  file, and the region and location of the first tangled element. The hint gives the remedy; for `mesh.file`, it says
+  to regenerate the file finer in or around that region, or with straight-sided elements. An element written with its
+  nodes in the reverse order is not tangled: the reader orients every element. 3D meshes keep their own check (the
+  solve straightens invalid curved tetrahedra, below).
+
 ### Devices far from z = 0
 
 `mesh.domain_center_z: z0` puts the outer semicircle (and therefore the exact
@@ -1625,6 +1684,134 @@ the last change is an error bar on the reported numbers.
   - **No extrapolation** when there is no usable order (an order below 0.5, or a difference at the noise floor of
     1e3 machine epsilons), an unreliable one (above 8 without `formal_order`; `order` is then null), or an oscillation the
     iteration cannot resolve. `behaviour` says which.
+
+## Model documents (beta)
+
+A design that has a `physics` section is a **model document**: it describes coupled physics (flow, heat, current
+distribution, chemistry) on named regions and boundaries instead of an electromagnetic analysis. It is the same
+document kind, `"schema": "axionmultiphysics.design/1"`, and the key `physics` is what selects it. The sections below
+are **beta**: they are marked `"x-status": "beta"` in `axmp schema`, they may change incompatibly within 0.x, and the
+electromagnetic sections may not. A reader of version 0.1.0 refuses a model document with "unknown field 'physics'".
+
+**What a model document can do in this version.** It can be parsed and validated (`axmp validate`,
+`Design.validate()`), explained (`axmp explain`, `Design.explain()`: the resolved model with every default listed and
+tagged, and the route each group of physics would take), patched (`axmp patch`, `Design.patch()`: RFC 6902) and checked
+against the JSON Schema (`axmp schema`). A planar or axisymmetric model document with regions can also be **meshed**:
+`axmp boundaries` lists its named boundaries and runs the checks on them, `axmp mesh` makes the mesh, and `axmp.mesh(d)`
+returns it to Python (see the [guide to model meshes](guides/model_meshes.md)). **It cannot be solved yet**: no route of
+the [catalogue](reference/physics_catalogue.md) is implemented, and every route is listed as "not implemented yet". A 3D
+model document and one on an imported mesh (`mesh.file`) are not meshed in this version (`route.not_implemented`). The
+codes of its findings are in the [error codes](reference/error_codes.md).
+
+Every numeric field is a number or an expression over `parameters`, as above; all quantities are SI, and a key says its
+unit (`velocity_m_s`, `T_K`, `current_A_m`). Unknown keys are refused at every level.
+
+| section | content |
+|---|---|
+| `schema`, `name`, `description`, `notes`, `parameters` | as in an electromagnetic design (`name` is required) |
+| `symmetry` | `"planar"` (coordinates x, y; results per metre of depth), `"axisymmetric"` (the default) or `"3d"`; `"xsec"` is refused. Optional in every model document (default `axisymmetric`) |
+| `regions`, `curves` | the shape grammar of this page (`shape` in 2D, `solid` in 3D). A model curve takes only `name`, `path`, `mesh_size`, `surface_size` and `notes` (no `material` or `thickness`). `regions` may be absent for a geometry-free model or an imported mesh (`mesh.file`) |
+| `materials` | property blocks (`density`, `fluid`, `thermal`, `electrolyte`, `electric`, `mechanical`, `species`); a model material needs no `kind` |
+| `domains` | named sets of regions: `{"metal": ["bar", "bolt"]}` |
+| `boundaries` | named selections, resolved by the mesher: `{"of": REGION, "where": {"x": 0}}`, `{"between": [A, B]}`, `{"curve": NAME}`, `{"group": NAME}`, `{"union": [...]}` and `{"difference": [...]}`, with the filters `except` and `tolerance_m`; a plain string names another boundary |
+| `reactions` | `species` and `mechanism` (the chemistry of a `chem.reactor`) and `electrode` reactions (kind `linear`, `butler_volmer`, `tafel_anodic` or `tafel_cathodic`, with `i0_A_m2`, `E_eq_V`, `alpha_a`, `alpha_c`, and `slope_V_decade` for a Tafel kind) |
+| `mesh` | `size`, `surface_size`, `geometry_order` (1 or 2), `refinements`, `exterior`, `file`, `info_file`, `threads`; `mesh.order` is refused in a model document |
+| `physics` | one object per instance id: `type` (from `axmp physics`), `domains`, `options`, `boundary_conditions` keyed by boundary name (with `"remaining"` for the rest), `sources`, `initial` |
+| `couplings` | directed terms `{"term", "from", "to", ...}` between instances (`advection`, `buoyancy`, `joule_heating`, ...) |
+| `study` | steps `{"id", "type": "stationary" or "transient", "physics", "coupling", "continuation", "solvers", "time", ...}`; without it, one stationary step over every instance |
+| `outputs` | named results: `kind` is one of `integral`, `average`, `maximum`, `minimum`, `extreme`, `point`, `flux`, `force`, `torque`, `electrode_current` or `expression`; a `force` or `torque` is the reaction of a fluid.incompressible physics, so it needs one, and in an axisymmetric model its `component` is `z` (the axial force and torque) |
+
+A document that has none of the model sections and no `physics` is judged by the electromagnetic rules of the rest of
+this page, exactly as in 0.1.0: the model sections are then unknown fields, and an electromagnetic design cannot carry
+one. The JSON Schema says this with an `if` (the key `physics` is present) `then` (the model rules) `else` (the 0.1.0
+rules, verbatim); the options, condition kinds and coupling terms of each physics type in the schema are generated from
+the same registry that `axmp physics` prints. The schema is looser than the validation in places (it does not check, for
+example, which of `P_W` and `P_W_m` fits the symmetry); `axmp validate` is authoritative. See `axmp explain` for what a
+given document resolves to, and `axmp physics --type T` for the options and conditions of a type. The beta sections change
+only with a note in the `CHANGELOG`.
+
+```json
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "channel",
+  "symmetry": "planar",
+  "parameters": {"H": 0.01, "L": 0.04, "U_mean": 0.01, "mu": 0.001002, "rho": 998.2},
+  "materials": {"water": {"density": "rho", "fluid": {"mu_Pa_s": "mu"}}},
+  "regions": [{"name": "channel", "shape": {"rect": {"x": [0, "L"], "y": [0, "H"]}}, "material": "water"}],
+  "boundaries": {"inlet": {"of": "channel", "where": {"x": 0}}, "outlet": {"of": "channel", "where": {"x": "L"}},
+                 "walls": {"of": "channel", "except": ["inlet", "outlet"]}},
+  "physics": {"flow": {"type": "fluid.incompressible",
+    "options": {"equation": "navier_stokes", "viscous_form": "laplacian"},
+    "boundary_conditions": {"inlet": {"kind": "inlet", "velocity_m_s": ["6*U_mean*y*(H-y)/H^2", 0]},
+                            "outlet": {"kind": "outlet", "pressure_Pa": 0}, "walls": {"kind": "wall"}}}},
+  "outputs": {"p_in": {"kind": "average", "of": "p", "on": "inlet"}, "p_out": {"kind": "average", "of": "p", "on": "outlet"},
+              "dp": {"kind": "expression", "expr": "p_in - p_out"}},
+  "mesh": {"size": "H/16"}
+}
+```
+
+### Named boundaries, atoms and the partition rule
+
+A boundary is a named selection of the **boundary edges** of the geometry (the edges of a 2D model). A boundary edge is an
+edge of the meshed regions that has two different regions on its sides, or a region and the exterior, or that carries a
+curve marker, or that lies on the axis of an axisymmetric model.
+
+| selector | selects |
+|---|---|
+| `{"of": D}` | the edges with exactly one side in the domain (or region) `D`; its normal points out of `D` |
+| `{"between": [A, B]}` | the edges with one side in `A` and the other in `B` (`B` may be `"exterior"`); the normal points from `A` into `B`. The two domains may not share a region: `boundary.between_overlap` (found by `axmp validate`, which needs no mesher for it) |
+| `{"curve": NAME}` | the edges that carry the curve marker `NAME`, whatever their sides (a marker inside a region is an interior boundary, a section); the normal is the written direction of the marker turned by +90 degrees (to its left) |
+| `{"union": [...]}`, `{"difference": [...]}`, a boundary name | set operations on selections; the orientation is that of the first operand that selects an edge |
+
+`of` and `between` take `where` (`{"x": 0}` an equality, `{"x": [a, b]}` a closed range, per coordinate: x, y or r, z),
+`tolerance_m` (default 1e-9 of the diagonal of the geometry) and `except` (names of boundaries to remove). A `where`
+filter keeps an edge only when the **whole** edge, by its exact bounding box, satisfies every constraint. The axis r = 0
+is never selected by a name: every physics applies its axis condition there.
+
+A `where` filter that leaves out an edge that satisfies it in part, in a boundary that selects other edges, gives the
+warning `boundary.partial_match`; to select part of an edge, add a curve along that part and use `{"curve": NAME}`. A straight edge is decided
+exactly: its segment is cut at the bounds of every constraint that the edge's box does not already satisfy, and it is a
+partial match when a part longer than the tolerance remains (and no equality is left unsatisfied). An edge that only touches
+the filter's box is therefore not reported. A
+curved edge is decided by its bounding box, with one exception: a curved edge whose box encloses the filter's box strictly in
+every coordinate (every coordinate constrained by a range) is not reported, because a closed curve runs around such a box (the
+outer circle of an annulus, around a filter drawn on its inner circle) and the box cannot tell whether the curve passes
+through it. A boundary that
+selects nothing is `boundary.empty_selection`, and its hint lists the edges that exist.
+
+**Atoms.** The meshed boundary is split into **atoms**: the edges that the same boundaries select (the same set of
+names) form one atom, so a boundary may be several atoms, and two boundaries that overlap share one. The edges that no
+boundary selects form one unnamed atom per pair of regions, and the axis is one atom. The atoms are what the mesh carries; no
+interface of the package hands out their numbers (the mesher's info file lists them).
+
+**The partition rule.** The boundary of the domain of a physics (the edges with exactly one side in its regions, not on
+the axis) is covered exactly once by the keys of its `boundary_conditions`: a boundary name, or `"remaining"` for what
+no other key of the physics covers. `axmp boundaries` and `axmp mesh` refuse a part with no condition
+(`physics.boundary_uncovered`), a part with two (`physics.boundary_double`), a key that is not on the boundary of the
+domain but inside it (`physics.boundary_interior`, also when only part of it is) and a key with nothing on the boundary
+or inside the domain (`physics.boundary_outside_domain`). A boundary interior to a domain is a **section** and can be used by
+outputs. A key may lie partly outside the domain of its physics: it is **taken where it lies on the domain boundary** of
+that physics, so two physics on neighbouring regions may use the same boundary, each taking its own part (the table of
+`axmp boundaries` shows the part each instance takes). The outputs on resolved boundaries are checked too: an output on a
+boundary outside its physics (`output.boundary_not_in_domain`), a force on an interior section
+(`output.force_on_interior`), and a force with the Laplacian viscous form on a boundary that carries a condition other than a
+wall at rest (`output.force_needs_stress_form`).
+
+### Curves and shapes in a meshed model document
+
+A curve marker's direction decides the normal of a `{"curve": NAME}` boundary. An `arc` path is read
+**counter-clockwise** from its first angle to its second (the validation requires the first to be smaller), so its
+normal, the left of the tangent, points to the arc's centre. A `rect` path has no written order, so its orientation is
+not yours to choose: use `between` or `of` for an oriented flux through a closed curve. A `segment` or `polyline` runs
+as written.
+
+The bounded meshes take lines and circular arcs. A `contour` with an `ellipse` segment becomes a spline curve, which the
+mesher does not take: it is refused at validation with `model.shape_not_offered` (also inside `union` and `difference`,
+for an enabled region of a document meshed here, that is, without `mesh.file`; the hint names `disk`, `rect` and `polygon`).
+
+`axmp patch design.json ops.json` edits a document with RFC 6902 operations. The patched document is written with its
+keys in sorted order (the core keeps JSON objects sorted; the order of keys carries no meaning in JSON), so a patch of a
+hand-formatted file rewrites it in that order.
 
 ## Results (`results.json`)
 
@@ -1850,6 +2037,8 @@ through a port region.
     is printed on stderr (in `axmp`'s `mesh3d_mesher.log`) and listed in the
     results' `warnings`. On macOS there is no such process, so every
     curved mesh warns.
+  - 2D meshes use the same process only to repair tangled elements (see
+    [Curved elements in 2D](#curved-elements-in-2d)).
 - Parallel runs (MPI): `srun -n N axmp solve design.json -o DIR --save`
   (or `mpirun -np N`), or `Design.solve(mpi_ranks=N)` from Python, which runs
   that command and loads the saved solution (one solve per workdir at a time:

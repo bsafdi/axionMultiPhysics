@@ -15,10 +15,11 @@ from __future__ import annotations
 
 import copy
 
-from .design import Design
+from .design import Design, _require_em_document
 
 
 def to_3d(design: Design | dict, slit_deg: float = 4.0, mesh: dict | None = None, pickup: str = "ideal") -> Design:
+    _require_em_document(design, "to_3d")
     if pickup not in ("ideal", "slit"):
         raise ValueError("pickup must be 'ideal' or 'slit'")
     doc = copy.deepcopy(design.doc if isinstance(design, Design) else design)

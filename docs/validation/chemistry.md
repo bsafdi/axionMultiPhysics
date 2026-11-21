@@ -26,19 +26,28 @@ format and the runner in `benchmarks/fluids/README.md` and `benchmarks/chem/READ
   ones, and the `literature` verdict is `NOT_TESTED` for every case.
 - No comparison with experiments; no mass transport, migration, double layer or transient electrochemistry exists
   to verify (see the limitations in the guide).
-- The two 3D current-distribution cases (`chem_mms_c3_3d`, `chem_analytic_c3_concentric_3d`, four MPI ranks; their
-  case definitions allow 6 and 2 hours in full) were run in **quick mode only** in the last run: their criteria are
-  met on the first two levels, but the orders and Richardson extrapolations on the finer levels are not confirmed by
-  it.
 - The comparison with axionMultiPhysics's own electrostatics solver checks the current-distribution assembly against an
   independent code path of the same library, not against another code.
 
 ## Last run
 
-Run on 2026-11-08 (axionMultiPhysics 0.1.0) in an MPI build (GCC 14, Release; MFEM 4.10.0 with METIS; no STRUMPACK, so
-the direct solves use the Eigen fallback) on one 128-core CPU node. Every short case was run in full
-(`run --cost short`), the long cases except the two 3D (multi-rank) ones in full, and every case in quick mode
-(`run --all --quick`); the table shows the full result where there is one.
+Two runs are combined in the tables.
+
+*2026-11-08* (axionMultiPhysics 0.1.0): an MPI build (GCC 14, Release; MFEM 4.10.0 with METIS; no STRUMPACK, so the
+direct solves use the Eigen fallback) on one 128-core CPU node. Every short case was run in full (`run --cost short`),
+the long cases except the two 3D (multi-rank) ones in full, and every case in quick mode (`run --all --quick`).
+
+*2026-11-17* (axionMultiPhysics 0.1.0, commit `9d397749`): the two 3D current-distribution cases (`chem_mms_c3_3d`,
+`chem_analytic_c3_concentric_3d`) were run in full, on four MPI ranks with eight OpenMP threads each, on `lr7` nodes
+with GCC 13.2, Open MPI 4.1.6 and MFEM 4.10.0, in three builds: strumpack-serial (serial STRUMPACK 8.0.0), strumpack-mpi
+(STRUMPACK 8.0.0 with MPI and ScaLAPACK; its first build failed to link because CMake picked the system GCC 8
+`gfortran` and it was rebuilt with the GCC 13 `mpifort`) and nostrumpack (Eigen fallback). Both cases meet all their
+criteria in all three builds (10.4 to 10.9 min and 5.0 to 5.8 min per case). They solve with hypre CG and BoomerAMG,
+not a direct solver, and the three builds give identical results to the last digit, so the run shows that the results
+do not depend on the build or the node, not that STRUMPACK was exercised. The raw results, logs and run scripts of these runs
+are not published; the paragraph above and the table below are their summary. The other 37 cases were not rerun; their results are those of 2026-11-08.
+
+The table shows the full result where there is one (for the two 3D cases, the strumpack-mpi result).
 
 Columns: *evidence* is the kind of check (`mms`: manufactured solution, `analytic`: closed form, `conservation`:
 balances and identities, `cross_code`: another code or an independent reference computation); *run* is `full` or
@@ -47,7 +56,7 @@ balances and identities, `cross_code`: another code or an independent reference 
 the observed orders minus the expected ones, the largest deviation of a comparison as a fraction of its tolerance (1 =
 at the tolerance), and the number of identity and bound checks.
 
-**Summary.** 37 of the 39 cases were run in full and all 37 meet all their criteria: 237 observed orders of
+**Summary.** All 39 cases were run in full and all 39 meet all their criteria: 261 observed orders of
 convergence within each case's tolerance, closed forms and the Cantera, DOLFINx, series and electrostatics references
 within their tolerances, balances at round-off.
 
@@ -116,11 +125,11 @@ within their tolerances, balances at round-off.
 
 | case | evidence | cost | run | result | measured |
 |---|---|---|---|---|---|
-| `chem_analytic_c3_concentric_3d` | analytic, cross_code, conservation | long | quick | all criteria met (on two levels) | 4 orders (expected 2.0, 4.0), observed minus expected -2.1e-03 to -8.1e-05; 8 Richardson/GCI (orders 1.99 to 3.91); 40 comparisons (b2_closed_form, conc3d_dolfinx), largest deviation 0.46 of the allowance; 10 checks |
+| `chem_analytic_c3_concentric_3d` | analytic, cross_code, conservation | long | full | all criteria met | 4 orders (expected 2.0, 4.0), observed minus expected -2.1e-03 to -8.1e-05; 8 Richardson/GCI (orders 1.99 to 3.91); 40 comparisons (b2_closed_form, conc3d_dolfinx), largest deviation 0.46 of the allowance; 10 checks |
 | `chem_analytic_c3_porous_1d` | analytic, conservation | short | full | all criteria met | 27 orders (expected 1.0, 2.0, 3.0, 4.0), observed minus expected -0.01 to -1.4e-07; 10 comparisons (porous_closed_form), largest deviation 0.31 of the allowance; 32 checks |
-| `chem_mms_c3_3d` | mms, conservation | long | quick | all criteria met (on two levels) | 20 orders (expected 1.0, 2.0, 3.0, 4.0), observed minus expected -0.06 to -5.3e-03; 29 checks |
+| `chem_mms_c3_3d` | mms, conservation | long | full | all criteria met | 20 orders (expected 1.0, 2.0, 3.0, 4.0), observed minus expected -0.06 to -5.3e-03; 29 checks |
 
-39 cases: 37 run in full (37 meet all their criteria), 2 run in quick mode only, 0 not run. The full runs contain 237 observed orders of convergence, 34 Richardson/GCI estimates, 873 comparisons with reference values and 253 checks.
+39 cases: 39 run in full (39 meet all their criteria), 0 run in quick mode only, 0 not run. The full runs contain 261 observed orders of convergence, 42 Richardson/GCI estimates, 913 comparisons with reference values and 292 checks.
 
 ## Reference sources
 

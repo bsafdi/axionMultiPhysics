@@ -1,0 +1,266 @@
+# G0, the compatibility gate (docs/developer/g0.md): what an electromagnetic design observes of axionMultiPhysics,
+# compared with the committed baselines (tests/g0/).
+#
+# This workflow is the PUBLIC repository's CI at a release (it is triggered by the release tag, and by a pull request
+# there), and the only place the three hosted-runner platforms are
+# exercised (macOS among them). It does NOT hold the reference platform: tier B is pinned to one node type of the
+# development cluster, where the development gate runs it against that platform's own record, because a hosted runner
+# image moves and a record of its bytes would be refused more often than it would hold. Every job here therefore
+# compares TIER A (text, against that platform's own committed record) and TIER C (the numbers of the same solves
+# against the reference platform's record, to the tolerances measured on that platform), and no job claims to be the
+# reference. An entry of the manifest that the platform has no measurement of is reported as PENDING, by name and with
+# its reason, from tests/g0/pending.json; the reference platform is what compares it.
+#
+#   linux-mpi         Ubuntu 24.04, OpenMPI, MFEM/hypre/METIS from scripts/build_deps.sh. Tiers A and C, the 3D mesh
+#                     entries included. No STRUMPACK is built here, so this is the Eigen build.
+#   linux-sequential  Ubuntu 24.04, serial MFEM, gmsh 4.15.2 from PyPI (the wheel configuration): tiers A and C.
+#   macos-sequential  macOS arm64, Homebrew, gmsh 4.15.2 from PyPI: tiers A and C. In the private development
+#                     repository, where macOS minutes are billed at ten times the Linux rate (and where Actions is
+#                     disabled), it runs only on workflow_dispatch.
+#
+# The build steps and the dependency caches are those of ci.yml (same cache keys), so a run compiles only axionMultiPhysics.
+#
+# workflow_dispatch with `record` set does not compare: it records a baseline on each platform and uploads that
+# platform's files, and no other's, as an artifact (g0-<platform>, rooted at tests/g0/); a baseline changes only through
+# a separate, argued commit (docs/developer/g0.md, which gives the commands). That is how a platform here is measured
+# again, which is what empties its pending list. `repin` records although a platform's fingerprint moved;
+# `allow_new_masks` records the timing masks of entries that are new in the manifest.
+name: g0
+
+on:
+  # The release itself: docs/developer/release.md publishes by pushing the tag vX.Y.Z, and the release is where the
+  # three hosted platforms, macOS among them, are covered. Without this trigger the sentence above would be untrue:
+  # G0 would run in the public repository only on a pull request or a hand dispatch.
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - "**"
+      - "!docs/**"
+      - "!**/*.md"
+      - "!mkdocs.yml"
+      - "!llms.txt"
+      - "!LICENSE"
+      - "docs/install.md"
+      - "docs/guides/install.md"
+      - "docs/validation/fluids.md"
+      - "docs/validation/chemistry.md"
+      - "docs/**/*.json"
+      - ".claude/skills/**"
+      - "viewer/**"
+  workflow_dispatch:
+    inputs:
+      record:
+        description: "Record baselines and upload them as artifacts instead of comparing"
+        type: boolean
+        default: false
+      repin:
+        description: "With record: record although a platform's fingerprint is not the committed one (a platform that moved; a separate, argued commit)"
+        type: boolean
+        default: false
+      allow_new_masks:
+        description: "With record: write masks that the committed list of a platform does not have (new manifest entries, a first record; reviewed before it is committed)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: g0-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  AXMP_DEPS_SRC: ${{ github.workspace }}/third_party/src
+  RECORD: ${{ github.event_name == 'workflow_dispatch' && inputs.record }}
+  REPIN: ${{ github.event_name == 'workflow_dispatch' && inputs.repin && '--repin' || '' }}
+  NEW_MASKS: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_new_masks && '--allow-new-masks' || '' }}
+
+jobs:
+  linux-mpi:
+    name: G0 linux MPI (tiers A and C)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools and OpenMPI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libopenmpi-dev openmpi-bin libopenblas-dev liblapack-dev
+          python -m pip install --upgrade pip
+          python -m pip install "scikit-build-core>=0.9" "nanobind>=2.0" numpy cmake
+
+      - name: Fetch and verify the pinned sources
+        run: bash scripts/fetch_deps.sh
+
+      - name: Restore the MPI third-party stack
+        id: deps
+        uses: actions/cache/restore@v4
+        with:
+          path: third_party/install
+          key: mpi-ubuntu-24.04-${{ hashFiles('scripts/build_deps.sh', 'scripts/common.sh', 'third_party/SHA256SUMS.txt') }}
+
+      - name: Build the MPI third-party stack (METIS, hypre, MFEM, gmsh SDK)
+        if: steps.deps.outputs.cache-hit != 'true'
+        timeout-minutes: 45
+        run: bash scripts/build_deps.sh
+
+      - name: Save the MPI third-party stack
+        if: steps.deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: third_party/install
+          key: ${{ steps.deps.outputs.cache-primary-key }}
+
+      - name: Configure and build
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DAXMP_DEPS="$PWD/third_party/install" -DPython_EXECUTABLE="$(which python)"
+          cmake --build build
+          cmake -LA -N build | grep -E "^AXMP_(MPI|OPENMP|GPU|USE_STRUMPACK)"
+          ldd build/libaxionmultiphysics.so | grep -qi libmpi
+
+      - name: G0
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python
+          AXMP_MESHER: ${{ github.workspace }}/build/axmp-mesher
+          AXMP_BIN: ${{ github.workspace }}/build/axmp
+        run: |
+          python tests/g0/g0.py fingerprint
+          if [ "$RECORD" = "true" ]; then python tests/g0/g0.py record $REPIN $NEW_MASKS; else python tests/g0/g0.py check; fi
+
+      - name: Upload the recorded baseline
+        if: env.RECORD == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: g0-linux-x86_64-mpi
+          path: |
+            tests/g0/baseline/linux-x86_64-mpi
+            tests/g0/spread/linux-x86_64-mpi.json
+
+  linux-sequential:
+    name: G0 linux sequential (wheel configuration, tiers A and C)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          # libgmsh from the gmsh PyPI wheel links the FLTK/OpenGL GUI, so axmp-mesher cannot load it without these.
+          # gmsh is pinned to the release the reference platform's mesher is built from: another release gives other
+          # meshes, and the tier-C tolerances of this platform were measured with this one.
+          sudo apt-get install -y ninja-build libglu1-mesa libgl1 libxcursor1 libxft2 libxinerama1
+          python -m pip install --upgrade pip
+          python -m pip install "scikit-build-core>=0.9" "nanobind>=2.0" "gmsh==4.15.2" numpy cmake
+
+      - name: Restore the sequential third-party stack
+        id: deps
+        uses: actions/cache/restore@v4
+        with:
+          path: third_party/install-seq
+          key: seq-ubuntu-24.04-${{ hashFiles('scripts/build_deps_wheel.sh', 'scripts/common.sh', 'third_party/SHA256SUMS.txt') }}
+
+      - name: Build the sequential third-party stack (serial MFEM, METIS)
+        if: steps.deps.outputs.cache-hit != 'true'
+        timeout-minutes: 45
+        run: bash scripts/build_deps_wheel.sh
+
+      - name: Save the sequential third-party stack
+        if: steps.deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: third_party/install-seq
+          key: ${{ steps.deps.outputs.cache-primary-key }}
+
+      - name: Configure and build
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DAXMP_DEPS="$PWD/third_party/install-seq" -DPython_EXECUTABLE="$(which python)"
+          cmake --build build
+
+      - name: G0
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python
+          AXMP_MESHER: ${{ github.workspace }}/build/axmp-mesher
+          AXMP_BIN: ${{ github.workspace }}/build/axmp
+        run: |
+          python tests/g0/g0.py fingerprint
+          if [ "$RECORD" = "true" ]; then python tests/g0/g0.py record $REPIN $NEW_MASKS; else python tests/g0/g0.py check; fi
+
+      - name: Upload the recorded baseline
+        if: env.RECORD == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: g0-linux-x86_64-sequential
+          path: |
+            tests/g0/baseline/linux-x86_64-sequential
+            tests/g0/spread/linux-x86_64-sequential.json
+
+  macos-sequential:
+    name: G0 macOS arm64 sequential (tiers A and C)
+    if: "!endsWith(github.repository, '/axionMultiPhysics-dev') || github.event_name == 'workflow_dispatch'"
+    runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prerequisites (Homebrew)
+        run: |
+          brew install cmake ninja libomp python@3.12
+          python3.12 -m venv .venv
+          echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
+
+      - name: Restore the sequential third-party stack
+        id: deps
+        uses: actions/cache/restore@v4
+        with:
+          path: third_party/install-seq
+          key: seq-macos-15-${{ hashFiles('scripts/build_deps_wheel.sh', 'scripts/common.sh', 'third_party/SHA256SUMS.txt') }}
+
+      - name: Build the sequential third-party stack (serial MFEM, METIS)
+        if: steps.deps.outputs.cache-hit != 'true'
+        timeout-minutes: 45
+        run: bash scripts/build_deps_wheel.sh
+
+      - name: Save the sequential third-party stack
+        if: steps.deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: third_party/install-seq
+          key: ${{ steps.deps.outputs.cache-primary-key }}
+
+      - name: Configure and build
+        run: |
+          pip install --upgrade pip "scikit-build-core>=0.9" "nanobind>=2.0" "gmsh==4.15.2" numpy
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DAXMP_DEPS="$PWD/third_party/install-seq" -DPython_EXECUTABLE="$(which python)"
+          cmake --build build
+
+      - name: G0
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python
+          AXMP_BIN: ${{ github.workspace }}/build/axmp
+          AXMP_MESHER: ${{ github.workspace }}/build/axmp-mesher
+        run: |
+          python tests/g0/g0.py fingerprint
+          if [ "$RECORD" = "true" ]; then python tests/g0/g0.py record $REPIN $NEW_MASKS; else python tests/g0/g0.py check; fi
+
+      - name: Upload the recorded baseline
+        if: env.RECORD == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: g0-macos-arm64-sequential
+          path: |
+            tests/g0/baseline/macos-arm64-sequential
+            tests/g0/spread/macos-arm64-sequential.json

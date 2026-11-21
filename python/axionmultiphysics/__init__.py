@@ -18,7 +18,8 @@ import os as _os
 
 from . import _paths  # noqa: F401  (locates the mesher before the core loads)
 from ._core import AxionMultiPhysicsError, version
-from .design import Design, load, schema, template, templates
+from .design import Design, load, physics, schema, template, templates
+from .model_mesh import mesh
 from .results import Results, Results3D, conductors, jc, load_solution, requirement
 from . import circuit  # readout-circuit networks
 from ._beta import BetaWarning
@@ -39,9 +40,11 @@ __all__ = [
     "jc",
     "load",
     "load_solution",
+    "mesh",
     "objectives",
     "optimize",
     "global_optimize",
+    "physics",
     "requirement",
     "schema",
     "set_threads",

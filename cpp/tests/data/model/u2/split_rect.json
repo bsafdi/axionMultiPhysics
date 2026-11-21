@@ -1,0 +1,29 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "split_rect",
+  "description": "a rectangle L x H split at x = L/2 into the regions a and b; a marker across a at x = L/4, written bottom to top; a third region c, disabled; top and bottom left unnamed",
+  "symmetry": "planar",
+  "parameters": {"L": 0.04, "H": 0.01, "k": 0.6, "cp": 4180.0, "rho": 998.0},
+  "materials": {"slab": {"density": "rho", "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+  "regions": [
+    {"name": "a", "shape": {"rect": {"x": [0, "L/2"], "y": [0, "H"]}}, "material": "slab", "mesh_size": "H/16"},
+    {"name": "b", "shape": {"rect": {"x": ["L/2", "L"], "y": [0, "H"]}}, "material": "slab"},
+    {"name": "c", "shape": {"rect": {"x": ["L", "1.5*L"], "y": [0, "H"]}}, "material": "slab", "enabled": false}
+  ],
+  "curves": [{"name": "mk_line", "path": {"segment": [["L/4", 0], ["L/4", "H"]]}}],
+  "domains": {"left": ["a"], "slab_all": ["a", "b", "c"]},
+  "boundaries": {
+    "hot": {"of": "left", "where": {"x": 0}},
+    "cold": {"of": "b", "where": {"x": "L"}},
+    "interface": {"between": ["left", "b"]},
+    "mk": {"curve": "mk_line"}
+  },
+  "physics": {
+    "heat": {"type": "heat.transfer", "domains": ["slab_all"],
+             "boundary_conditions": {"hot": {"kind": "temperature", "T_K": 310.0},
+                                     "cold": {"kind": "temperature", "T_K": 290.0},
+                                     "remaining": {"kind": "insulation"}}}
+  },
+  "outputs": {"Q_mk": {"kind": "flux", "of": "heat", "on": "mk"}},
+  "mesh": {"size": "H/8"}
+}

@@ -1,0 +1,31 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "plate_cell",
+  "description": "parallel-plate cell, secondary current distribution, linearized Butler-Volmer kinetics",
+  "symmetry": "planar",
+  "parameters": {"gap": 0.01, "Hc": 0.02, "kappa": 1.0, "i0": 10.0, "V_cell": 0.05},
+  "materials": {"bath": {"electrolyte": {"kappa_S_m": "kappa"}}},
+  "regions": [{"name": "bulk", "shape": {"rect": {"x": [0, "gap"], "y": [0, "Hc"]}}, "material": "bath"}],
+  "boundaries": {
+    "anode":   {"of": "bulk", "where": {"x": 0}},
+    "cathode": {"of": "bulk", "where": {"x": "gap"}}
+  },
+  "reactions": {
+    "electrode": {"plate": {"kind": "linear", "i0_A_m2": "i0", "E_eq_V": 0.0, "alpha_a": 0.5, "alpha_c": 0.5}}
+  },
+  "physics": {
+    "cell": {"type": "electrochem.current_distribution",
+             "options": {"kinetics": "secondary", "order": 2, "T_K": 298.15},
+             "boundary_conditions": {
+               "anode":   {"kind": "electrode", "reactions": ["plate"], "phi_s_V": "V_cell"},
+               "cathode": {"kind": "electrode", "reactions": ["plate"], "phi_s_V": 0.0},
+               "remaining": {"kind": "insulation"}}}
+  },
+  "outputs": {
+    "I_anode":   {"kind": "electrode_current", "on": "anode"},
+    "I_cathode": {"kind": "electrode_current", "on": "cathode"},
+    "i_avg":     {"kind": "expression", "expr": "I_anode/Hc"},
+    "eta_worst": {"kind": "extreme", "of": "overpotential", "on": "cathode"}
+  },
+  "mesh": {"size": "gap/16"}
+}

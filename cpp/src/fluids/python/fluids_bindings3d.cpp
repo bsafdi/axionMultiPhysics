@@ -30,6 +30,7 @@
 #include "axionmultiphysics/fluids/meshes3d.hpp"
 #include "axionmultiphysics/fluids/stokes.hpp"
 #include "axionmultiphysics/sym_solver.hpp"
+#include "lu_records.hpp"
 
 namespace nb = nanobind;
 using namespace axmp::fluids;
@@ -379,11 +380,13 @@ struct PySolution3D {
     r["lu_krylov_iterations"] = d.lu.krylov_iterations;
     r["lu_krylov_fallback"] = d.lu.krylov_fallback;
     r["lu_matching"] = d.lu.matching;
+    // aliases kept for one release, derived from the attempts (stokes.hpp)
     r["lu_matching_retry"] = d.lu_matching_retry;
     r["lu_matching_retry_reason"] = d.lu_matching_retry_reason;
     r["lu_first_attempt_residual_before"] = d.lu_first_attempt_residual_before;
     r["lu_first_attempt_krylov_iterations"] = d.lu_first_attempt_krylov_iterations;
-    r["lu_backend"] = d.lu.backend;
+    r["lu_backend"] = d.lu.backend;  // the stage that produced the solution (`solver` is the configured backend)
+    axmp::fluids::pylu::put_record(r, d.lu, d.lu_stage, d.lu_attempts);
     r["lu_factor_nnz"] = d.lu.factor_nnz;
     r["ranks"] = d.ranks;
     r["threads"] = d.threads;
@@ -507,7 +510,8 @@ std::unique_ptr<PySolution3D> solve_stokes_3d(PyMesh3D& mesh, nb::object nu, nb:
                                               double rtol, double direct_tol, double grad_div,
                                               int pressure_order, bool allow_unstable_pair, int min_refine_steps,
                                               bool do_solve, int lu_threads, double slip_corner_angle_deg,
-                                              bool lu_krylov_fallback, bool lu_matching) {
+                                              bool lu_krylov_fallback, bool lu_matching,
+                                              const std::string& lu_retry) {
   ensure_mpi3();
   auto sol = std::make_unique<PySolution3D>();
   StokesOptions o;
@@ -525,6 +529,8 @@ std::unique_ptr<PySolution3D> solve_stokes_3d(PyMesh3D& mesh, nb::object nu, nb:
   AXMP_REQUIRE(solver == "direct" || solver == "minres", "solver must be 'direct' or 'minres'");
   o.solver = solver == "direct" ? LinearSolverKind::Direct : LinearSolverKind::MinresBlockDiag;
   o.lu = lu_backend_from_string(lu);
+  o.lu_chain = axmp::fluids::pylu::chain_for(lu_retry, o.lu,
+                                             lu_matching ? MatchingJob::MaxDiagonalProductScaling : MatchingJob::None);
   if (nullspace == "auto") o.nullspace = Nullspace::Auto;
   else if (nullspace == "pin") o.nullspace = Nullspace::PinPressure;
   else if (nullspace == "multiplier") o.nullspace = Nullspace::MeanMultiplier;
@@ -694,7 +700,7 @@ void register_python_3d(nb::module_& m) {
         nb::arg("direct_tol") = 1e-10, nb::arg("grad_div") = 0.0,
         nb::arg("pressure_order") = -1, nb::arg("allow_unstable_pair") = false, nb::arg("min_refine_steps") = 0,
         nb::arg("solve") = true, nb::arg("lu_threads") = 1, nb::arg("slip_corner_angle_deg") = 30.0,
-        nb::arg("lu_krylov_fallback") = true, nb::arg("lu_matching") = false,
+        nb::arg("lu_krylov_fallback") = true, nb::arg("lu_matching") = false, nb::arg("lu_retry") = "auto",
         "Taylor–Hood Stokes on a 3D mesh, partitioned over MPI_COMM_WORLD (axionmultiphysics.fluids.solve_stokes_3d).");
 }
 

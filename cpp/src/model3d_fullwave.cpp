@@ -7747,8 +7747,7 @@ void Model3D::fullwave_analysis(const SolveOptions& o) try {
   } catch (const std::exception& e) {  // the original failure must survive a failing check
     note = strcat(" (The mesh check failed: ", e.what(), ")");
   }
-  if (failure.hint().empty()) note.erase(0, 1);  // the leading space
-  throw Error(failure.message(), failure.where(), failure.hint() + note);
+  throw with_hint_note(failure, note);
 }
 
 }  // namespace axmp

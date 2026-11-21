@@ -1,0 +1,95 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "a",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      0.02
+     ],
+     "z": [
+      0,
+      0.01
+     ]
+    }
+   }
+  },
+  {
+   "name": "b",
+   "attr": 2,
+   "shape": {
+    "rect": {
+     "r": [
+      0.02,
+      0.04
+     ],
+     "z": [
+      0,
+      0.01
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [
+  {
+   "name": "mk_in",
+   "path": {
+    "segment": [
+     [
+      0.03,
+      0.005
+     ],
+     [
+      0.036,
+      0.005
+     ]
+    ]
+   }
+  },
+  {
+   "name": "mk_edge",
+   "path": {
+    "segment": [
+     [
+      0.04,
+      0.002
+     ],
+     [
+      0.035,
+      0.002
+     ]
+    ]
+   }
+  }
+ ],
+ "boundaries": {
+  "hot": {
+   "of": [
+    "a"
+   ],
+   "where": {
+    "x": [
+     0
+    ]
+   }
+  },
+  "mk_in": {
+   "curve": "mk_in"
+  },
+  "mk_edge": {
+   "curve": "mk_edge"
+  }
+ },
+ "size": 0.00125,
+ "surface_size": 0.00125,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

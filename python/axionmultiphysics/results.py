@@ -656,6 +656,30 @@ class Results:
         """Fields at points (r, z) [m]: Br, Bz, Bphi [T], psi [Wb/rad], pickup fields per ampere."""
         return self._model.sample(list(map(float, r)), list(map(float, z)))
 
+    def export_field_map(self, path: str | Path, *, regions: Sequence[str] | None = None, tol: float = 1e-4,
+                         merge: bool = True, track_volumes: Sequence[dict] | None = None,
+                         iterate_on_track_volumes: bool = False, outside: str = "refuse",
+                         max_patch_MB: float = 512.0, max_total_MB: float = 2048.0):
+        """Field map of the static field for particle transport (beta; ``axionmultiphysics.fieldmap``,
+        docs/guides/field_maps.md): one patch per region (kind 1 here, kind 3 for 3D results), each sampling the
+        region's recovered field B* on its own grid and refined until the RMS error of its chord integrals,
+        relative to max(int |B*| dl, 0.1 L_c B_patch), meets ``tol`` (or a tenth of the FE indicator, whichever is
+        larger).
+
+        ``regions``: the regions to map (default: every region but ideal superconductors, where B = 0); ``merge``:
+        adjacent regions with the same constitutive law and no curve between them share a patch; a closed curve
+        (superconducting sheet or thin magnetic layer) splits its region into one patch per side, and an open one is
+        refused. ``track_volumes``: boxes ``{"name", "r": [lo, hi], "z": [lo, hi]}`` (3D: ``"x", "y", "z"``) whose
+        own chord families are reported, and iterated on with ``iterate_on_track_volumes``. ``outside``: what the
+        evaluator does outside a patch's box ("refuse" or "zero"). ``max_patch_MB``, ``max_total_MB``: caps
+        (MB = 2^20 bytes). Writes the directory ``path`` and returns ``fieldmap.load(path)``; refusals write
+        nothing."""
+        from . import fieldmap
+
+        return fieldmap.export(self, path, regions=regions, tol=tol, merge=merge, track_volumes=track_volumes,
+                               iterate_on_track_volumes=iterate_on_track_volumes, outside=outside,
+                               max_patch_MB=max_patch_MB, max_total_MB=max_total_MB)
+
     # ---- mechanics / thermal ----
     @property
     def mechanics(self) -> dict:

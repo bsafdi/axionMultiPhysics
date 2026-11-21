@@ -74,6 +74,14 @@ def default_lu() -> str:
     return "strumpack" if _f.lu_backend_available("strumpack") else "eigen"
 
 
+def _lu_retry(value):
+    """Check lu_retry ("auto" or "off") before it reaches the core."""
+    if value not in ("auto", "off"):
+        raise ValueError(f'lu_retry must be "auto" (the default chain of sparse LU configurations) or "off" (its '
+                         f"first configuration alone), got {value!r}")
+    return value
+
+
 def _vectorize(fn, vdim):
     """Normalize a vectorized callable f(X, Y) to a contiguous float64 array (n,) or (n, vdim)."""
     if fn is None or not callable(fn):
@@ -113,7 +121,8 @@ def _vectorize_normal(fn, vdim):
 
 def _solve(mesh, nu, force, bcs, form, geometry, solver, lu, nullspace, pressure_point, order, rtol, direct_tol,
            grad_div, pressure_order, allow_unstable_pair, vectorized, min_refine_steps, solve,
-           lu_threads=1, slip_corner_angle_deg=30.0, refuse_velocity_nullspace=True, velocity_nullspace_tol=1e-3):
+           lu_threads=1, slip_corner_angle_deg=30.0, refuse_velocity_nullspace=True, velocity_nullspace_tol=1e-3,
+           lu_retry="auto"):
     vdim = 3 if geometry == "axisymmetric" else 2
     bcs = [dict(b) for b in bcs]
     if vectorized:
@@ -128,13 +137,14 @@ def _solve(mesh, nu, force, bcs, form, geometry, solver, lu, nullspace, pressure
                            pressure_point, order, rtol, direct_tol, float(grad_div), int(pressure_order),
                            bool(allow_unstable_pair), bool(vectorized), int(min_refine_steps), bool(solve),
                            int(lu_threads), float(slip_corner_angle_deg), bool(refuse_velocity_nullspace),
-                           float(velocity_nullspace_tol))
+                           float(velocity_nullspace_tol), lu_retry=_lu_retry(lu_retry))
 
 
 def solve_stokes(mesh, nu, force=None, bcs=(), *, form="stress", geometry="planar", solver="direct", lu=None,
                  nullspace="auto", pressure_point=None, order=2, rtol=1e-10, direct_tol=1e-10,
                  grad_div=0.0, pressure_order=-1, allow_unstable_pair=False, vectorized=False, min_refine_steps=0,
-                 lu_threads=1, slip_corner_angle_deg=30.0, refuse_velocity_nullspace=True, velocity_nullspace_tol=1e-3):
+                 lu_threads=1, slip_corner_angle_deg=30.0, refuse_velocity_nullspace=True, velocity_nullspace_tol=1e-3,
+                 lu_retry="auto"):
     """Solve Taylor–Hood Stokes; see the module docstring. form: "stress" (2 nu eps:eps) or "laplacian"
     (nu grad:grad), constant or variable nu > 0 in both. direct_tol: the gate of the direct path (relative residual
     of the consistent system); ill-scaled problems (large viscosity contrast, high aspect ratio) may need a looser
@@ -146,10 +156,16 @@ def solve_stokes(mesh, nu, force=None, bcs=(), *, form="stress", geometry="plana
     rotation only in the stress form -- whose rms misfit with the homogeneous boundary conditions on the curved
     boundary is <= velocity_nullspace_tol, a geometric, mesh-independent tolerance) is refused unless
     refuse_velocity_nullspace=False (then only reported in diagnostics["velocity_nullspace"]); near-nullspaces are
-    solved, and diagnostics["velocity_nullspace_residual"] reports the misfit of the least constrained rigid motion. Never raises on non-convergence."""
+    solved, and diagnostics["velocity_nullspace_residual"] reports the misfit of the least constrained rigid motion. Never raises on non-convergence.
+    A stage of the direct solve is accepted on the relative residual over all rows of the system it solves, at
+    direct_tol; diagnostics["lu_backend"] and ["lu_stage"] name the configuration that produced the solution and
+    ["solver"] the configured one.  lu_retry="auto" (default): a direct solve whose solution misses its accuracy gate is solved again with the next
+    configuration of a recorded chain (docs/physics/fluids.md, "Linear solvers"); "off": the first configuration
+    (lu) alone."""
     return _solve(mesh, nu, force, bcs, form, geometry, solver, lu, nullspace, pressure_point, order, rtol,
                   direct_tol, grad_div, pressure_order, allow_unstable_pair, vectorized, min_refine_steps,
-                  True, lu_threads, slip_corner_angle_deg, refuse_velocity_nullspace, velocity_nullspace_tol)
+                  True, lu_threads, slip_corner_angle_deg, refuse_velocity_nullspace, velocity_nullspace_tol,
+                  lu_retry)
 
 
 def assemble_stokes(mesh, nu, bcs=(), *, form="stress", order=2, pressure_order=-1, allow_unstable_pair=False,
@@ -166,7 +182,8 @@ def solve_navier_stokes(mesh, mu, rho, force=None, bcs=(), *, form="stress", con
                         geometry="planar", order=2, lu=None, nullspace="auto", strategy="newton", n_picard=3,
                         line_search=True, newton_rtol=1e-12, newton_maxit=30, picard_maxit=200, ptc_dt0=0.05,
                         ptc_release_dt=1e12, ptc_maxit=200, continuation_re=None, re=None, viscosity_scales=None,
-                        quad_order_convection=0, direct_tol=1e-10, lu_threads=1, vectorized=False, mhd=None):
+                        quad_order_convection=0, direct_tol=1e-10, lu_threads=1, vectorized=False, mhd=None,
+                        residual_floor_factor=4.0, lu_retry="auto"):
     """Steady incompressible Navier-Stokes: rho (u.grad)u - div sigma_form + grad p
     = f, div u = 0, in DYNAMIC units (mu the dynamic viscosity, number or callable; rho a constant density; p the
     physical pressure; force a force density).  form "stress" | "laplacian"; convection "standard" (default) |
@@ -183,6 +200,17 @@ def solve_navier_stokes(mesh, mu, rho, force=None, bcs=(), *, form="stress", con
     solve stops at newton_rtol.  Never raises on non-convergence: check diagnostics["converged"]; the fields are refused
     then, the history and the free-DOF API (state, residual, jacobian_action) are not.
 
+    That residual cannot go below the round-off of its own evaluation, a floor that grows under refinement and can
+    exceed newton_rtol on a fine mesh (docs/physics/fluids.md).  With strategy "newton" ONLY (not "picard", not
+    "ptc", not the time steps, not solve_boussinesq or solve_gls, which ignore residual_floor_factor), a solve whose
+    step no longer reduces the residual, within residual_floor_factor of the MEASURED floor and still within a
+    decade of newton_rtol, stops there and counts as converged, reporting diagnostics["residual_floor"] and
+    diagnostics["stopped_at_floor"]; residual_floor_factor=0 leaves newton_rtol as the only gate.  A caller who
+    needs the residual itself reads diagnostics["relative_residual"]: converged means it is at most newton_rtol, or
+    at most ten times newton_rtol with stopped_at_floor set.  The stop accepts the iterate it fired on (a longer run
+    may wander to a slightly smaller residual), and the measured floor depends on the number of MPI ranks at
+    round-off level, so such a solve may stop a step earlier or later on another rank count.
+
     Inductionless MHD: geometry="planar25d" (z-invariant, three velocity
     components (u_x, u_y, u_z), data and output in that order, Laplacian form) together with
     mhd={"sigma": s(x, y), "B": (B_x, B_y, B_z)(x, y), "E_z": E_z, "q": q(x, y) (optional current source),
@@ -191,7 +219,17 @@ def solve_navier_stokes(mesh, mu, rho, force=None, bcs=(), *, form="stress", con
     unknowns are (u, p, phi); J = sigma(-grad phi + E_z e_z + u x B), the force is J x B with the same J; the axial
     pressure gradient G_z is part of `force`.  rho = 0 (Stokes-like) and rho > 0 (Newton) are offered.  The solution
     has potential(elements, ref_points) and potential_boundary_nodes(attributes); the potential has zero mean when it
-    is defined up to a constant (diagnostics["phi_nullspace_detected"]).  One MPI rank only."""
+    is defined up to a constant (diagnostics["phi_nullspace_detected"]).  One MPI rank only.
+
+    The direct solves: every step's is accepted on its relative residual at the final step's bound
+    max(newton_rtol, 1e-11) (any step may be the final one), the dual-norm mass solves' at 1e-10.  The history gives
+    each step's lu_attempts and lu_stage; the diagnostics give the counts of this call's step solves (lu_solves,
+    lu_escalated, lu_escalated_final, lu_attempts_total, lu_rejected, lu_failed, lu_accepted_by,
+    lu_rejected_seconds), mass_lu_escalated, and the last direct solve's lu_stage, lu_attempts, lu_backward_error and
+    lu_kernel_probe.  lu_fallbacks (= lu_escalated) and lu_fallback_backend are aliases kept for one release.
+    lu_retry="auto" (default): a direct solve whose solution misses its accuracy gate is solved again with the next
+    configuration of a recorded chain (docs/physics/fluids.md, "Linear solvers"); "off": the first configuration
+    (lu) alone."""
     vdim = 2 if geometry == "planar" else 3
     if mhd is not None:
         mhd = dict(mhd)
@@ -233,7 +271,8 @@ def solve_navier_stokes(mesh, mu, rho, force=None, bcs=(), *, form="stress", con
                                   float(newton_rtol), int(newton_maxit), int(picard_maxit), float(ptc_dt0),
                                   float(ptc_release_dt), int(ptc_maxit),
                                   [float(s) for s in (viscosity_scales or [])], int(quad_order_convection),
-                                  float(direct_tol), int(lu_threads), bool(vectorized), mhd, True)
+                                  float(direct_tol), int(lu_threads), bool(vectorized), mhd, True,
+                                  float(residual_floor_factor), lu_retry=_lu_retry(lu_retry))
 
 
 from .gls import GlsSolution, gls_problem, solve_gls  # noqa: E402  (stabilized P1/P1 GLS)
@@ -305,7 +344,7 @@ def _check_tau(supg, tau_rule):
 
 def solve_heat(mesh, kappa, *, capacity=1.0, velocity=None, source=None, bcs=(), geometry="planar", order=2,
                form="convective", supg=False, tau_rule="shakib_hK", grad_kappa=None, div_velocity=None, shift=0.0,
-               lu=None, rtol=1e-12, maxit=4, solve=True):
+               lu=None, rtol=1e-12, maxit=4, solve=True, lu_retry="auto"):
     """Steady scalar (heat) transport  a b.grad T - div(kappa grad T) = s:
     the shared axmp::transport::ScalarTransport operator in heat vocabulary.  ONE MPI rank only: on a mesh partitioned
     over more than one rank it is refused with an error (it would otherwise solve one independent problem per partition).
@@ -324,14 +363,18 @@ def solve_heat(mesh, kappa, *, capacity=1.0, velocity=None, source=None, bcs=(),
     "axis" (axisymmetric r = 0); one condition per boundary attribute.  A node shared by two Dirichlet parts takes the
     value of the later bcs entry (no check that the data agree; continuous data are the caller's job).  geometry
     "planar" | "axisymmetric" ((r, z) = mesh (x, y); weight r).
-    Never raises on non-convergence: diagnostics["converged"]."""
+    Never raises on non-convergence: diagnostics["converged"].  The Jacobian solves are accepted on their relative
+    residual at max(1e-2 rtol, 1e-11), the dual-norm mass solves at 1e-10; diagnostics as solve_navier_stokes's
+    (lu_stage, lu_attempts, lu_backward_error, the counts, mass_lu_escalated).  lu_retry="auto" (default): a direct solve whose solution misses its accuracy gate is solved again with the next
+    configuration of a recorded chain (docs/physics/fluids.md, "Linear solvers"); "off": the first configuration
+    (lu) alone."""
     _check_tau(supg, tau_rule)
     vsol = velocity if hasattr(velocity, "velocity") and not callable(velocity) else None
     vfn = None if vsol is not None else _v2(velocity)
     return _f.solve_scalar_transport(
         mesh, geometry, int(order), form, bool(supg), tau_rule, float(capacity), _v1(kappa), _v2(grad_kappa), vfn,
         _v1(div_velocity), float(capacity), vsol, _v1(source), _tbcs(bcs), float(shift), lu or default_lu(),
-        float(rtol), int(maxit), bool(solve))
+        float(rtol), int(maxit), bool(solve), lu_retry=_lu_retry(lu_retry))
 
 
 def natconv_cavity_parameters(Ra, Pr, L=1.0, dT=1.0):
@@ -345,7 +388,7 @@ def solve_boussinesq(mesh, mu, rho0, cp, k, beta_g, *, T_ref=None, gravity="-y",
                      supg=False, line_search=False, newton_rtol=1e-12, newton_maxit=30, continuation_ra=None, ra=None,
                      buoyancy_scales=None, lu=None, nullspace="auto", grad_k=None, strategy="newton", n_picard=0,
                      start="lift", transient=False, quad_order_convection=0, direct_tol=1e-10, lu_threads=1,
-                     t_order=2, solve=True):
+                     t_order=2, solve=True, lu_retry="auto"):
     """Steady Boussinesq natural convection, DIMENSIONAL:
         rho0 (u.grad)u - div sigma_form + grad p = f + rho0 beta_g (T - T_ref) e_up,   div u = 0,
         rho0 c_p u.grad T - div(k grad T) = Q,
@@ -357,7 +400,11 @@ def solve_boussinesq(mesh, mu, rho0, cp, k, beta_g, *, T_ref=None, gravity="-y",
     temperature, conservative forms, T-dependent properties and a transient solve are refused.  velocity_bcs:
     the Navier-Stokes boundary conditions (dirichlet, axis, traction, do_nothing); temperature_bcs: see solve_heat.  mu, k,
     heat_source, force are numbers or vectorized callables (force: (n, vdim)); grad_k(X, Y) -> (n, 2) is needed for
-    SUPG with a variable k.  Never raises on non-convergence."""
+    SUPG with a variable k.  Never raises on non-convergence.  The step solves are accepted on their relative residual
+    at max(newton_rtol, 1e-11), the dual-norm mass solves (flow and temperature) at 1e-10; the history gives each
+    step's lu_attempts and lu_stage, the diagnostics the records and counts of solve_navier_stokes.  lu_retry="auto" (default): a direct solve whose solution misses its accuracy gate is solved again with the next
+    configuration of a recorded chain (docs/physics/fluids.md, "Linear solvers"); "off": the first configuration
+    (lu) alone."""
     if T_ref is None:
         raise ValueError("T_ref is required (no default): it fixes the pressure relative to the reference hydrostatic "
                          "state")
@@ -408,7 +455,7 @@ def solve_boussinesq(mesh, mu, rho0, cp, k, beta_g, *, T_ref=None, gravity="-y",
         lu or default_lu(), nullspace, int(newton_maxit), float(newton_rtol), bool(line_search),
         int(quad_order_convection), float(direct_tol), int(lu_threads), True, float(cp), float(beta_g), float(T_ref),
         ups[g], _v1(k), _v2(grad_k), _v1(heat_source), _tbcs(temperature_bcs), bool(supg), 2, scales or [], strategy,
-        int(n_picard), start, False, bool(solve))
+        int(n_picard), start, False, bool(solve), lu_retry=_lu_retry(lu_retry))
 
 
 __all__ += ["ScalarTransportSolution", "BoussinesqSolution", "solve_heat", "solve_boussinesq",

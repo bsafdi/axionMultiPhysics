@@ -54,6 +54,8 @@ struct GlsOptions {
   GlsStabilization stab;
   LUBackend lu = LUBackend::EigenLU;
   int lu_threads = 1;
+  // the stages of the step solves' sparse LU (sparse_lu.hpp); empty: the default chain of `lu`
+  std::vector<LUStage> lu_chain;
   GlsNonlinear nl;
 };
 
@@ -70,6 +72,8 @@ struct GlsStep {
   double residual = -1, step = 1, viscosity_scale = 1;
   int stage = 0, lu_refine = 0;
   double lu_residual = -1, lu_residual_before = -1;  // relative LU residual of this step's linear solve (after / before refinement)
+  int lu_attempts = 0;   // attempts of the step's linear solve (1: its first stage)
+  std::string lu_stage;  // the stage that produced the step's solution (LUStage::name())
 };
 
 struct GlsDiagnostics {
@@ -84,6 +88,13 @@ struct GlsDiagnostics {
   std::vector<double> viscosity_scales;
   double seconds = 0, lu_residual = -1, lu_residual_before = -1;
   int lu_refine_steps = 0;
+  // the step solves of this solve() (counts), and the last one: its stats, attempts and the stage that produced its
+  // solution (lu_backend is that stage's backend)
+  LUCounts lu_counts;
+  LUStats lu;
+  std::vector<LUAttempt> lu_attempts;
+  std::string lu_stage;
+  double mass_lu_residual_max = -1;  // worst relative residual of a dual-norm (Cholesky) mass solve; -1 = none
   long n_free_u = 0, n_pressure = 0, n_total = 0;
 };
 

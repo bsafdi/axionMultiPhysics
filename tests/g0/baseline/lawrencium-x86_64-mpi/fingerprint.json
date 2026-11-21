@@ -1,0 +1,65 @@
+{
+ "compared": {
+  "build": "mpi",
+  "compiler": "GCC: (Spack GCC) 13.2.0",
+  "cpu": "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz",
+  "dependency_pins": "49dc1122fc559d032d12d34a5635a918ce549eb73a63d8ea78834f177694db8d",
+  "libc": "glibc-2.28",
+  "machine": "x86_64",
+  "mesher": "4.15.2",
+  "os": "rocky-8.10",
+  "ranks": 1,
+  "strumpack": true,
+  "system": "linux"
+ },
+ "format": "axionmultiphysics.g0/1",
+ "informational": {
+  "blas": [
+   {
+    "config": "OpenBLAS 0.3.24 DYNAMIC_ARCH NO_AFFINITY Haswell SINGLE_THREADED",
+    "file": "libopenblas-r0.3.24.so",
+    "kernel": "Haswell",
+    "name": "libopenblas.so.0"
+   }
+  ],
+  "build_info": {
+   "device": "cpu",
+   "engine_3d": true,
+   "fluids": true,
+   "git_dirty": false,
+   "git_sha": "c6ff66ef12025c7a9b00f684a8472b50a176aeb3",
+   "gpu_backend": "",
+   "library": {
+    "git_dirty": false,
+    "git_sha": "c6ff66ef12025c7a9b00f684a8472b50a176aeb3"
+   },
+   "metis": true,
+   "mfem": "4.10.0",
+   "mpi": true,
+   "openmp": true,
+   "source_commit": "c6ff66ef12025c7a9b00f684a8472b50a176aeb3",
+   "source_dirty": "false",
+   "strumpack": true,
+   "strumpack_guard": "concurrent",
+   "strumpack_min_dofs": 300000,
+   "strumpack_mpi": false,
+   "strumpack_version": "8.0.0",
+   "threads": 16,
+   "version": "0.1.0"
+  },
+  "ci": false,
+  "environment_cleared": [
+   "AXMP_MESHER_ASLR"
+  ],
+  "environment_forced": {
+   "MKL_NUM_THREADS": "1",
+   "OMP_NUM_THREADS": "1",
+   "OPENBLAS_CORETYPE": "HASWELL",
+   "OPENBLAS_NUM_THREADS": "1",
+   "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "python": "3.12.12",
+  "runner_image": ""
+ },
+ "platform": "lawrencium-x86_64-mpi"
+}

@@ -1,0 +1,34 @@
+{
+ "bounded": true,
+ "geometry": "axisymmetric",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "ball",
+   "attr": 1,
+   "shape": {
+    "disk": {
+     "center": [
+      0,
+      0.01
+     ],
+     "radius": 0.005
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "surface": {
+   "of": [
+    "ball"
+   ]
+  }
+ },
+ "size": 0.000625,
+ "surface_size": 0.000625,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

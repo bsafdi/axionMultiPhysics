@@ -1,0 +1,29 @@
+busbar  (model document; 3d, bounded)
+  parameters  L=0.09  T_amb=293.15  V_app=0.002  W=0.05  htc=5  rb=0.003  tb=0.005
+  materials   copper: density 8960 kg/m^3, thermal(k 400 W/(m K), cp 385 J/(kg K)), electric(sigma law expression of T), mechanical(E 1.1e+11 Pa, nu 0.35, alpha 1.7e-05 1/K)
+              titanium: density 4940 kg/m^3, thermal(k 7.5 W/(m K), cp 710 J/(kg K)), electric(sigma 740700 S/m), mechanical(E 1.055e+11 Pa, nu 0.33, alpha 9.4e-06 1/K)
+  regions     bar [copper]  bolt [titanium]
+  domains     metal = bar, bolt
+  boundaries  bolt_ends  between bolt, exterior  used by current, solid  deferred: resolved by `axmp boundaries`
+              skin  of metal  used by heat  deferred: resolved by `axmp boundaries`
+              terminal  of bar where x = 0.09  used by current  deferred: resolved by `axmp boundaries`
+              remaining  every boundary no entry names  used by current, solid  deferred: resolved by `axmp boundaries`
+  physics     current  [current.conduction, absent]  on bar, bolt
+                bolt_ends  ground  -> not implemented yet
+                remaining  insulation  -> not implemented yet
+                terminal  potential  V_V=V_app  -> not implemented yet
+              heat  [heat.transfer, beta]  on bar, bolt
+                advective_form convective                                                     [default]
+                order 2                                                                       [default]
+                stabilization none                                                            [default]
+                skin  convection  T_ext_K=T_amb h_W_m2K=htc  -> robin: -k dT/dn = h (T - T_ext)
+              solid  [solid.linear, absent]  on bar, bolt
+                bolt_ends  fixed  -> not implemented yet
+                remaining  free  -> not implemented yet
+  couplings   joule_heating  current -> heat
+              thermal_expansion  heat -> solid  T_ref_K=T_amb
+  mesh        size 0.004 m, surface size 0.0015 m, geometry order 2                           [geometry_order: default]
+  study       steady  stationary over [current, heat, solid]
+              coupling gauss_seidel, tolerance 1e-08, max_iterations 25
+  outputs     I_total  P_joule  Q_cooling  T_max  sigma_vm  u_max
+  route       current + heat + solid: current.conduction + heat.transfer + solid.linear / stationary / 3d -> no route in this version

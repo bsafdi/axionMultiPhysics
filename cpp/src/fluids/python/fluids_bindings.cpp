@@ -24,8 +24,10 @@
 #include "axionmultiphysics/fluids/navier_stokes.hpp"
 #include "axionmultiphysics/fluids/stokes.hpp"
 #include "axionmultiphysics/fluids/transient_ns.hpp"
+#include "axionmultiphysics/model_mesh.hpp"
 #include "axionmultiphysics/transport/scalar_transport.hpp"
 #include "axionmultiphysics/sym_solver.hpp"
+#include "lu_records.hpp"
 
 namespace nb = nanobind;
 using namespace axmp::fluids;
@@ -343,6 +345,7 @@ struct PyMesh {
     const size_t nb_ = at.size();
     return nb::make_tuple(np_iarray(std::move(seg), {nb_, 2}), np_iarray(std::move(at), {nb_}));
   }
+  bool has_nodes() const { return serial->GetNodes() != nullptr; }
   nb::dict taylor_hood_check() const {
     const auto r = check_taylor_hood_mesh(*serial);
     nb::dict d;
@@ -367,6 +370,13 @@ PyMesh mesh_from_arrays_py(Arr2 xy, IArr2 elements, IArr2 bdr, IArr1 battr, nb::
   }
   const int vpe = static_cast<int>(elements.shape(1));
   return PyMesh(mesh_from_arrays(v, e, vpe, b, ba, ea, q));
+}
+
+// A copy of the mesh of an instance of a model document (vertices, triangles, boundary elements with the instance's dense
+// attributes, and the nodes when the instance has them); it shares nothing with the instance mesh.
+PyMesh mesh_from_instance_py(const axmp::model::InstanceMesh& im) {
+  AXMP_REQUIRE(im.mesh != nullptr, "the instance mesh is empty");
+  return PyMesh(mfem::Mesh(*im.mesh, true));
 }
 
 // --- solution
@@ -517,7 +527,8 @@ struct PySolution : ProblemData {
     r["lu_residual_before_refinement"] = d.lu.rel_residual_before;
     r["lu_residual"] = d.lu.rel_residual;
     r["lu_refine_steps"] = d.lu.refine_steps;
-    r["lu_backend"] = d.lu.backend;
+    r["lu_backend"] = d.lu.backend;  // the stage that produced the solution (`solver` is the configured backend)
+    axmp::fluids::pylu::put_record(r, d.lu, d.lu_stage, d.lu_attempts);
     r["ranks"] = d.ranks;
     r["threads"] = d.threads;
     r["velocity_nullspace"] = d.velocity_nullspace;
@@ -769,7 +780,7 @@ std::unique_ptr<PySolution> solve_stokes(PyMesh& mesh, nb::object nu, nb::object
                                          int pressure_order, bool allow_unstable_pair, bool vectorized,
                                          int min_refine_steps, bool do_solve, int lu_threads,
                                          double slip_corner_angle_deg, bool refuse_velocity_nullspace,
-                                         double velocity_nullspace_tol) {
+                                         double velocity_nullspace_tol, const std::string& lu_retry) {
   ensure_mpi();
   // (an MFEM verification failure aborts the process unless MFEM is built with MFEM_USE_EXCEPTIONS=YES; the inputs
   // MFEM would reject are validated here)
@@ -779,6 +790,8 @@ std::unique_ptr<PySolution> solve_stokes(PyMesh& mesh, nb::object nu, nb::object
   setup_problem(*sol, o, b, mesh, nu, force, bcs, form, geometry, solver, lu, nullspace, pressure_point, order, rtol,
                 direct_tol, grad_div, pressure_order, allow_unstable_pair, vectorized, min_refine_steps, lu_threads,
                 slip_corner_angle_deg, refuse_velocity_nullspace, velocity_nullspace_tol);
+  const MatchingJob first_matching = o.lu_matching ? MatchingJob::MaxDiagonalProductScaling : MatchingJob::None;
+  o.lu_chain = axmp::fluids::pylu::chain_for(lu_retry, o.lu, first_matching);
   sol->S = std::make_unique<StokesSolver>(*sol->mesh, o, b);
   if (do_solve) {
     sol->S->solve();
@@ -807,6 +820,8 @@ nb::dict ns_diagnostics_dict(const NavierStokesSolver* S, bool has_mhd) {
   nb::dict r;
   r["converged"] = n.converged;
   r["relative_residual"] = n.relative_residual;
+  r["residual_floor"] = n.residual_floor;
+  r["stopped_at_floor"] = n.stopped_at_floor;
   r["residual_lift"] = n.residual_lift;
   r["iterations"] = n.iterations;
   r["line_search_min_step_accepts"] = n.line_search_min_step_accepts;
@@ -829,13 +844,24 @@ nb::dict ns_diagnostics_dict(const NavierStokesSolver* S, bool has_mhd) {
   r["dofs_velocity"] = d.n_velocity;
   r["dofs_pressure"] = d.n_pressure;
   r["dofs_field"] = d.n_total;
+  // the last direct solve (after initialize(): the projection's); lu_backend is the stage that produced its solution
   r["lu_backend"] = d.lu.backend;
   r["lu_residual_before_refinement"] = d.lu.rel_residual_before;
   r["lu_residual"] = d.lu.rel_residual;
   r["lu_refine_steps"] = d.lu.refine_steps;
   r["lu_threads"] = d.lu.threads;
+  r["lu_kernel_probe"] = d.lu.kernel_probe;
+  axmp::fluids::pylu::put_record(r, d.lu, d.lu_stage, d.lu_attempts);
+  // the step solves of this call (never the projection's, nor the mass solves'), and the aliases kept for one release
+  axmp::fluids::pylu::put_counts(r, n.lu_counts, n.mass_lu_escalated);
+  r["projection_lu_attempts"] = axmp::fluids::pylu::attempts_list(n.projection_lu_attempts);
   r["lu_fallbacks"] = n.lu_fallbacks;
   r["lu_fallback_backend"] = n.lu_fallback_backend;
+  r["lu_residual_max"] = n.lu_residual_max;
+  r["lu_target_missed"] = n.lu_target_missed;
+  r["mass_lu_residual_max"] = n.mass_lu_residual_max;
+  r["projection_residual"] = n.projection_residual;
+  r["projection_converged"] = n.projection_converged;
   r["lu_factor_seconds"] = d.lu.factor_seconds;
   r["lu_analyze_seconds"] = d.lu.analyze_seconds;
   r["lu_solve_seconds"] = d.lu.solve_seconds;
@@ -922,6 +948,9 @@ struct PyNSSolution : ProblemData {
       d["stage"] = h.stage;
       d["viscosity_scale"] = h.viscosity_scale;
       d["lu_refine"] = h.lu_refine;
+      d["lu_residual"] = h.lu_residual;
+      d["lu_attempts"] = h.lu_attempts;
+      d["lu_stage"] = h.lu_stage;
       l.append(d);
     }
     return l;
@@ -994,13 +1023,14 @@ std::unique_ptr<PyNSSolution> solve_navier_stokes(
     const std::string& nullspace, const std::string& strategy, int n_picard, bool line_search, double newton_rtol,
     int newton_maxit, int picard_maxit, double ptc_dt0, double ptc_release_dt, int ptc_maxit,
     std::vector<double> viscosity_scales, int quad_order_convection, double direct_tol, int lu_threads,
-    bool vectorized, nb::object mhd, bool do_solve) {
+    bool vectorized, nb::object mhd, bool do_solve, double residual_floor_factor, const std::string& lu_retry) {
   ensure_mpi();
   auto sol = std::make_unique<PyNSSolution>();
   NavierStokesOptions o;
   StokesBoundary b;
   setup_problem(*sol, o.stokes, b, mesh, mu, force, bcs, form, geometry, "direct", lu, nullspace, nb::none(), order,
                 1e-10, direct_tol, 0.0, -1, false, vectorized, 0, lu_threads, 30.0, true, 1e-3);
+  o.stokes.lu_chain = axmp::fluids::pylu::chain_for(lu_retry, o.stokes.lu, MatchingJob::MaxDiagonalProductScaling);
   AXMP_REQUIRE(convection == "standard" || convection == "skew", "convection must be 'standard' or 'skew'");
   o.rho = rho;
   o.convection = convection == "skew" ? ConvectiveForm::Skew : ConvectiveForm::Standard;
@@ -1010,6 +1040,7 @@ std::unique_ptr<PyNSSolution> solve_navier_stokes(
   nl.n_picard = n_picard;
   nl.line_search = line_search;
   nl.newton_rtol = newton_rtol;
+  nl.residual_floor_factor = residual_floor_factor;
   nl.newton_maxit = newton_maxit;
   nl.picard_maxit = picard_maxit;
   nl.ptc_dt0 = ptc_dt0;
@@ -1093,6 +1124,7 @@ struct PyTransient : ProblemData {
     d["relative_residual"] = r.relative_residual;
     d["iterations"] = r.iterations;
     d["lu_refine"] = r.lu_refine;
+    d["lu_residual"] = r.lu_residual;
     d["t"] = r.t;
     d["dt"] = r.dt;
     d["order"] = r.order;
@@ -1129,7 +1161,7 @@ std::unique_ptr<PyTransient> make_transient(
     PyMesh& mesh, nb::object mu, double rho, nb::object force, nb::list bcs, const std::string& form,
     const std::string& geometry, int order, const std::string& lu, const std::string& nullspace,
     const std::string& scheme, int max_order, double newton_rtol, int newton_maxit, int quad_order_convection,
-    double direct_tol, int lu_threads, bool vectorized, nb::object time_cb) {
+    double direct_tol, int lu_threads, bool vectorized, nb::object time_cb, const std::string& lu_retry) {
   ensure_mpi();
   auto sol = std::make_unique<PyTransient>();
   sol->vectorized = vectorized;
@@ -1138,6 +1170,8 @@ std::unique_ptr<PyTransient> make_transient(
   StokesBoundary b;
   setup_problem(*sol, o.ns.stokes, b, mesh, mu, force, bcs, form, geometry, "direct", lu, nullspace, nb::none(), order,
                 1e-10, direct_tol, 0.0, -1, false, vectorized, 0, lu_threads, 30.0, true, 1e-3);
+  o.ns.stokes.lu_chain =
+      axmp::fluids::pylu::chain_for(lu_retry, o.ns.stokes.lu, MatchingJob::MaxDiagonalProductScaling);
   AXMP_REQUIRE(scheme == "newton" || scheme == "semi", "scheme must be 'newton' or 'semi'");
   o.scheme = scheme == "newton" ? TimeScheme::Newton : TimeScheme::SemiImplicit;
   o.max_order = max_order;
@@ -1383,6 +1417,7 @@ struct PyScalarSolution : ProblemData {
     r["residual_lift"] = sd.residual_lift;
     r["iterations"] = sd.iterations;
     r["lu_residual"] = sd.lu_residual;
+    r["mass_lu_residual_max"] = sd.mass_lu_residual_max;
     r["failure"] = sd.failure;
     r["dofs_field"] = sd.dofs;
     r["dofs_free"] = sd.free_dofs;
@@ -1392,7 +1427,10 @@ struct PyScalarSolution : ProblemData {
     r["supg"] = supg;
     r["tau_rule"] = supg ? tau_rule : std::string("none");
     r["quad_order"] = tr->quad_order();
-    r["lu_backend"] = lu;
+    // the last Jacobian solve: the stage that produced its solution (the configured backend before any solve)
+    r["lu_backend"] = sd.lu.stage.empty() ? lu : sd.lu.backend;
+    axmp::fluids::pylu::put_record(r, sd.lu, sd.lu.stage, sd.lu_attempts);
+    axmp::fluids::pylu::put_counts(r, sd.lu_counts, sd.mass_lu_escalated);
     return r;
   }
   void need_solved() const {
@@ -1452,7 +1490,7 @@ std::unique_ptr<PyScalarSolution> solve_scalar_transport(
     PyMesh& mesh, const std::string& geometry, int order, const std::string& form, bool supg,
     const std::string& tau_rule, double capacity, nb::object kappa, nb::object grad_kappa, nb::object velocity,
     nb::object div_velocity, double velocity_scale, nb::object velocity_solution, nb::object source, nb::list bcs,
-    double shift, const std::string& lu, double rtol, int maxit, bool do_solve) {
+    double shift, const std::string& lu, double rtol, int maxit, bool do_solve, const std::string& lu_retry) {
   ensure_mpi();
   auto sol = std::make_unique<PyScalarSolution>();
   sol->store = std::make_shared<DataStore>();
@@ -1495,6 +1533,8 @@ std::unique_ptr<PyScalarSolution> solve_scalar_transport(
   }
   if (v.is_set()) tr.set_velocity(v);
   for (auto& b : parse_tbcs(sol->store, bcs, form == "conservative_flux")) tr.add_bc(b.attrs, b.kind, b.data);
+  tr.set_lu_chain(
+      axmp::fluids::pylu::chain_for(lu_retry, lu_backend_from_string(lu), MatchingJob::MaxDiagonalProductScaling));
   tr.finalize();
   if (do_solve) {
     sol->sd = tr.solve(sol->T, sol->has_u ? &sol->u : nullptr, lu_backend_from_string(lu), rtol, maxit);
@@ -1544,8 +1584,13 @@ struct PyBousSolution : ProblemData {
     r["dofs_pressure"] = n.n_pressure;
     r["dofs_temperature"] = n.n_temperature;
     r["dofs_field"] = n.n_velocity + n.n_pressure + n.n_temperature;
-    r["lu_backend"] = axmp::fluids::to_string(S->options().ns.stokes.lu);
+    // the last step solve: the stage that produced its solution (the configured backend before any step)
+    r["lu_backend"] = d.lu_stage.empty() ? std::string(axmp::fluids::to_string(S->options().ns.stokes.lu))
+                                         : d.lu.backend;
     r["lu_residual"] = n.lu_residual;
+    r["mass_lu_residual_max"] = n.mass_lu_residual_max;
+    axmp::fluids::pylu::put_record(r, d.lu, d.lu_stage, d.lu_attempts);
+    axmp::fluids::pylu::put_counts(r, n.lu_counts, n.mass_lu_escalated);
     r["lu_threads"] = d.lu.threads;
     r["ranks"] = d.ranks;
     r["threads"] = d.threads;
@@ -1568,6 +1613,8 @@ struct PyBousSolution : ProblemData {
       d["buoyancy_scale"] = h.viscosity_scale;
       d["lu_refine"] = h.lu_refine;
       d["lu_residual"] = h.lu_residual;
+      d["lu_attempts"] = h.lu_attempts;
+      d["lu_stage"] = h.lu_stage;
       l.append(d);
     }
     return l;
@@ -1623,7 +1670,7 @@ std::unique_ptr<PyBousSolution> solve_boussinesq(
     double direct_tol, int lu_threads, bool vectorized, double cp, double beta_g, nb::object t_ref, int up_sign,
     nb::object k, nb::object grad_k, nb::object heat_source, nb::list t_bcs, bool supg, int t_order,
     std::vector<double> buoyancy_scales, const std::string& strategy, int n_picard, const std::string& start,
-    bool transient, bool do_solve) {
+    bool transient, bool do_solve, const std::string& lu_retry) {
   ensure_mpi();
   auto sol = std::make_unique<PyBousSolution>();
   sol->store = std::make_shared<DataStore>();
@@ -1631,6 +1678,8 @@ std::unique_ptr<PyBousSolution> solve_boussinesq(
   StokesBoundary b;
   setup_problem(*sol, o.ns.stokes, b, mesh, mu, force, bcs, form, geometry, "direct", lu, nullspace, nb::none(), order,
                 1e-10, direct_tol, 0.0, -1, false, vectorized, 0, lu_threads, 30.0, true, 1e-3);
+  o.ns.stokes.lu_chain =
+      axmp::fluids::pylu::chain_for(lu_retry, o.ns.stokes.lu, MatchingJob::MaxDiagonalProductScaling);
   AXMP_REQUIRE(convection == "standard" || convection == "skew", "convection must be 'standard' or 'skew'");
   o.ns.rho = rho0;
   o.ns.convection = convection == "skew" ? ConvectiveForm::Skew : ConvectiveForm::Standard;
@@ -1696,10 +1745,13 @@ struct PyGls {
     r["multiplier"] = d.multiplier;
     r["viscosity_scales"] = d.viscosity_scales;
     r["seconds"] = d.seconds;
-    r["lu_backend"] = d.lu_backend;
+    r["lu_backend"] = d.lu_backend;  // the stage that produced the last step's solution
     r["lu_residual"] = d.lu_residual;
     r["lu_residual_before_refinement"] = d.lu_residual_before;
     r["lu_refine_steps"] = d.lu_refine_steps;
+    r["mass_lu_residual_max"] = d.mass_lu_residual_max;
+    axmp::fluids::pylu::put_record(r, d.lu, d.lu_stage, d.lu_attempts);
+    axmp::fluids::pylu::put_counts(r, d.lu_counts, 0);  // its mass solves are sparse Cholesky, not the LU chain
     r["dofs_velocity"] = d.n_free_u;
     r["dofs_pressure"] = d.n_pressure;
     r["dofs_field"] = d.n_total;
@@ -1721,6 +1773,8 @@ struct PyGls {
       d["lu_refine"] = h.lu_refine;
       d["lu_residual"] = h.lu_residual;
       d["lu_residual_before_refinement"] = h.lu_residual_before;
+      d["lu_attempts"] = h.lu_attempts;
+      d["lu_stage"] = h.lu_stage;
       l.append(d);
     }
     return l;
@@ -1777,7 +1831,8 @@ std::unique_ptr<PyGls> gls_problem(nb::object V, nb::object T, nb::object mu_q, 
                                    const std::string& mode, const std::string& form, double dt, int bdf,
                                    bool supg, bool pspg, bool lsic, const std::string& lu, int lu_threads,
                                    double newton_rtol, int newton_maxit, bool line_search,
-                                   std::vector<double> viscosity_scales, bool do_solve) {
+                                   std::vector<double> viscosity_scales, bool do_solve,
+                                   const std::string& lu_retry) {
   ensure_mpi();
   GlsData D;
   D.V = to_vec(V);
@@ -1806,6 +1861,7 @@ std::unique_ptr<PyGls> gls_problem(nb::object V, nb::object T, nb::object mu_q, 
   o.stab.pspg = pspg;
   o.stab.lsic = lsic;
   o.lu = lu_backend_from_string(lu);
+  o.lu_chain = axmp::fluids::pylu::chain_for(lu_retry, o.lu, MatchingJob::MaxDiagonalProductScaling);
   o.lu_threads = lu_threads;
   o.nl.newton_rtol = newton_rtol;
   o.nl.newton_maxit = newton_maxit;
@@ -1842,7 +1898,11 @@ void register_python(nb::module_& core) {
         return PyMesh(annulus_mesh(nr, nt, R1, R2, order));
       }, nb::arg("nr"), nb::arg("nt"), nb::arg("r1"), nb::arg("r2"), nb::arg("order") = 2,
                   "Annulus with exact isoparametric circles (attributes 1 inner, 2 outer).")
+      .def_static("from_instance", &mesh_from_instance_py, nb::arg("instance"),
+                  "A copy of the mesh of an instance of a model document (its vertices, triangles, boundary segments and "
+                  "boundary attributes in their order, and its nodes when it has them).")
       .def_prop_ro("n_elements", &PyMesh::n_elements)
+      .def_prop_ro("has_nodes", &PyMesh::has_nodes, "True when the mesh carries nodes (isoparametric, curved geometry).")
       .def("vertices", &PyMesh::vertices)
       .def("elements", &PyMesh::elements)
       .def("p2_nodes", &PyMesh::p2_nodes, "(ne, 6, 2) geometry at the P2 reference nodes of every triangle")
@@ -1891,12 +1951,13 @@ void register_python(nb::module_& core) {
         nb::arg("pressure_order") = -1, nb::arg("allow_unstable_pair") = false, nb::arg("vectorized") = false,
         nb::arg("min_refine_steps") = 0, nb::arg("solve") = true, nb::arg("lu_threads") = 1,
         nb::arg("slip_corner_angle_deg") = 30.0, nb::arg("refuse_velocity_nullspace") = true,
-        nb::arg("velocity_nullspace_tol") = 1e-3,
+        nb::arg("velocity_nullspace_tol") = 1e-3, nb::arg("lu_retry") = "auto",
         "Solve Taylor–Hood Stokes (see axionmultiphysics.fluids.solve_stokes). Never raises on non-convergence.");
   nb::class_<PyNSSolution>(m, "NavierStokesSolution", nb::type_slots(ns_solution_slots))
       .def_prop_ro("diagnostics", &PyNSSolution::diagnostics)
       .def_prop_ro("history", &PyNSSolution::history,
-                   "list of {kind, residual, step, dt, stage, viscosity_scale, lu_refine}; residual = steady relative "
+                   "list of {kind, residual, step, dt, stage, viscosity_scale, lu_refine, lu_residual, lu_attempts, "
+                   "lu_stage}; residual = steady relative "
                    "dual-norm residual AFTER the step")
       .def_prop_ro("n_elements", [](const PyNSSolution& s) { return s.mesh->GetNE(); })
       .def("velocity", &PyNSSolution::velocity, nb::arg("elements"), nb::arg("ref_points"),
@@ -1926,7 +1987,8 @@ void register_python(nb::module_& core) {
         nb::arg("ptc_release_dt") = 1e12, nb::arg("ptc_maxit") = 200,
         nb::arg("viscosity_scales") = std::vector<double>{}, nb::arg("quad_order_convection") = 0,
         nb::arg("direct_tol") = 1e-10, nb::arg("lu_threads") = 1, nb::arg("vectorized") = false,
-        nb::arg("mhd") = nb::none(), nb::arg("solve") = true,
+        nb::arg("mhd") = nb::none(), nb::arg("solve") = true, nb::arg("residual_floor_factor") = 4.0,
+        nb::arg("lu_retry") = "auto",
         "Steady Navier-Stokes (see axionmultiphysics.fluids.solve_navier_stokes). Never raises on non-convergence.");
   nb::class_<PyField>(m, "FieldSnapshot")
       .def("velocity", &PyField::velocity, nb::arg("elements"), nb::arg("ref_points"))
@@ -1972,8 +2034,19 @@ void register_python(nb::module_& core) {
         return d;
       }, nb::arg("T"), nb::arg("rtol"), nb::arg("S_u"), nb::arg("h0"))
       .def("time", [](const PyTransient& s) { return s.T->time(); })
-      .def("snapshot", [](const PyTransient& s) { return s.field(s.T->state_u(), s.T->state_p()); })
-      .def("trial_snapshot", [](const PyTransient& s) { return s.field(s.T->trial_u(), s.T->trial_p()); })
+      .def("snapshot", [](const PyTransient& s) {
+        AXMP_REQUIRE(!s.T->initialization_failed(),
+                     "the initial Leray projection failed its accuracy gate: the solver's state was left untouched "
+                     "(it is not the projected initial field) and is not returned", "snapshot",
+                     s.T->initialization_failure_hint());
+        return s.field(s.T->state_u(), s.T->state_p());
+      })
+      .def("trial_snapshot", [](const PyTransient& s) {
+        AXMP_REQUIRE(!s.T->initialization_failed(),
+                     "the initial Leray projection failed its accuracy gate: no trial state exists", "trial_snapshot",
+                     s.T->initialization_failure_hint());
+        return s.field(s.T->trial_u(), s.T->trial_p());
+      })
       .def("estimate_snapshot", [](const PyTransient& s) {
         mfem::Vector z(s.T->core().pressure_size());
         z = 0.0;
@@ -1986,12 +2059,26 @@ void register_python(nb::module_& core) {
         d["max_relative_residual"] = r.max_relative_residual;
         d["newton_iterations"] = r.newton_iterations;
         d["solves"] = r.solves;
+        // the step solves of the run, summed per step (the initial projection is not a step)
+        axmp::fluids::pylu::put_counts(d, r.lu_counts, r.mass_lu_escalated);
         d["lu_fallbacks"] = r.lu_fallbacks;
         d["lu_fallback_backend"] = r.lu_fallback_backend;
+        d["lu_residual_max"] = r.lu_residual_max;
+        d["lu_target_missed"] = r.lu_target_missed;
+        d["mass_lu_residual_max"] = r.mass_lu_residual_max;
         d["failure"] = r.failure;
         return d;
       })
       .def("reset_stats", [](PyTransient& s) { s.T->reset_stats(); })
+      // test hook (NavierStokesSolver::set_projection_solve_perturbation): makes the next initial projection inaccurate
+      // by a known relative amount
+      .def("_perturb_projection_solve", [](PyTransient& s, double eps) {
+        s.T->core().set_projection_solve_perturbation(eps);
+      }, nb::arg("eps"))
+      // the same test hook with the velocity correction and the multiplier scaled separately
+      .def("_perturb_projection_solve_blocks", [](PyTransient& s, double eps_u, double eps_p) {
+        s.T->core().set_projection_solve_perturbation(eps_u, eps_p);
+      }, nb::arg("eps_u"), nb::arg("eps_p"))
       .def_prop_ro("last_history", [](const PyTransient& s) {
         nb::list l;
         for (const auto& h : s.T->core().diagnostics().history) l.append(h.residual);
@@ -2001,7 +2088,7 @@ void register_python(nb::module_& core) {
         nb::arg("bcs"), nb::arg("form"), nb::arg("geometry"), nb::arg("order"), nb::arg("lu"), nb::arg("nullspace"),
         nb::arg("scheme"), nb::arg("max_order"), nb::arg("newton_rtol"), nb::arg("newton_maxit"),
         nb::arg("quad_order_convection"), nb::arg("direct_tol"), nb::arg("lu_threads"), nb::arg("vectorized"),
-        nb::arg("time_cb"));
+        nb::arg("time_cb"), nb::arg("lu_retry") = "auto");
   nb::class_<PyGls>(m, "GlsProblem")
       .def_prop_ro("diagnostics", &PyGls::diagnostics)
       .def_prop_ro("history", &PyGls::history)
@@ -2023,7 +2110,7 @@ void register_python(nb::module_& core) {
         nb::arg("supg") = true, nb::arg("pspg") = true, nb::arg("lsic") = true, nb::arg("lu") = "strumpack",
         nb::arg("lu_threads") = 1, nb::arg("newton_rtol") = 1e-12, nb::arg("newton_maxit") = 40,
         nb::arg("line_search") = true, nb::arg("viscosity_scales") = std::vector<double>{},
-        nb::arg("solve") = true,
+        nb::arg("solve") = true, nb::arg("lu_retry") = "auto",
         "Stabilized P1/P1 GLS problem on raw arrays (see axionmultiphysics.fluids.gls_problem). Never raises on non-convergence.");
   m.def("gls_rule", []() {
     const double* pt = gls_rule_points();
@@ -2052,7 +2139,7 @@ void register_python(nb::module_& core) {
         nb::arg("grad_kappa") = nb::none(), nb::arg("velocity") = nb::none(), nb::arg("div_velocity") = nb::none(),
         nb::arg("velocity_scale") = 1.0, nb::arg("velocity_solution") = nb::none(), nb::arg("source") = nb::none(),
         nb::arg("bcs") = nb::list(), nb::arg("shift") = 0.0, nb::arg("lu") = "eigen", nb::arg("rtol") = 1e-12,
-        nb::arg("maxit") = 4, nb::arg("solve") = true,
+        nb::arg("maxit") = 4, nb::arg("solve") = true, nb::arg("lu_retry") = "auto",
         "Steady scalar transport (see axionmultiphysics.transport.ScalarTransport / axionmultiphysics.fluids.solve_heat).");
   nb::class_<PyBousSolution>(m, "BoussinesqSolution", nb::type_slots(bous_solution_slots))
       .def_prop_ro("diagnostics", &PyBousSolution::diagnostics)
@@ -2084,9 +2171,60 @@ void register_python(nb::module_& core) {
         nb::arg("t_bcs") = nb::list(), nb::arg("supg") = false, nb::arg("t_order") = 2,
         nb::arg("buoyancy_scales") = std::vector<double>{}, nb::arg("strategy") = "newton", nb::arg("n_picard") = 0,
         nb::arg("start") = "lift", nb::arg("transient") = false,
-        nb::arg("solve") = true,
+        nb::arg("solve") = true, nb::arg("lu_retry") = "auto",
         "Steady Boussinesq natural convection (see axionmultiphysics.fluids.solve_boussinesq). Never raises on non-convergence.");
   m.def("lu_backend_available", [](const std::string& s) { return lu_backend_available(lu_backend_from_string(s)); });
+  // Test-only hooks of the sparse LU chain (sparse_lu.hpp), process-wide; private, used by the tests only. A test
+  // resets what it sets (_lu_reset_hooks_for_testing).
+  m.def("_lu_force_outcome_for_testing", [](const std::string& outcome, int count) {
+    LUForcedOutcome o = LUForcedOutcome::None;
+    if (outcome == "threw") o = LUForcedOutcome::Threw;
+    else if (outcome == "missed_target") o = LUForcedOutcome::MissedTarget;
+    else if (outcome == "refused") o = LUForcedOutcome::Refused;
+    else AXMP_REQUIRE(outcome == "none", "unknown forced outcome '" + outcome + "'", "outcome",
+                      "One of none, threw, missed_target, refused.");
+    set_lu_forced_outcome_for_testing(o, count);
+  }, nb::arg("outcome"), nb::arg("count"));
+  m.def("_lu_perturb_solution_for_testing", [](double eps) { set_lu_solution_perturbation_for_testing(eps); },
+        nb::arg("eps"));
+  // eps[k] != 0: the iterate of every attempt of chain index k is multiplied by (1 + eps[k]) entrywise (the iterate hook
+  // of sparse_lu.hpp), so that later stages of a chain can be made to miss too; indices past the list are left alone;
+  // [] clears it
+  m.def("_lu_perturb_stages_for_testing", [](const std::vector<double>& eps) {
+    if (eps.empty()) {
+      set_lu_iterate_hook_for_testing({});
+      return;
+    }
+    set_lu_iterate_hook_for_testing([eps](int k, std::vector<double>& x) {
+      if (k < 0 || k >= static_cast<int>(eps.size()) || eps[k] == 0) return;
+      for (double& v : x) v *= 1.0 + eps[k];
+    });
+  }, nb::arg("eps"));
+  // stages by their LUStage::name() spelling: "eigen", "<strumpack|strumpack-mpi>:<none|mc64-2|mc64-5>"; [] clears
+  m.def("_lu_default_chain_for_testing", [](const std::vector<std::string>& names) {
+    std::vector<LUStage> chain;
+    for (const std::string& s : names) {
+      const size_t c = s.find(':');
+      LUStage st;
+      st.backend = lu_backend_from_string(s.substr(0, c));
+      const std::string job = c == std::string::npos ? std::string() : s.substr(c + 1);
+      if (job == "none") st.matching = MatchingJob::None;
+      else if (job == "mc64-2") st.matching = MatchingJob::MaxSmallestDiagonal;
+      else AXMP_REQUIRE(job.empty() || job == "mc64-5", "unknown stage '" + s + "'", "names");
+      AXMP_REQUIRE(st.name() == s, "stage '" + s + "' is not spelled as LUStage::name() spells it", "names");
+      chain.push_back(st);
+    }
+    set_default_lu_chain_for_testing(chain);
+  }, nb::arg("names"));
+  m.def("_lu_reset_hooks_for_testing", [] {
+    set_lu_forced_outcome_for_testing(LUForcedOutcome::None, 0);
+    set_lu_solution_perturbation_for_testing(0.0);
+    set_lu_iterate_hook_for_testing({});
+    set_lu_rank1_acceptance_flip_for_testing(false);
+    set_default_lu_chain_for_testing({});
+    set_eigen_lu_max_n32_for_testing(0);
+    set_eigen_lu_failure_for_testing(EigenLUTestFailure::None);
+  });
 }
 
 }  // namespace axmp::fluids

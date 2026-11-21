@@ -1,0 +1,35 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "channel",
+  "description": "2D water channel, Re = rho U_mean H / mu = 100, parabolic inflow, pressure outlet",
+  "symmetry": "planar",
+  "parameters": {"L": 0.04, "H": 0.01, "U_mean": 0.01, "rho": 998.2, "mu": 1.002e-3},
+  "materials": {"water": {"density": "rho", "fluid": {"mu_Pa_s": "mu"}}},
+  "regions": [{"name": "channel", "shape": {"rect": {"x": [0, "L"], "y": [0, "H"]}}, "material": "water"}],
+  "boundaries": {
+    "inlet":  {"of": "channel", "where": {"x": 0}},
+    "outlet": {"of": "channel", "where": {"x": "L"}},
+    "walls":  {"of": "channel", "except": ["inlet", "outlet"]}
+  },
+  "physics": {
+    "flow": {
+      "type": "fluid.incompressible",
+      "options": {"equation": "navier_stokes", "viscous_form": "laplacian"},
+      "boundary_conditions": {
+        "inlet":  {"kind": "inlet", "velocity_m_s": ["6*U_mean*y*(H-y)/H^2", 0]},
+        "outlet": {"kind": "outlet", "pressure_Pa": 0},
+        "walls":  {"kind": "wall"}
+      }
+    }
+  },
+  "outputs": {
+    "Q_in":    {"kind": "flux", "of": "volume", "on": "inlet"},
+    "Q_out":   {"kind": "flux", "of": "volume", "on": "outlet"},
+    "p_in":    {"kind": "average", "of": "p", "on": "inlet"},
+    "p_out":   {"kind": "average", "of": "p", "on": "outlet"},
+    "dp":      {"kind": "expression", "expr": "p_in - p_out"},
+    "tau_max": {"kind": "maximum", "of": "wall_shear_mag", "on": "walls"},
+    "F_walls": {"kind": "force", "on": "walls"}
+  },
+  "mesh": {"size": "H/16"}
+}

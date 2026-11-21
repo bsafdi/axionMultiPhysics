@@ -1,0 +1,27 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "annulus_cell",
+  "description": "a coaxial cell: the electrolyte ring R1 < r < R2 between an inner and an outer electrode, a P1 secondary current distribution; the default geometry order is lowered to 1 for it",
+  "symmetry": "planar",
+  "parameters": {"R1": 0.002, "R2": 0.005, "kappa": 1.0, "i0": 10.0, "V_cell": 0.05},
+  "materials": {"bath": {"electrolyte": {"kappa_S_m": "kappa"}}},
+  "regions": [
+    {"name": "ring", "material": "bath",
+     "shape": {"difference": [{"disk": {"center": [0, 0], "radius": "R2"}}, {"disk": {"center": [0, 0], "radius": "R1"}}]}}
+  ],
+  "boundaries": {
+    "inner": {"between": ["ring", "exterior"], "where": {"x": ["-R1", "R1"], "y": ["-R1", "R1"]}},
+    "outer": {"between": ["ring", "exterior"], "except": ["inner"]}
+  },
+  "reactions": {
+    "electrode": {"plate": {"kind": "linear", "i0_A_m2": "i0", "E_eq_V": 0.0, "alpha_a": 0.5, "alpha_c": 0.5}}
+  },
+  "physics": {
+    "cell": {"type": "electrochem.current_distribution",
+             "options": {"kinetics": "secondary", "order": 1, "T_K": 298.15},
+             "boundary_conditions": {
+               "inner": {"kind": "electrode", "reactions": ["plate"], "phi_s_V": "V_cell"},
+               "outer": {"kind": "electrode", "reactions": ["plate"], "phi_s_V": 0.0}}}
+  },
+  "mesh": {"size": "R1/4"}
+}

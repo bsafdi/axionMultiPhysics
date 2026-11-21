@@ -11,7 +11,7 @@ sequential build, `AXIONMULTIPHYSICS_DEPS=$PWD/third_party/install-seq pip insta
 pip install --no-build-isolation -e ".[mcp]"
 ```
 
-From PyPI the same extra is `pip install "axionmultiphysics[mcp]"`. The server is the command
+Once the 0.2.0 wheels are on PyPI, the same extra is `pip install "axionmultiphysics[mcp]"`. The server is the command
 `axionmultiphysics-mcp` in the environment's `bin` directory.
 
 The server keeps designs (`designs/<name>.json`) and results (`runs/<name>/`) in the directory `AXMP_WORKSPACE` (default `./axmp_workspace`).

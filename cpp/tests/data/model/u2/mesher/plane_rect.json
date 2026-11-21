@@ -1,0 +1,43 @@
+{
+ "plane": true,
+ "regions": [
+  {
+   "name": "cavity",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      0.04
+     ],
+     "z": [
+      0,
+      0.01
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [
+  {
+   "name": "sheet",
+   "path": {
+    "segment": [
+     [
+      0.01,
+      0
+     ],
+     [
+      0.01,
+      0.005
+     ]
+    ]
+   },
+   "attr": 902
+  }
+ ],
+ "size": 0.00125,
+ "surface_size": 0.00125,
+ "order": 2,
+ "outer_attr": 901
+}

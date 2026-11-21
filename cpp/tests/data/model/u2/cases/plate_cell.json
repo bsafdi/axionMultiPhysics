@@ -1,0 +1,102 @@
+{
+  "name": "plate_cell",
+  "test": "tests/test_chem_model_bridge.py::test_parallel_plate_cell_through_the_bridge",
+  "description": "the parallel-plate cell through m.chem_mesh(): CurrentDistribution of order 2, primary electrodes (E_eq = 0) at phi_s = dV on anode (x = 0) and 0 on cathode (x = gap), the other boundary insulating, kappa by element attribute; phi = dV (1 - x/gap) is exact in P2, and the electrode current per metre, kappa grad phi . n over the electrode (n outward, anodic positive), is I = kappa dV Hc / gap on the anode and -I on the cathode",
+  "build": "any",
+  "mesh": "the mesher's unstructured mesh of the document (gmsh, bounded planar mode, algorithm and options of axmp-mesher), mesh.size = gap/16, geometry order 2 (the default: straight edges, with nodes; the exporter lists no edge node); one process",
+  "instance": null,
+  "solver": {
+    "order": 2,
+    "quadrature": 8,
+    "linear_solver": "the build's default",
+    "newton": {
+      "stag": 1e-13,
+      "max_iter": 60,
+      "gate": 1e-12,
+      "limiter_rt_f": 10.0,
+      "ls_min": 0.015625,
+      "clip": 200.0,
+      "temperature": 0.0,
+      "refinement_steps": 1
+    }
+  },
+  "data": {"kappa": 1.0, "dV": 0.05, "gap": 0.01, "Hc": 0.02},
+  "tolerance": {
+    "phi": {
+      "what": "max |phi - dV (1 - x/gap)| / dV at the domain quadrature points (degree 8)",
+      "ceiling": 1e-09,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 4.718447854656915e-15,
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / sequential": 4.0245584642661925e-15,
+        "AMD EPYC 7401 24-Core Processor / mpi": 4.718447854656915e-15,
+        "AMD EPYC 7401 24-Core Processor / sequential": 4.0245584642661925e-15,
+        "AMD EPYC 7452 32-Core Processor / mpi": 4.718447854656915e-15,
+        "AMD EPYC 7452 32-Core Processor / sequential": 4.0245584642661925e-15
+      },
+      "asserted": 1e-12
+    },
+    "I_anode": {
+      "what": "|I(anode) - I| / I, I = kappa dV Hc / gap, by the boundary quadrature (degree 8)",
+      "ceiling": 1e-09,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.609823385706477e-14,
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / sequential": 8.326672684688674e-16,
+        "AMD EPYC 7401 24-Core Processor / mpi": 1.609823385706477e-14,
+        "AMD EPYC 7401 24-Core Processor / sequential": 8.326672684688674e-16,
+        "AMD EPYC 7452 32-Core Processor / mpi": 1.609823385706477e-14,
+        "AMD EPYC 7452 32-Core Processor / sequential": 8.326672684688674e-16
+      },
+      "asserted": 1e-12
+    },
+    "I_cathode": {
+      "what": "|I(cathode) + I| / I",
+      "ceiling": 1e-09,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 6.938893903907228e-15,
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / sequential": 0.0,
+        "AMD EPYC 7401 24-Core Processor / mpi": 6.938893903907228e-15,
+        "AMD EPYC 7401 24-Core Processor / sequential": 0.0,
+        "AMD EPYC 7452 32-Core Processor / mpi": 6.938893903907228e-15,
+        "AMD EPYC 7452 32-Core Processor / sequential": 0.0
+      },
+      "asserted": 1e-12
+    }
+  },
+  "recorded": {},
+  "unrecorded_platforms": [
+    "the lr7 nodes of feature rocky8 (n0150 to n0153), a second processor model of the lr7 partition",
+    "any other partition the gate is pointed at",
+    "the public CI's Linux and macOS runners (this case runs in every build)"
+  ],
+  "document": {
+    "schema": "axionmultiphysics.design/1",
+    "name": "plate_cell",
+    "description": "parallel-plate cell, secondary current distribution, linearized Butler-Volmer kinetics",
+    "symmetry": "planar",
+    "parameters": {"gap": 0.01, "Hc": 0.02, "kappa": 1.0, "i0": 10.0, "V_cell": 0.05},
+    "materials": {"bath": {"electrolyte": {"kappa_S_m": "kappa"}}},
+    "regions": [{"name": "bulk", "shape": {"rect": {"x": [0, "gap"], "y": [0, "Hc"]}}, "material": "bath"}],
+    "boundaries": {"anode": {"of": "bulk", "where": {"x": 0}}, "cathode": {"of": "bulk", "where": {"x": "gap"}}},
+    "reactions": {
+      "electrode": {"plate": {"kind": "linear", "i0_A_m2": "i0", "E_eq_V": 0.0, "alpha_a": 0.5, "alpha_c": 0.5}}
+    },
+    "physics": {
+      "cell": {
+        "type": "electrochem.current_distribution",
+        "options": {"kinetics": "secondary", "order": 2, "T_K": 298.15},
+        "boundary_conditions": {
+          "anode": {"kind": "electrode", "reactions": ["plate"], "phi_s_V": "V_cell"},
+          "cathode": {"kind": "electrode", "reactions": ["plate"], "phi_s_V": 0.0},
+          "remaining": {"kind": "insulation"}
+        }
+      }
+    },
+    "outputs": {
+      "I_anode": {"kind": "electrode_current", "on": "anode"},
+      "I_cathode": {"kind": "electrode_current", "on": "cathode"},
+      "i_avg": {"kind": "expression", "expr": "I_anode/Hc"},
+      "eta_worst": {"kind": "extreme", "of": "overpotential", "on": "cathode"}
+    },
+    "mesh": {"size": "gap/16"}
+  }
+}

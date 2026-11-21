@@ -1,0 +1,21 @@
+channel  (model document; planar, bounded; results per metre of depth)
+  parameters  H=0.01  L=0.04  U_mean=0.01  mu=0.001002  rho=998.2
+  materials   water: density 998.2 kg/m^3, fluid(mu 0.001002 Pa s)
+  regions     channel [water]
+  boundaries  inlet  of channel where x = 0  used by flow  deferred: resolved by `axmp boundaries`
+              outlet  of channel where x = 0.04  used by flow  deferred: resolved by `axmp boundaries`
+              walls  of channel except inlet, outlet  used by flow  deferred: resolved by `axmp boundaries`
+  physics     flow  [fluid.incompressible, beta]  on channel
+                convection standard                                                           [default]
+                equation navier_stokes                                                        [written]
+                order 2                                                                       [default]
+                viscous_form laplacian                                                        [written]
+                inlet  inlet  velocity_m_s=(6*U_mean*y*(H-y)/H^2, 0)  -> dirichlet
+                outlet  outlet  pressure_Pa=0  -> do_nothing: mu du/dn - p n = 0
+                walls  wall  -> dirichlet 0
+  mesh        size 0.000625 m, geometry order 2                                               [geometry_order: default]
+  study       default  stationary over [flow]                                                 [implicit]
+              flow: newton_rtol 1e-12, newton_maxit 30, n_picard 3, line_search true, residual_floor_factor 4  [defaults]
+  outputs     F_walls  Q_in  Q_out  p_in  p_out  dp  tau_max
+  route       flow: fluid.incompressible / stationary / planar -> navier_stokes_steady_planar (not implemented yet)
+  needs       the mesher; an MPI build with the fluids library; any number of ranks for the solve

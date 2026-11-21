@@ -1,0 +1,59 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "busbar",
+  "description": "copper bar with a titanium bolt: Joule heating, convective cooling, thermal expansion",
+  "symmetry": "3d",
+  "parameters": {"L": 0.09, "W": 0.05, "tb": 0.005, "rb": 0.003,
+                 "V_app": 0.002, "htc": 5.0, "T_amb": 293.15},
+  "materials": {
+    "copper": {
+      "density": 8960.0,
+      "electric": {"sigma_S_m": {"law": "expression", "of": ["T"], "expr": "5.998e7/(1 + 3.9e-3*(T - 293.15))",
+                                 "range": {"T": [250.0, 500.0]},
+                                 "source": "linear resistivity model, temperature coefficient 3.9e-3 1/K"}},
+      "thermal": {"k_W_mK": 400.0, "cp_J_kgK": 385.0},
+      "mechanical": {"E_Pa": 110e9, "nu": 0.35, "alpha_1_K": 17e-6}},
+    "titanium": {
+      "density": 4940.0,
+      "electric": {"sigma_S_m": 7.407e5},
+      "thermal": {"k_W_mK": 7.5, "cp_J_kgK": 710.0},
+      "mechanical": {"E_Pa": 105.5e9, "nu": 0.33, "alpha_1_K": 9.4e-6}}
+  },
+  "regions": [
+    {"name": "bar",  "solid": {"box": {"min": [0, "-W/2", 0], "max": ["L", "W/2", "tb"]}}, "material": "copper"},
+    {"name": "bolt", "solid": {"cylinder": {"base": ["0.15*L", 0, 0], "axis": [0, 0, "tb"], "radius": "rb"}},
+     "material": "titanium"}
+  ],
+  "domains": {"metal": ["bar", "bolt"]},
+  "boundaries": {
+    "terminal":  {"of": "bar", "where": {"x": "L"}},
+    "bolt_ends": {"between": ["bolt", "exterior"]},
+    "skin":      {"of": "metal"}
+  },
+  "physics": {
+    "current": {"type": "current.conduction", "domains": ["metal"],
+                "boundary_conditions": {"terminal":  {"kind": "potential", "V_V": "V_app"},
+                                        "bolt_ends": {"kind": "ground"},
+                                        "remaining": {"kind": "insulation"}}},
+    "heat":    {"type": "heat.transfer", "domains": ["metal"],
+                "boundary_conditions": {"skin": {"kind": "convection", "h_W_m2K": "htc", "T_ext_K": "T_amb"}}},
+    "solid":   {"type": "solid.linear", "domains": ["metal"],
+                "boundary_conditions": {"bolt_ends": {"kind": "fixed"},
+                                        "remaining": {"kind": "free"}}}
+  },
+  "couplings": [
+    {"term": "joule_heating",     "from": "current", "to": "heat"},
+    {"term": "thermal_expansion", "from": "heat",    "to": "solid", "T_ref_K": "T_amb"}
+  ],
+  "study": [{"id": "steady", "type": "stationary",
+             "coupling": {"strategy": "gauss_seidel", "tolerance": 1e-8, "max_iterations": 25}}],
+  "outputs": {
+    "I_total":   {"kind": "flux", "of": "charge", "on": "terminal"},
+    "P_joule":   {"kind": "integral", "of": "joule_power_density", "in": "metal"},
+    "Q_cooling": {"kind": "flux", "of": "heat", "on": "skin"},
+    "T_max":     {"kind": "maximum", "of": "T", "in": "metal"},
+    "sigma_vm":  {"kind": "maximum", "of": "von_mises", "in": "metal"},
+    "u_max":     {"kind": "maximum", "of": "displacement_mag", "in": "metal"}
+  },
+  "mesh": {"size": 0.004, "surface_size": 0.0015}
+}

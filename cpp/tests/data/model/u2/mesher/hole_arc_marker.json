@@ -1,0 +1,65 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "a",
+   "attr": 1,
+   "shape": {
+    "difference": [
+     {
+      "rect": {
+       "r": [
+        0,
+        1
+       ],
+       "z": [
+        0,
+        1
+       ]
+      }
+     },
+     {
+      "disk": {
+       "center": [
+        0.5,
+        0.5
+       ],
+       "radius": 0.2
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "curves": [
+  {
+   "name": "m",
+   "path": {
+    "arc": {
+     "center": [
+      0.5,
+      0.5
+     ],
+     "radius": 0.2,
+     "angles": [
+      0,
+      1.0
+     ]
+    }
+   }
+  }
+ ],
+ "boundaries": {
+  "m": {
+   "curve": "m"
+  }
+ },
+ "size": 0.05,
+ "surface_size": 0.05,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

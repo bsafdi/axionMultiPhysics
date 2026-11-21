@@ -263,3 +263,41 @@ def test_success_then_failed_launch_names_exit_code_log_and_fields(tmp_path, mon
     assert str(tmp_path / "fields") in text and "task 1: Exited with exit code 3" in text
     assert loaded == []
     assert (tmp_path / "axmp_status.json").exists()   # this launch's status file, kept under the default name
+
+
+# ---- the fields of the error that rank 0 reported ----
+CODED_ERR = {"ok": False, "error": "boundary 'inlet' selects nothing", "where": "/boundaries/inlet/where",
+             "hint": "no boundary edge of 'channel' lies on x = 0.", "code": "boundary.empty_selection",
+             "details": {"selector": {"of": "channel"}, "candidates": [{"where": {"x": 0.0005}}]}}
+
+
+def _mpi_error(tmp_path, monkeypatch, d, status):
+    _fake_mpi(tmp_path, monkeypatch, 1, "", status=status)
+    with pytest.raises(axmp.AxionMultiPhysicsError) as excinfo:
+        d._solve_mpi(tmp_path, 0, 0, 2, "mpirun", None)
+    return excinfo.value
+
+
+def test_a_failed_launch_keeps_the_four_fields_of_the_error(tmp_path, monkeypatch):
+    """Rank 0's JSON holds the message, the pointer, the hint, the code and the details apart, so the exception has
+    the same attributes as that of an in-process solve. Its text is the message with the hint in
+    parentheses; the attributes do not enter it."""
+    from axionmultiphysics._error_payload import error_payload
+
+    e = _mpi_error(tmp_path, monkeypatch, axmp.template("solenoid"), CODED_ERR)
+    text = f"{CODED_ERR['error']} (hint: {CODED_ERR['hint']})"
+    assert str(e) == text and e.args == (text,)
+    assert (e.where, e.hint, e.code, e.details) == tuple(CODED_ERR[k] for k in ("where", "hint", "code", "details"))
+    assert error_payload(e) == {**CODED_ERR, "error": text}
+
+
+def test_a_failed_launch_without_the_fields_has_the_defaults(tmp_path, monkeypatch):
+    plain = {"ok": False, "error": "3D linear solve failed", "where": "", "hint": ""}
+    d = axmp.template("solenoid")  # made before the core is replaced by the stub
+    e = _mpi_error(tmp_path, monkeypatch, d, plain)
+    assert str(e) == plain["error"]
+    assert (e.where, e.hint, e.code, e.details) == ("", "", "", None)
+    # members of another type are not taken over, and details without members are no details
+    for odd in ({"where": 3, "code": 7, "details": [1]}, {"details": {}}):
+        e = _mpi_error(tmp_path, monkeypatch, d, {**plain, **odd})
+        assert (e.where, e.hint, e.code, e.details) == ("", "", "", None), odd

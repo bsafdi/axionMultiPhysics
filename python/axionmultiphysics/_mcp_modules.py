@@ -375,8 +375,10 @@ def tool_squid_reach(ctx, name: str, preset: str = "C1+low+RT", Q: float = 1e6, 
 # ---------------------------------------------------------------- COMSOL
 def tool_export_comsol(ctx, name: str, format: str = "mphtxt", order: int = 1, physics: str = "none") -> dict:
     from .comsol import export_comsol
+    from .design import _require_em_document
 
     d = ctx.load(name)   # checks the name
+    _require_em_document(d, "export_comsol")   # a model document, before the run directory is made
     ext = {"mphtxt": ".mphtxt", "java": ".java", "step": ".step"}
     if format not in ext:
         raise ValueError("format must be 'mphtxt', 'java' or 'step'")

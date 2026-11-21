@@ -155,6 +155,8 @@ NavierStokesSolver::NavierStokesSolver(mfem::ParMesh& mesh, const NavierStokesOp
   }
   const auto& nl = opt.nonlinear;
   AXMP_REQUIRE(nl.newton_rtol > 0 && std::isfinite(nl.newton_rtol), "newton_rtol must be positive", "NonlinearOptions");
+  AXMP_REQUIRE(nl.residual_floor_factor >= 0 && std::isfinite(nl.residual_floor_factor),
+              "residual_floor_factor must be >= 0 (0 stops only at newton_rtol)", "NonlinearOptions");
   AXMP_REQUIRE(nl.n_picard >= 0 && nl.newton_maxit >= 0 && nl.picard_maxit >= 0 && nl.ptc_maxit >= 0 &&
                   nl.line_search_halvings >= 0,
               "iteration budgets must be >= 0", "NonlinearOptions");
@@ -169,6 +171,35 @@ NavierStokesSolver::NavierStokesSolver(mfem::ParMesh& mesh, const NavierStokesOp
   I.comm = mesh.GetComm();
   I.axi = so.geometry == Geometry::Axisymmetric;
   I.order = so.velocity_order;
+
+  // The convective rule: the exact degree of the trilinear form on the mesh actually used (it depends on the geometric
+  // order of the elements, not only on the velocity order). A user rule below it under-integrates the convective term:
+  // the discrete operator changes while the Newton gate, which measures the residual of whatever system was assembled,
+  // still reports convergence. Refused before any assembly, collectively (every rank takes the same maximum).
+  int conv_exact = 0;
+  {
+    mfem::H1_FECollection vfec(I.order, mesh.Dimension());
+    int under = 0;  // an element on which the caller's rule is not exact
+    for (int e = 0; e < mesh.GetNE(); ++e) {
+      const mfem::FiniteElement* fe = vfec.FiniteElementForGeometry(mesh.GetElementBaseGeometry(e));
+      mfem::ElementTransformation& T = *mesh.GetElementTransformation(e);
+      conv_exact = std::max(conv_exact, ConvectionIntegrator::exact_degree(*fe, T, I.axi));
+      if (opt.quad_order_convection > 0 && !ConvectionIntegrator::rule_is_exact(*fe, T, I.axi, opt.quad_order_convection))
+        under = 1;
+    }
+    int loc[2] = {conv_exact, under}, g[2] = {0, 0};
+    MPI_Allreduce(loc, g, 2, MPI_INT, MPI_MAX, I.comm);
+    conv_exact = g[0];
+    AXMP_REQUIRE(!g[1],
+                strcat("NavierStokesOptions.quad_order_convection = ", opt.quad_order_convection,
+                       " is below the exact degree ", conv_exact, " of the convective form (",
+                       I.axi ? "axisymmetric" : "planar", ", velocity order ", I.order, ", mesh geometry order ",
+                       mesh.GetNodalFESpace() ? mesh.GetNodalFESpace()->GetMaxElementOrder() : 1, ")"),
+                "NavierStokesOptions.quad_order_convection",
+                strcat("Use quad_order_convection = 0 (the exact minimum, ", conv_exact, ") or a value >= ", conv_exact,
+                       "; a lower rule under-integrates the convective term, which changes the discrete operator while "
+                       "the Newton gate still reports convergence."));
+  }
   I.S.reset(new StokesSolver(mesh, so, bc));
   StokesSolver& S = *I.S;
   S.assemble();
@@ -251,8 +282,14 @@ NavierStokesSolver::NavierStokesSolver(mfem::ParMesh& mesh, const NavierStokesOp
   }
   I.Mu_csr = to_dist(*I.Mu_one, I.comm);
   I.Mp_csr = to_dist(*I.Mp_one, I.comm);
+  // the mass solves are accepted on their own gate, the relative residual at kDualMassResidualMax (sparse_lu.hpp)
+  const std::vector<LUStage> lu_chain = chain_or_default(so.lu_chain, so.lu, MatchingJob::MaxDiagonalProductScaling);
+  LUAcceptance mass_acceptance;
+  mass_acceptance.kind = LUAcceptance::Kind::RelResidual;
+  mass_acceptance.bound = kDualMassResidualMax;
   for (auto* pr : {&I.Mu_lu, &I.Mp_lu}) {
-    pr->reset(new SparseLU(so.lu));
+    pr->reset(new SparseLU(lu_chain));
+    (*pr)->set_acceptance(mass_acceptance);
     (*pr)->set_refinement(10, 1e-15);
     (*pr)->set_throw_on_miss(false);
     (*pr)->set_refine_to_stagnation(true);
@@ -269,7 +306,8 @@ NavierStokesSolver::NavierStokesSolver(mfem::ParMesh& mesh, const NavierStokesOp
     I.kuu_rows[1] = I.nu_loc;
     I.Kuu_h.reset(new mfem::HypreParMatrix(I.comm, I.nu_loc, I.kuu_rows, I.Kuu_sp));
     I.Ma_csr = to_dist_sparse(I.M->mass_e(), I.comm);
-    I.Ma_lu.reset(new SparseLU(so.lu));
+    I.Ma_lu.reset(new SparseLU(lu_chain));
+    I.Ma_lu->set_acceptance(mass_acceptance);
     I.Ma_lu->set_refinement(10, 1e-15);
     I.Ma_lu->set_throw_on_miss(false);
     I.Ma_lu->set_refine_to_stagnation(true);
@@ -278,8 +316,8 @@ NavierStokesSolver::NavierStokesSolver(mfem::ParMesh& mesh, const NavierStokesOp
   }
   diag_.convection = to_string(opt.convection);
   diag_.strategy = to_string(nl.strategy);
-  diag_.quad_orders = {so.viscous_quad_order(), I.conv->quad_order(I.order), so.load_quad_order(),
-                       so.boundary_quad_order(), I.qm};
+  diag_.quad_orders = {so.viscous_quad_order(), opt.quad_order_convection > 0 ? opt.quad_order_convection : conv_exact,
+                       so.load_quad_order(), so.boundary_quad_order(), I.qm};
   diag_.linear = S.diag_;
   I.u = I.lift;
   I.p.SetSize(I.np_loc + I.na);
@@ -294,7 +332,8 @@ mfem::ParFiniteElementSpace& NavierStokesSolver::velocity_space() { return impl_
 // one linear solve with velocity block Juu and right-hand side -(Ru, Rp [, R_aux]): the monolithic direct matrix with
 // the Stokes solver's nullspace treatment (and, with MHD, the potential rows and columns appended)
 bool NavierStokesSolver::lin_solve_(const mfem::HypreParMatrix& Juu, const mfem::Vector& Ru, const mfem::Vector& Rp,
-                                    mfem::Vector& du, mfem::Vector& dp, int& refine) {
+                                    mfem::Vector& du, mfem::Vector& dp, int& refine, double& lu_residual,
+                                    const LUAcceptance& acceptance) {
   Impl& I = *impl_;
   const auto& nl = opt_.nonlinear;
   DistCsr D = I.mono(Juu);
@@ -306,58 +345,40 @@ bool NavierStokesSolver::lin_solve_(const mfem::HypreParMatrix& Juu, const mfem:
   for (int i = 0; i < I.na; ++i) b[nD + i] = -Rp(I.np_loc + i);
   std::vector<double> z(D.local_rows, 0.0);
   for (int i = I.nu_loc; i < I.nu_loc + I.np_loc; ++i) z[i] = 1.0;
-  // Time steps only: a direct solve whose refined residual is above kGarbage is not a solution (STRUMPACK has returned
-  // residuals of 1e5 on 75 000-unknown time-step systems whose matrices it had factorized accurately a step earlier).
-  // The solve is then repeated, visibly (diagnostics lu_fallbacks, lu_fallback_backend, and the backend in
-  // lu.backend), with STRUMPACK without matching and then with Eigen's SparseLU. A solve that meets the bound the
-  // first time, and every steady solve, takes the single-attempt path.
-  constexpr double kGarbage = 1e-6;
-  struct Attempt {
-    LUBackend backend;
-    bool matching;
-    const char* name;
-  };
-  std::vector<Attempt> chain = {{opt_.stokes.lu, true, ""}};
-  const bool time_step = nl.strategy == NonlinearStrategy::TransientNewton ||
-                         nl.strategy == NonlinearStrategy::TransientSemiImplicit;
-  if (time_step && opt_.stokes.lu != LUBackend::EigenLU) {
-    chain.push_back({opt_.stokes.lu, false, "strumpack-no-matching"});
-    chain.push_back({LUBackend::EigenLU, true, "eigen"});
-  }
+  // The row blocks of the recorded backward error and of the kernel probe: velocity, pressure and (MHD) potential
+  // rows; the Dirichlet rows of the velocity and of the potential are left out (-1); the pinned pressure row and the
+  // bordered rows (the flow-rate constraints, the mean-value multiplier; on the last rank) are constraint rows (-2).
+  std::vector<int> blocks(D.local_rows);
+  for (int i = 0; i < I.nu_loc; ++i) blocks[i] = I.ess_mask[i] ? -1 : 0;
+  for (int i = 0; i < I.np_loc; ++i) blocks[I.nu_loc + i] = i == I.pin_local ? -2 : 1;
+  for (int i = I.nu_loc + I.np_loc; i < nD; ++i) blocks[i] = -2;
+  for (int i = 0; i < I.na; ++i) blocks[nD + i] = I.M->ess_mask()[i] ? -1 : 2;
+  // Every solve starts at the chain's first stage. A stage whose solution misses the caller's acceptance passes the
+  // solve on to the next stage; the rejected stages' reasons are in the attempts, never in diag_.failure. When no
+  // stage is accepted the best solution is returned, and the caller's gates decide on it.
+  SparseLU lu(chain_or_default(opt_.stokes.lu_chain, opt_.stokes.lu, MatchingJob::MaxDiagonalProductScaling));
+  lu.set_acceptance(acceptance);
+  lu.set_row_blocks(std::move(blocks));
+  lu.set_refinement(10, std::min(1e-12, 1e-2 * nl.newton_rtol));
+  lu.set_throw_on_miss(false);
+  lu.set_threads(opt_.stokes.lu_threads);
+  lu.set_refine_to_stagnation(true);
+  lu.set_kernel_probe(z, 1e-14);
   std::vector<double> x;
-  bool done = false;
-  for (size_t k = 0; k < chain.size() && !done; ++k) {
-    SparseLU lu(chain[k].backend);
-    lu.set_refinement(10, std::min(1e-12, 1e-2 * nl.newton_rtol));
-    lu.set_throw_on_miss(false);
-    lu.set_threads(opt_.stokes.lu_threads);
-    lu.set_refine_to_stagnation(true);
-    lu.set_matching(chain[k].matching);
-    lu.set_kernel_probe(z, 1e-14);
-    try {
-      lu.factorize(D);
-      x = lu.solve(b);
-    } catch (const std::exception& e) {
-      diag_.failure = std::string("linear solve failed: ") + e.what();
-      if (k + 1 == chain.size()) return false;
-      ++I.lu_fallbacks_solve;
-      I.lu_fallback_name = chain[k + 1].name;
-      continue;
-    }
-    diag_.linear.lu = lu.stats();
-    refine = lu.stats().refine_steps;
-    const double res = lu.stats().rel_residual;
-    if (chain.size() == 1 || (std::isfinite(res) && res <= kGarbage)) {
-      done = true;
-    } else if (k + 1 < chain.size()) {
-      ++I.lu_fallbacks_solve;
-      I.lu_fallback_name = chain[k + 1].name;
-    } else {
-      diag_.failure = "the direct solve missed the accuracy floor on every backend";
-      return false;
-    }
+  bool solved = true;
+  try {
+    lu.factorize(D);
+    x = lu.solve(b);
+  } catch (const std::exception& e) {  // no stage produced a solution: the text lists every attempt
+    diag_.failure = std::string("linear solve failed: ") + e.what();
+    solved = false;
   }
-  if (!done) return false;
+  diag_.linear.lu = lu.stats();
+  diag_.linear.lu_attempts = lu.attempts();
+  diag_.linear.lu_stage = solved ? lu.stats().stage : std::string();
+  if (!solved) return false;
+  refine = lu.stats().refine_steps;
+  lu_residual = lu.stats().rel_residual;  // the returned solution's refined relative residual (identical on every rank)
   du.SetSize(I.nu_loc);
   dp.SetSize(I.np_loc + I.na);
   for (int i = 0; i < I.nu_loc; ++i) du(i) = x[i];
@@ -376,12 +397,18 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
   const double t0 = MPI_Wtime();
   diag_.history.clear();
   diag_.converged = false;
+  diag_.residual_floor = -1;
+  diag_.stopped_at_floor = false;
   diag_.iterations = 0;
   diag_.line_search_min_step_accepts = 0;
   diag_.failure.clear();
+  I.mass_res_max = -1;
+  I.mass_escalated = 0;
   diag_.linear = S.diag_;
-  diag_.lu_fallbacks = I.lu_fallbacks_solve;
-  diag_.lu_fallback_backend = I.lu_fallback_name;
+  diag_.lu_counts = LUCounts();
+  diag_.mass_lu_escalated = 0;
+  diag_.lu_fallbacks = 0;
+  diag_.lu_fallback_backend.clear();
   const bool transient = nl.strategy == NonlinearStrategy::TransientNewton ||
                          nl.strategy == NonlinearStrategy::TransientSemiImplicit;
   const bool semi = nl.strategy == NonlinearStrategy::TransientSemiImplicit;
@@ -394,13 +421,31 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
     std::fprintf(stderr, "axionmultiphysics.fluids: Navier-Stokes with Eigen's SparseLU at %ld unknowns: slow (~1e2 s per "
                          "factorization at 1e5); use the STRUMPACK backend\n", diag_.linear.n_total);
 
+  const double rtol = nl.newton_rtol;
+  const double gate = semi ? std::max(rtol, 1e-11) : rtol;  // semi-implicit: one direct linear solve
+  // The bound of the final step's direct solve (sparse_lu.hpp, kFinalSolveResidualMax), and the acceptance of every
+  // step's: any step may be the final one, so each is accepted on the final step's verdict.
+  const double lu_gate = nl.final_solve_residual_max > 0 ? nl.final_solve_residual_max
+                                                        : std::max(gate, kFinalSolveResidualMax);
+  LUAcceptance step_acceptance;
+  step_acceptance.kind = LUAcceptance::Kind::RelResidual;
+  step_acceptance.bound = lu_gate;
+  // every step solve is booked in this call's counts; its attempts and stage go into its history entry
+  int step_attempts = 0;
+  std::string step_stage;
   auto lin_solve = [&](const mfem::HypreParMatrix& Juu, const mfem::Vector& Ru, const mfem::Vector& Rp,
-                       mfem::Vector& du, mfem::Vector& dp, int& refine) -> bool {
-    return lin_solve_(Juu, Ru, Rp, du, dp, refine);
+                       mfem::Vector& du, mfem::Vector& dp, int& refine, double& lures) -> bool {
+    const bool ok = lin_solve_(Juu, Ru, Rp, du, dp, refine, lures, step_acceptance);
+    const std::vector<LUAttempt>& at = diag_.linear.lu_attempts;
+    lu_count_solve(diag_.lu_counts, at);
+    step_attempts = static_cast<int>(at.size());
+    step_stage = diag_.linear.lu_stage;
+    if (at.size() > 1) diag_.lu_fallback_backend = diag_.linear.lu_stage;
+    return ok;
   };
   mfem::Vector Ru, Rp, du, dp, tu, tp, Tu, Tp;
   auto rel = [&](double den) { return I.dual(Ru, Rp) / den; };
-  auto push = [&](const char* kind, double r, double lam, double dt, int stage, double s, int refine) {
+  auto push = [&](const char* kind, double r, double lam, double dt, int stage, double s, int refine, double lures) {
     NonlinearStep h;
     h.kind = kind;
     h.residual = r;
@@ -409,14 +454,15 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
     h.stage = stage;
     h.viscosity_scale = s;
     h.lu_refine = refine;
+    h.lu_residual = lures;
+    h.lu_attempts = step_attempts;
+    h.lu_stage = step_stage;
     diag_.history.push_back(h);
   };
   auto fail = [&](const std::string& why) {
     if (diag_.failure.empty()) diag_.failure = why;
     return false;
   };
-  const double rtol = nl.newton_rtol;
-  const double gate = semi ? std::max(rtol, 1e-11) : rtol;  // semi-implicit: one direct linear solve
   const mfem::Vector u_lift = I.lift;
   if (transient) {  // a time step: the predictor is the state in hand with the Dirichlet DOFs lifted to the current data
     for (int i : I.ess) I.u(i) = u_lift(i);
@@ -446,8 +492,14 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
   struct NSSystem : NonlinearSystem {
     Impl& I;
     std::function<bool(const mfem::HypreParMatrix&, const mfem::Vector&, const mfem::Vector&, mfem::Vector&,
-                       mfem::Vector&, int&)> lin;
+                       mfem::Vector&, int&, double&)> lin;
+    const int* attempts = nullptr;
+    const std::string* stage = nullptr;
     explicit NSSystem(Impl& i) : I(i) {}
+    void lu_record(int& n, std::string& st) const override {
+      n = *attempts;
+      st = *stage;
+    }
     int npt() const { return I.np_loc + I.na; }
     void split(const mfem::Vector& x, mfem::Vector& u, mfem::Vector& p) const {
       u.SetSize(I.nu_loc);
@@ -476,7 +528,7 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
       auto C = I.conv_grad(u, mode == StepMode::Picard ? ConvectionIntegrator::GradMode::Oseen
                                                        : ConvectionIntegrator::GradMode::Newton);
       auto J = I.velocity_block(s, C.get(), I.tr_c);  // + the time mass in a time step (tr_c = 0 otherwise)
-      if (!lin(*J, Ru, Rp, du, dp, refine)) return false;
+      if (!lin(*J, Ru, Rp, du, dp, refine, lu_residual)) return false;
       d.SetSize(I.nu_loc + npt());
       for (int i = 0; i < I.nu_loc; ++i) d(i) = du(i);
       for (int i = 0; i < npt(); ++i) d(I.nu_loc + i) = dp(i);
@@ -484,6 +536,8 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
     }
   } nssys(I);
   nssys.lin = lin_solve;
+  nssys.attempts = &step_attempts;
+  nssys.stage = &step_stage;
   NewtonControl ctl;
   ctl.line_search = nl.line_search;
   ctl.armijo_c1 = nl.armijo_c1;
@@ -491,6 +545,7 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
   ctl.rtol = nl.newton_rtol;
   ctl.maxit = nl.newton_maxit;
   ctl.n_picard = nl.n_picard;
+  ctl.floor_factor = nl.residual_floor_factor;  // consulted by run_stages (strategy Newton) only
   NonlinearDriver driver(nssys, ctl, diag_.history, diag_.iterations, diag_.line_search_min_step_accepts,
                          diag_.failure);
   driver.scale_name = "viscosity scale";
@@ -533,14 +588,15 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
       I.residual(I.u, I.p, s0, false, Ru, Rp);
       auto K = I.velocity_block(s0, nullptr, 0.0);
       int refine = 0;
-      if (!lin_solve(*K, Ru, Rp, du, dp, refine)) {
+      double lures = -1;
+      if (!lin_solve(*K, Ru, Rp, du, dp, refine, lures)) {
         ok = fail("linear solve failed in the Stokes step");
       } else {
         I.u.Add(1.0, du);
         I.p.Add(1.0, dp);
         I.residual(I.u, I.p, s0, true, Ru, Rp);
         r = rel(den);
-        push("stokes", r, 1.0, 0.0, 0, s0, refine);
+        push("stokes", r, 1.0, 0.0, 0, s0, refine, lures);
         if (!std::isfinite(r)) ok = fail("the residual is not finite after the Stokes step");
       }
     }
@@ -556,14 +612,15 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
           C->EliminateBC(I.ess, mfem::Operator::DIAG_ZERO);
           auto J = I.velocity_block(s0, C.get(), I.tr_c);
           int refine = 0;
-          if (!lin_solve(*J, Ru, Rp, du, dp, refine)) {
+          double lures = -1;
+          if (!lin_solve(*J, Ru, Rp, du, dp, refine, lures)) {
             ok = fail("linear solve failed in a semi-implicit step");
           } else {
             I.u.Add(1.0, du);
             I.p.Add(1.0, dp);
             I.residual(I.u, I.p, s0, true, Ru, Rp);
             r = rel(den);
-            push("semi", r, 1.0, 0.0, 0, s0, refine);
+            push("semi", r, 1.0, 0.0, 0, s0, refine, lures);
             ++diag_.iterations;
             if (!std::isfinite(r)) ok = fail("the residual is not finite after the semi-implicit solve");
           }
@@ -596,7 +653,8 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
         auto C = I.conv_grad(I.u, ConvectionIntegrator::GradMode::Newton);
         auto J = I.velocity_block(s0, C.get(), opt_.rho / dt);
         int refine = 0;
-        if (!lin_solve(*J, Ru, Rp, du, dp, refine)) {
+        double lures = -1;
+        if (!lin_solve(*J, Ru, Rp, du, dp, refine, lures)) {
           ok = fail("linear solve failed in a PTC step");
           break;
         }
@@ -605,7 +663,7 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
         I.residual(I.u, I.p, s0, true, Ru, Rp);
         r_prev = r;
         r = rel(den);
-        push("ptc", r, 1.0, dt, 0, s0, refine);
+        push("ptc", r, 1.0, dt, 0, s0, refine, lures);
         ++diag_.iterations;
         ++it;
         if (!std::isfinite(r)) {
@@ -638,13 +696,57 @@ const NavierStokesDiagnostics& NavierStokesSolver::solve() {
       from_state();
     }
     diag_.relative_residual = r;
+    diag_.residual_floor = driver.residual_floor();
     diag_.converged = ok && std::isfinite(r) && r <= gate;
+    // The iteration stopped because a step no longer reduced the residual and it stands at the round-off floor of
+    // the residual evaluation: no state double arithmetic can represent has a meaningfully smaller residual, so the
+    // solve is converged.  It is reported as such (stopped_at_floor next to the measured floor), never silently, and
+    // the residual it accepts is still bounded (NonlinearDriver::floor_stop_rtol_ceiling times newton_rtol).
+    if (!diag_.converged && ok && std::isfinite(r) && driver.stopped_at_floor()) {
+      diag_.converged = true;
+      diag_.stopped_at_floor = true;
+    }
     if (!diag_.converged && diag_.failure.empty()) diag_.failure = "not converged";
     I.scale_final = scales.back();
   }
+  // ---- accuracy gates on the linear algebra the verdict rests on
+  // (1) the per-step direct solves: every one is recorded in the history (lu_residual) and the worst reported. The
+  // enforced one is the FINAL step's, the one whose solution is reported, at max(newton_rtol, kFinalSolveResidualMax)
+  // (sparse_lu.hpp says why not at newton_rtol): an intermediate Newton or Picard step with a less accurate linear
+  // solve is an inexact step that changes the path, not the verdict, which is the nonlinear residual recomputed from
+  // the assembled operators after the step.
+  {
+    const double target = std::min(1e-12, 1e-2 * rtol);  // the refinement target lin_solve_ sets
+    diag_.lu_residual_max = -1;
+    diag_.lu_target_missed = 0;
+    for (const NonlinearStep& h : diag_.history) {
+      if (h.lu_residual < 0) continue;
+      diag_.lu_residual_max = std::max(diag_.lu_residual_max, h.lu_residual);
+      if (!(h.lu_residual <= target)) ++diag_.lu_target_missed;
+    }
+    double last = -1;
+    for (const NonlinearStep& h : diag_.history)
+      if (h.lu_residual >= 0) last = h.lu_residual;
+    if (!(last <= lu_gate)) {
+      diag_.converged = false;
+      if (diag_.failure.empty())
+        diag_.failure = strcat("the final direct solve missed its accuracy target (refined LU residual ", last,
+                               " > ", lu_gate, ")");
+    }
+  }
+  // (2) the dual-norm mass solves: every verdict above is expressed in that norm, so it is not reported on an
+  // unchecked one
+  diag_.mass_lu_residual_max = I.mass_res_max;
+  if (!(I.mass_res_max <= kDualMassResidualMax)) {
+    diag_.converged = false;
+    if (diag_.failure.empty() || diag_.failure == "not converged")
+      diag_.failure = strcat("a dual-norm mass solve missed its accuracy target (worst relative residual ",
+                           I.mass_res_max, " > ", kDualMassResidualMax,
+                           "): every convergence verdict of this solver is expressed in that norm");
+  }
   diag_.seconds = MPI_Wtime() - t0;
-  diag_.lu_fallbacks = I.lu_fallbacks_solve;
-  diag_.lu_fallback_backend = I.lu_fallback_name;
+  diag_.mass_lu_escalated = I.mass_escalated;
+  diag_.lu_fallbacks = diag_.lu_counts.escalated;
   // fields: velocity as solved; pressure mean-free (r-weighted) for an enclosed flow, raw otherwise
   I.ug.reset(new mfem::ParGridFunction(&S.velocity_space()));
   I.pg.reset(new mfem::ParGridFunction(&S.pressure_space()));
@@ -1116,12 +1218,17 @@ double NavierStokesSolver::mass_norm(const mfem::Vector& x) const {
 bool NavierStokesSolver::project_divergence_free(const mfem::Vector& u_target) {
   Impl& I = *impl_;
   require_no_mhd(I, "project_divergence_free");
-  const double rtol = opt_.nonlinear.newton_rtol;
+  // The projection is accepted on the backward error of its own saddle-point solve (formed below), against
+  // kProjectionResidualMax (sparse_lu.hpp says why the bound is a constant and holds the measurements behind it).
+  const double target = kProjectionResidualMax;
+  diag_.projection_residual = -1;
+  diag_.projection_converged = false;
+  diag_.projection_lu_attempts.clear();
   mfem::Vector u0(u_target), p0(I.np_loc), Ru, Rp, t(I.nu_loc), du, dp;
   p0 = 0.0;
   for (int i : I.ess) u0(i) = I.lift(i);
+  // R_u = M (u0 - u_I) on the free rows (zero unless the data differ), R_p = B u0 - rhs_p (the lifted continuity)
   {
-    // R_u = M (u0 - u_I) on the free rows (zero unless the data differ), R_p = B u0 - rhs_p (the lifted continuity)
     mfem::Vector d(u0);
     d -= u_target;
     I.Mu->Mult(d, t);
@@ -1131,10 +1238,83 @@ bool NavierStokesSolver::project_divergence_free(const mfem::Vector& u_target) {
     I.B->Mult(u0, Rp);
     Rp -= I.rhs_p;
     if (I.pin_local >= 0) Rp(static_cast<int>(I.pin_local)) = 0.0;
-    int refine = 0;
-    if (!lin_solve_(*I.Mu_one, Ru, Rp, du, dp, refine)) return false;
   }
-  (void)rtol;
+  // The measure. The residual of the saddle system [M B^T; B 0] (du, dp) = -(R_u, R_p) is formed with the ASSEMBLED
+  // operators (not the CSR the LU used), and each of its two blocks is compared, in the Euclidean norm, with the sizes
+  // of the terms that make that block up:
+  //   momentum     || M du + B^T dp + R_u ||   /   || |M| |du| + |B^T| |dp| + |R_u| ||
+  //   continuity   || B (u0 + du) - rhs_p ||   /   || |B| (|u0| + |du|) + |rhs_p| ||
+  // (|.| entrywise). projection_residual is the larger of the two ratios: a backward error, in units of the round-off
+  // of evaluating each block (sparse_lu.hpp says why it is this and not a residual relative to the data, and holds
+  // the measurements). The two blocks are never added, because they carry different units (the momentum rows scale
+  // like L^2 and the continuity rows like L, L the length unit), and each denominator scales exactly like its
+  // numerator. It is not LUStats::rel_residual, and the two numbers are not interchangeable. Collective.
+  auto measure = [&](const mfem::Vector& eu, const mfem::Vector& ep) {
+    mfem::Vector qu(I.nu_loc), qp(I.np_loc), su(I.nu_loc), sp(I.np_loc), qb(I.nu_loc), a(I.nu_loc), ap(I.np_loc);
+    I.Mu_one->Mult(eu, qu);
+    mfem::Vector dph(const_cast<double*>(ep.GetData()), I.np_loc);
+    I.Bt->Mult(dph, qb);
+    qu += qb;
+    qu += Ru;
+    I.zero_ess(qu);
+    I.B->Mult(eu, qp);
+    qp += Rp;
+    for (int i = 0; i < I.nu_loc; ++i) a(i) = std::fabs(eu(i));
+    I.Mu_one->AbsMult(a, su);
+    for (int i = 0; i < I.np_loc; ++i) ap(i) = std::fabs(ep(i));
+    I.Bt->AbsMult(1.0, ap, 1.0, su);
+    for (int i = 0; i < I.nu_loc; ++i) su(i) += std::fabs(Ru(i));
+    I.zero_ess(su);
+    for (int i = 0; i < I.nu_loc; ++i) a(i) = std::fabs(u0(i)) + std::fabs(eu(i));
+    I.B->AbsMult(a, sp);
+    for (int i = 0; i < I.np_loc; ++i) sp(i) += std::fabs(I.rhs_p(i));
+    // The pinned pressure row is not an equation of the solve, so it is left out. The continuity rows sum to the
+    // boundary flux, so what that row holds is minus the sum of the other rows' round-off (benign, and larger than
+    // any one of them: with Eigen's LU 3.7e-15 against 5e-17 on a 100 x 1 channel).
+    if (I.pin_local >= 0) qp(static_cast<int>(I.pin_local)) = sp(static_cast<int>(I.pin_local)) = 0.0;
+    double loc[4] = {qu * qu, su * su, qp * qp, sp * sp}, glob[4];
+    MPI_Allreduce(loc, glob, 4, MPI_DOUBLE, MPI_SUM, I.comm);
+    // a block whose terms all vanish (a zero field) has a zero residual and a ratio of zero
+    auto ratio = [](double r2, double s2) {
+      if (!std::isfinite(r2) || !std::isfinite(s2)) return std::numeric_limits<double>::infinity();
+      if (r2 == 0) return 0.0;
+      return s2 > 0 ? std::sqrt(r2 / s2) : std::numeric_limits<double>::infinity();
+    };
+    return std::max(ratio(glob[0], glob[1]), ratio(glob[2], glob[3]));
+  };
+  // The chain accepts a stage on this very gate: the measure of the stage's (du, dp), read from its solution exactly as
+  // lin_solve_ hands it over (velocity rows, Dirichlet entries zero; pressure rows), so the accepted stage's measure is
+  // projection_residual bit for bit (both are this function of the same numbers).
+  LUAcceptance acceptance;
+  acceptance.kind = LUAcceptance::Kind::Verdict;
+  acceptance.bound = target;
+  acceptance.name = "projection residual";
+  acceptance.verdict = [&](const std::vector<double>& x) {
+    mfem::Vector eu(I.nu_loc), ep(I.np_loc);
+    for (int i = 0; i < I.nu_loc; ++i) eu(i) = x[i];
+    for (int i : I.ess) eu(i) = 0.0;
+    for (int i = 0; i < I.np_loc; ++i) ep(i) = x[I.nu_loc + i];
+    return measure(eu, ep);
+  };
+  {
+    int refine = 0;
+    double lures = -1;
+    const bool solved = lin_solve_(*I.Mu_one, Ru, Rp, du, dp, refine, lures, acceptance);
+    diag_.projection_lu_attempts = diag_.linear.lu_attempts;
+    if (!solved) {
+      I.solved = false;
+      return false;
+    }
+    // the test hook: an inaccurate solve of known size
+    if (projection_perturbation_ != 0) du *= 1.0 + projection_perturbation_;
+    if (projection_perturbation_p_ != 0) dp *= 1.0 + projection_perturbation_p_;
+  }
+  diag_.projection_residual = measure(du, dp);
+  diag_.projection_converged = std::isfinite(diag_.projection_residual) && diag_.projection_residual <= target;
+  if (!diag_.projection_converged) {
+    I.solved = false;  // the state is untouched; velocity_field() / pressure_field() refuse
+    return false;
+  }
   u0 += du;
   I.u = u0;
   I.p = dp;

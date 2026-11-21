@@ -1,8 +1,10 @@
 # Installation
 
-In axion dark-matter experiments, finite-element calculations describe detector fields. On this page we install axionMultiPhysics, which uses a C++17 core for these calculations and Python for building designs and inspecting results. The 3D engine requires MPI-enabled MFEM and hypre; sequential builds support axisymmetric calculations. On Linux x86_64 and macOS, a wheel from PyPI is the quickest install; it has everything except the 3D engine and the fluids module, which need the MPI source build below.
+In axion dark-matter experiments, finite-element calculations describe detector fields. On this page we install axionMultiPhysics, which uses a C++17 core for these calculations and Python for building designs and inspecting results. The 3D engine requires MPI-enabled MFEM and hypre; sequential builds support axisymmetric calculations. Once the 0.2.0 wheels are on PyPI (see the note below), on Linux x86_64 and macOS a wheel is the quickest install; it has everything except the 3D engine and the fluids module, which need the MPI source build below.
 
 ## Wheel from PyPI
+
+The 0.2.0 wheels follow on PyPI after the release; until `pip index versions axionmultiphysics` lists 0.2.0, `pip install axionmultiphysics` installs 0.1.0, whose API lacks the 0.2.0 features. Until then we install 0.2.0 from source ([build and installation](#build-and-installation) below). The commands in this section apply once the wheels are listed.
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate     # Python 3.10 or newer
@@ -14,7 +16,7 @@ The `mesh` extra installs gmsh's own wheel, which axionMultiPhysics's mesher loa
 
 ## Build and installation
 
-The build requires Python 3.10+ with development headers, a C++17 compiler, CMake 3.20+, Ninja and curl, and for the MPI build also MPI and BLAS/LAPACK. We build and install axionMultiPhysics in a virtual environment so that the build tools and package use the same Python interpreter. These commands are tested in clean Ubuntu 24.04 and Rocky Linux 9 containers (`docker/`) and with a Cray programming environment, and the sequential build is tested on macOS (arm64) in CI; the MPI build has not been tested on macOS yet, and Windows is not supported.
+The build requires Python 3.10+ with development headers, a C++17 compiler, CMake 3.20+, Ninja and curl, and for the MPI build also MPI and BLAS/LAPACK. We build and install axionMultiPhysics in a virtual environment so that the build tools and package use the same Python interpreter. These commands are tested in clean Ubuntu 24.04 and Rocky Linux 9 containers (`docker/`) and with a Cray programming environment, and the sequential build was tested on macOS (arm64) in CI before 0.2.0; 0.2.0 itself was built and tested on Linux x86_64 only, the MPI build has not been tested on macOS, and Windows is not supported.
 
 ### Prerequisites
 

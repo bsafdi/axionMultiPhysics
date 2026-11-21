@@ -1,0 +1,183 @@
+{
+  "boundaries": {
+    "inlet": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "channel",
+        "where": {
+          "x": 0
+        }
+      },
+      "used_by": [
+        "flow"
+      ]
+    },
+    "outlet": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "channel",
+        "where": {
+          "x": "L"
+        }
+      },
+      "used_by": [
+        "flow"
+      ]
+    },
+    "walls": {
+      "resolution": "deferred",
+      "selector": {
+        "except": [
+          "inlet",
+          "outlet"
+        ],
+        "of": "channel"
+      },
+      "used_by": [
+        "flow"
+      ]
+    }
+  },
+  "description": "2D water channel, Re = rho U_mean H / mu = 100, parabolic inflow, pressure outlet",
+  "materials": {
+    "water": {
+      "density": 998.2,
+      "fluid": {
+        "mu_Pa_s": 0.001002
+      }
+    }
+  },
+  "mesh": {
+    "geometry_order": 2,
+    "geometry_order_origin": "default",
+    "size": 0.000625
+  },
+  "name": "channel",
+  "outputs": [
+    "F_walls",
+    "Q_in",
+    "Q_out",
+    "p_in",
+    "p_out",
+    "dp",
+    "tau_max"
+  ],
+  "parameters": {
+    "H": 0.01,
+    "L": 0.04,
+    "U_mean": 0.01,
+    "mu": 0.001002,
+    "rho": 998.2
+  },
+  "physics": {
+    "flow": {
+      "conditions": {
+        "inlet": {
+          "data": {
+            "velocity_m_s": [
+              "6*U_mean*y*(H-y)/H^2",
+              0
+            ]
+          },
+          "engine_form": "dirichlet",
+          "kind": "inlet"
+        },
+        "outlet": {
+          "data": {
+            "pressure_Pa": 0
+          },
+          "engine_form": "do_nothing: mu du/dn - p n = 0",
+          "kind": "outlet"
+        },
+        "walls": {
+          "data": {},
+          "engine_form": "dirichlet 0",
+          "kind": "wall"
+        }
+      },
+      "domains": [
+        "channel"
+      ],
+      "options": {
+        "convection": {
+          "origin": "default",
+          "value": "standard"
+        },
+        "equation": {
+          "origin": "written",
+          "value": "navier_stokes"
+        },
+        "order": {
+          "origin": "default",
+          "value": 2
+        },
+        "viscous_form": {
+          "origin": "written",
+          "value": "laplacian"
+        }
+      },
+      "status": "beta",
+      "type": "fluid.incompressible"
+    }
+  },
+  "regions": [
+    {
+      "material": "water",
+      "name": "channel"
+    }
+  ],
+  "routes": [
+    {
+      "implemented": false,
+      "needs": {
+        "engine_3d": false,
+        "fluids": true,
+        "max_ranks": 0,
+        "mesher": true,
+        "mpi": true
+      },
+      "physics": [
+        "flow"
+      ],
+      "route": "navier_stokes_steady_planar",
+      "step": "default"
+    }
+  ],
+  "schema": "axionmultiphysics.explain/1",
+  "status": "beta",
+  "study": [
+    {
+      "id": "default",
+      "origin": "implicit",
+      "physics": [
+        "flow"
+      ],
+      "solvers": {
+        "flow": {
+          "line_search": {
+            "origin": "default",
+            "value": true
+          },
+          "n_picard": {
+            "origin": "default",
+            "value": 3
+          },
+          "newton_maxit": {
+            "origin": "default",
+            "value": 30
+          },
+          "newton_rtol": {
+            "origin": "default",
+            "value": 1e-12
+          },
+          "residual_floor_factor": {
+            "origin": "default",
+            "value": 4
+          }
+        }
+      },
+      "type": "stationary"
+    }
+  ],
+  "symmetry": "planar"
+}

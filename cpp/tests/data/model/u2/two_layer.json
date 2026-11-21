@@ -1,0 +1,33 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "two_layer",
+  "description": "a channel L x H split along the flow at y = H/2 into the layers 'lower' and 'upper', whose viscosities differ by the factor 4; inlet at x = 0 and outlet at x = L across both layers, walls at y = 0 and y = H; 'mid' is the interface, interior to the flow. The inflow written here is a placeholder: the bridge test gives the two-layer profile as a callable",
+  "symmetry": "planar",
+  "parameters": {"L": 0.04, "H": 0.01, "rho": 1000.0, "mu_lo": 1.0e-3, "mu_hi": 4.0e-3},
+  "materials": {"thin": {"density": "rho", "fluid": {"mu_Pa_s": "mu_lo"}},
+                "thick": {"density": "rho", "fluid": {"mu_Pa_s": "mu_hi"}}},
+  "regions": [
+    {"name": "lower", "shape": {"rect": {"x": [0, "L"], "y": [0, "H/2"]}}, "material": "thin"},
+    {"name": "upper", "shape": {"rect": {"x": [0, "L"], "y": ["H/2", "H"]}}, "material": "thick"}
+  ],
+  "domains": {"channel": ["lower", "upper"]},
+  "boundaries": {
+    "inlet":  {"of": "channel", "where": {"x": 0}},
+    "outlet": {"of": "channel", "where": {"x": "L"}},
+    "walls":  {"of": "channel", "except": ["inlet", "outlet"]},
+    "mid":    {"between": ["lower", "upper"]}
+  },
+  "physics": {
+    "flow": {
+      "type": "fluid.incompressible",
+      "domains": ["channel"],
+      "options": {"equation": "stokes", "viscous_form": "laplacian"},
+      "boundary_conditions": {
+        "inlet":  {"kind": "inlet", "velocity_m_s": [0.01, 0]},
+        "outlet": {"kind": "outlet", "pressure_Pa": 0},
+        "walls":  {"kind": "wall"}
+      }
+    }
+  },
+  "mesh": {"size": "H/8"}
+}

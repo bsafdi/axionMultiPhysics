@@ -90,6 +90,15 @@ class BousSystem : public NonlinearSystem {
   const NavierStokesOptions& nso;
   double rtol;
   double lu_residual_last = -1;
+  // the step solves of this solve(): their counts, and the last one's stats, attempts and stage
+  LUCounts counts;
+  LUStats last_stats;
+  std::vector<LUAttempt> last_attempts;
+  std::string last_stage;
+  void lu_record(int& attempts, std::string& stage) const override {
+    attempts = static_cast<int>(last_attempts.size());
+    stage = last_stage;
+  }
 
   void residual(const mfem::Vector& x, double s, mfem::Vector& R) override {
     mfem::Vector u, p, T, Ru, Rp, RT;
@@ -173,7 +182,20 @@ class BousSystem : public NonlinearSystem {
     for (int i = 0; i < nu; ++i) b[i] = -Ru(i);
     for (int i = 0; i < np; ++i) b[nu + i] = -Rp(i);
     for (int i = 0; i < nT; ++i) b[n0 + i] = -RT(i);
-    SparseLU lu(nso.stokes.lu);
+    // On the chain of the flow options, accepted on the relative residual at max(newton_rtol,
+    // kFinalSolveResidualMax), the steady Navier-Stokes steps' bound: a threshold of its own (the solve had no gate on
+    // its LU before), recorded in every attempt. Row blocks: velocity, pressure, temperature; Dirichlet rows of the
+    // velocity and the temperature left out (-1); the pinned pressure row and the bordered rows constraint rows (-2).
+    SparseLU lu(chain_or_default(nso.stokes.lu_chain, nso.stokes.lu, MatchingJob::MaxDiagonalProductScaling));
+    LUAcceptance acceptance;
+    acceptance.kind = LUAcceptance::Kind::RelResidual;
+    acceptance.bound = std::max(rtol, kFinalSolveResidualMax);
+    lu.set_acceptance(acceptance);
+    std::vector<int> blocks(D.local_rows, -2);
+    for (int i = 0; i < nu; ++i) blocks[i] = I.ess_mask[i] ? -1 : 0;
+    for (int i = 0; i < np; ++i) blocks[nu + i] = i == I.pin_local ? -2 : 1;
+    for (int i = 0; i < nT; ++i) blocks[n0 + i] = essT[i] ? -1 : 2;
+    lu.set_row_blocks(std::move(blocks));
     lu.set_refinement(10, std::min(1e-12, 1e-2 * rtol));
     lu.set_throw_on_miss(false);
     lu.set_threads(nso.stokes.lu_threads);
@@ -181,6 +203,7 @@ class BousSystem : public NonlinearSystem {
     std::vector<double> z(D.local_rows, 0.0);
     for (int i = nu; i < nu + np; ++i) z[i] = 1.0;
     lu.set_kernel_probe(z, 1e-14);
+    bool solved = true;
     try {
       lu.factorize(D);
       const std::vector<double> xs = lu.solve(b);
@@ -188,10 +211,15 @@ class BousSystem : public NonlinearSystem {
       for (int i = 0; i < nu; ++i) d(i) = I.ess_mask[i] ? 0.0 : xs[i];
       for (int i = 0; i < np; ++i) d(nu + i) = xs[nu + i];
       for (int i = 0; i < nT; ++i) d(nu + np + i) = essT[i] ? 0.0 : xs[n0 + i];
-    } catch (const std::exception& e) {
+    } catch (const std::exception& e) {  // no stage produced a solution: the text lists every attempt
       failure = std::string("linear solve failed: ") + e.what();
-      return false;
+      solved = false;
     }
+    lu_count_solve(counts, lu.attempts());
+    last_stats = lu.stats();
+    last_attempts = lu.attempts();
+    last_stage = solved ? lu.stats().stage : std::string();
+    if (!solved) return false;
     refine = lu.stats().refine_steps;
     lu_residual = lu.stats().rel_residual;
     lu_residual_last = lu_residual;
@@ -264,6 +292,7 @@ BoussinesqSolver::BoussinesqSolver(mfem::ParMesh& mesh, const BoussinesqOptions&
   tr_->set_velocity(v);
   for (const auto& tb : opt.t_bcs) tr_->add_bc(tb.attrs, tb.kind, tb.data);
   tr_->set_lu_backend(nso.stokes.lu);
+  tr_->set_lu_chain(nso.stokes.lu_chain);  // the temperature mass LU walks the flow solver's chain
   tr_->finalize();
   S.nT = tr_->ndof();
   S.essT = &tr_->essential_mask();
@@ -311,7 +340,8 @@ BoussinesqSolver::BoussinesqSolver(mfem::ParMesh& mesh, const BoussinesqOptions&
   diag_.tau_rule = opt.supg ? "shakib_hK" : "none";
   diag_.convection = to_string(nso.convection);
   diag_.energy_form = to_string(to.form);
-  diag_.quad_orders = {nso.stokes.viscous_quad_order(), I.conv->quad_order(I.order), nso.stokes.load_quad_order(),
+  diag_.quad_orders = {nso.stokes.viscous_quad_order(), ns_->diagnostics().quad_orders[1],
+                       nso.stokes.load_quad_order(),
                        nso.stokes.boundary_quad_order(), I.qm, tr_->quad_order()};
   diag_.linear = ns_->diag_.linear;
   diag_.n_velocity = I.nu_loc;
@@ -334,6 +364,9 @@ const BoussinesqDiagnostics& BoussinesqSolver::solve() {
   diag_.iterations = 0;
   diag_.line_search_min_step_accepts = 0;
   diag_.failure.clear();
+  I.mass_res_max = -1;
+  I.mass_escalated = 0;
+  tr_->reset_mass_lu_residual();
   diag_.linear = ns_->diag_.linear;
   std::vector<double> scales = opt_.buoyancy_scales;
   if (scales.empty()) scales.push_back(1.0);
@@ -347,6 +380,8 @@ const BoussinesqDiagnostics& BoussinesqSolver::solve() {
   ctl.rtol = nl.newton_rtol;
   ctl.maxit = nl.newton_maxit;
   ctl.n_picard = 0;
+  // floor_factor stays 0: this solver stops on newton_rtol alone, so NonlinearOptions::residual_floor_factor has no
+  // effect here (the stop at the measured round-off floor has evidence for steady Navier-Stokes and MHD only).
   NonlinearDriver driver(sys, ctl, diag_.history, diag_.iterations, diag_.line_search_min_step_accepts, diag_.failure);
   driver.scale_name = "buoyancy scale";
 
@@ -378,6 +413,23 @@ const BoussinesqDiagnostics& BoussinesqSolver::solve() {
     if (!diag_.converged && diag_.failure.empty()) diag_.failure = "not converged";
   }
   diag_.lu_residual = sys.lu_residual_last;
+  diag_.lu_counts = sys.counts;
+  diag_.mass_lu_escalated = I.mass_escalated + tr_->mass_lu_escalated();
+  if (!sys.last_attempts.empty()) {
+    diag_.linear.lu = sys.last_stats;
+    diag_.linear.lu_attempts = sys.last_attempts;
+    diag_.linear.lu_stage = sys.last_stage;
+  }
+  // the dual norm of the flow and of the transport equation is what the verdict is expressed in: not reported on an
+  // unchecked one
+  diag_.mass_lu_residual_max = std::max(I.mass_res_max, tr_->mass_lu_residual_max());
+  if (!(diag_.mass_lu_residual_max <= kDualMassResidualMax)) {
+    diag_.converged = false;
+    if (diag_.failure.empty() || diag_.failure == "not converged")
+      diag_.failure = strcat("a dual-norm mass solve missed its accuracy target (worst relative residual ",
+                           diag_.mass_lu_residual_max, " > ", kDualMassResidualMax,
+                           "): every convergence verdict of this solver is expressed in that norm");
+  }
   diag_.seconds = MPI_Wtime() - t0;
   S.split(X, S.u, S.p, S.T);
   // fields: velocity as solved; pressure mean-free (r-weighted) for an enclosed flow, raw otherwise; T

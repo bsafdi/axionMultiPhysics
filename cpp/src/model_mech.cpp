@@ -36,6 +36,7 @@
 #include <limits>
 #include <map>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -96,7 +97,25 @@ struct PeakAt {
 
 }  // namespace
 
+void AxiModel::drop_mechanics() {
+  // before the space they refer to is replaced
+  elast_solved_ = false;
+  elast_.reset();
+  cond_.reset();
+  ktables_.clear();
+  elast_sol_ = axi::ElasticSolution{};
+  cond_sol_ = axi::ThermalSolution{};
+}
+
+const axi::ElasticSolution& AxiModel::elastic_solution() const {
+  if (!elast_solved_)
+    throw std::logic_error("AxiModel::elastic_solution: no elastic solution; solve a design with mechanics enabled "
+                           "(and solve again after set_mesh() or mesh())");
+  return elast_sol_;
+}
+
 void AxiModel::mechanics_thermal(const SolveOptions& o) {
+  drop_mechanics();
   if (!d_.mechanics.enabled && !d_.thermal.enabled) return;
   Timer timer;
   const Space& sp = *sp_;
@@ -379,6 +398,7 @@ void AxiModel::mechanics_thermal(const SolveOptions& o) {
     });
     log(1, "solving linear elasticity (Lorentz and surface loads)");
     elast_sol_ = elast_->solve(o.verbose);
+    elast_solved_ = true;
 
     // The implementation keeps only the pressure part of the Maxwell traction,
     // t = [(B.n) B - B^2 n/2]/mu0 -> -B^2 n/(2 mu0), which is exact when B.n = 0.  On an ideal
@@ -763,8 +783,8 @@ std::vector<AxiModel::MechSample> AxiModel::sample_mech(const std::vector<double
                                                        const std::vector<double>& z) const {
   AXMP_REQUIRE(solved_, "solve the model before sampling");
   AXMP_REQUIRE(r.size() == z.size(), "r and z must have the same length");
-  AXMP_REQUIRE(elast_ || cond_, "the design has no mechanics or thermal analysis", "",
-              "Add a \"mechanics\" or \"thermal\" section to the design.");
+  AXMP_REQUIRE(elast_solved_ || cond_, "the design has no mechanics or thermal analysis", "",
+              "Add a \"mechanics\" or \"thermal\" section to the design, and solve again after replacing the mesh.");
   const int n = static_cast<int>(r.size());
   mfem::DenseMatrix pts(2, n);
   for (int i = 0; i < n; ++i) {
@@ -787,7 +807,7 @@ std::vector<AxiModel::MechSample> AxiModel::sample_mech(const std::vector<double
     const int e = eid[i];
     s.region = sp_->mesh.GetAttribute(e);
     sp_->eval_at(e, ips[i], pe);
-    if (elast_ && elast_->roles()[e].solid) {
+    if (elast_solved_ && elast_->roles()[e].solid) {
       s.solid = true;
       elast_->displacement(elast_sol_, e, pe, s.ur, s.uz);
       elast_->stress(elast_sol_, e, pe, s.s_rr, s.s_zz, s.s_tt, s.s_rz);

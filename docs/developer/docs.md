@@ -28,6 +28,10 @@ and push to `main`; deployment to GitHub Pages runs only when started by hand (`
 - **The API reference** (`docs/api.md`) uses mkdocstrings with static analysis (griffe): it never imports
   `axionmultiphysics`, so the C++ core need not be built. Docstrings are NumPy style;
   `scripts/docs/griffe_sphinx_roles.py` renders Sphinx roles such as `:func:`.
+- **The physics catalogue page** (`docs/reference/physics_catalogue.md`) is generated from the registry by
+  `scripts/docs/gen_physics_catalogue.py`, which needs the compiled core:
+  `python scripts/docs/gen_physics_catalogue.py > docs/reference/physics_catalogue.md`. Never edit it by hand;
+  `tests/test_physics_catalogue.py` fails when the committed page differs from the generated one.
 - **Notebooks.** `scripts/docs/gen_pages.py` copies the notebooks listed in `SITE_NOTEBOOKS` into the site, and
   mkdocs-jupyter renders them with their stored outputs; the site build does not execute them. A listed notebook that
   does not exist fails a strict build. After changing a notebook, execute it again with

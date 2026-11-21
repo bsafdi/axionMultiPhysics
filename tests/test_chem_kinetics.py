@@ -324,6 +324,41 @@ def test_vsvo_past_vector_reallocation():
     assert np.max(np.abs(tr.y[-1] - [math.cos(30.0), -math.sin(30.0)])) < 1e-6
 
 
+@pytest.mark.parametrize("exc", [KeyboardInterrupt, ValueError], ids=["KeyboardInterrupt", "ValueError"])
+def test_callback_exception_propagates_from_starting_step(exc):
+    """An exception raised by the user's f at the starting-step trial point (the first call after t0 when h0 is not
+    given) reaches the caller; it is not mistaken for a numerical failure and replaced by a smaller step."""
+    calls = []
+
+    def f(t, y):
+        if t > 0.0 and not calls:     # only the trial point: a swallowed exception would let the run finish
+            calls.append(t)
+            raise exc("raised in f")
+        return -y
+
+    P = K.problem(1, f, lambda t, y: np.array([[-1.0]]))
+    with pytest.raises(exc, match="raised in f"):
+        K.adaptive(P, "bdf2", 0.0, [1.0], [1.0], 1e-8, 1e-10)
+    assert len(calls) == 1
+
+
+def test_nonfinite_trial_point_gives_smaller_start():
+    """f not finite at the trial point is a numerical failure of the starting-step estimate: the run starts smaller
+    and finishes accurately."""
+    seen = []
+
+    def f(t, y):
+        if t > 0.0 and not seen:
+            seen.append(t)
+            return np.array([np.nan])
+        return -y
+
+    P = K.problem(1, f, lambda t, y: np.array([[-1.0]]))
+    tr = K.adaptive(P, "bdf2", 0.0, [1.0], [1.0], 1e-8, 1e-10)
+    assert seen
+    assert abs(tr.y[-1][0] - math.exp(-1.0)) < 1e-6
+
+
 def test_adaptive_stop_time_dense_and_events():
     P = K.batch(_a_to_b())
     for meth in ("bdf2", "onestep", "vsvo"):

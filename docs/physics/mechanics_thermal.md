@@ -90,6 +90,11 @@ and the membrane hoop stress, not for conductor strain limits. The thermal condu
 
 `Results.sample_mech(r, z)` returns NaN (not 0) outside the structure, the thermal domain or the mesh.
 
+In C++, `AxiModel::elasticity()` and `AxiModel::elastic_solution()` give the elasticity problem and its solution
+(displacement at every DOF, reactions, the equilibrium checks) after a solve with mechanics enabled. They belong to the
+current mesh: `set_mesh()`, `mesh()` and any solve that does not run the mechanics discard them, `elasticity()` is then
+`nullptr` and `elastic_solution()` throws `std::logic_error` until the next solve with mechanics.
+
 ## 3D
 
 `cpp/src/model3d_mech.cpp` solves the same two problems on the MPI mesh of the 3D magnetostatic solve, with H1

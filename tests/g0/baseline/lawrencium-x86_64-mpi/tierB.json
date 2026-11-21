@@ -1,0 +1,694 @@
+{
+ "entries": {
+  "design_circuits_curves_scan": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "15b275240b5330478cdc3f9ce6189aebf09de762b5629dc82cf85aa3e38dcd7c",
+     "masked_leaves": 0,
+     "sha256": "452f3dcbe3c5884e16d0fe699fd6d2eb7574811e1fec947879610359691c1152"
+    },
+    "mesh.msh": {
+     "bytes": 1343561,
+     "kind": "text",
+     "sha256": "7db63808ea1980509b4e4a5742b088fadcfa55a2cc53d7941db91b13b3f90740"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "601271ad7e9aceddd12258b3130602a804f5cc6404815e25853182477878131d",
+     "masked_leaves": 0,
+     "sha256": "e7f484f6acb09c4c2ddb77e3bae813de558ef36394a23b299630b51801ed2aee"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "5ad4ec7a7444ed234c3fbefbe72bac5168c789e310eec1a9fa49171ea406cae4",
+     "masked_leaves": 1,
+     "sha256": "c1d5405166140d6c68173285c181a64064df49d725b7292f99139b06c7b6bee6"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "d96f3a46ac5434edeb37ce8c6f8d8b8e259d0de988a9d9bc81a058d8adc2e150",
+     "masked_leaves": 11,
+     "sha256": "408e9b9d83fb02805e55621dbd37182c0692ccf364adfabb7243998d0f6ed757"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "8898b6fa6c14d7d89c4b3a1b7c5ff9697cc4cf2a94617c98640e982472fdaf2a",
+     "masked_leaves": 0,
+     "sha256": "d1dcc804cfbbf6a6f5678549c4d37e42e80d04170c949b8e9de72b775a0a6910"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "452f3dcbe3c5884e16d0fe699fd6d2eb7574811e1fec947879610359691c1152"
+  },
+  "design_mechanics_axi": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "f8c2607a7060d2111861c9f24a8e6da99c8190c96bab8a88126e6f666d1f6630",
+     "masked_leaves": 0,
+     "sha256": "871d244174095209d3e726691c2f988424c389d5bc458a53f257c28d6f5e75df"
+    },
+    "mesh.msh": {
+     "bytes": 525742,
+     "kind": "text",
+     "sha256": "886c10bdf037c8786bf8bd2ec1c0c1df2b88e59d056d6a8c179f56d3b3e46c21"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "b997156eae53dd27957f13e6e73fa88de79f95224c33132b6bd45fd94ee6ad27",
+     "masked_leaves": 0,
+     "sha256": "77425e8d7fa37bcc27ff34b6e4aedb1a6a15dbac71d3a3276cb9c692c84293e5"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "5f13741fd64ae4906c6d5d6796f59ae3a69b9e66826b6ddbadb1f05757405a40",
+     "masked_leaves": 1,
+     "sha256": "2315d75878e05020e371f153fc8474d4d022d123b5aa802c429d17dd69993e16"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "4a41a0c7c6d2c7c6c212bad07c2d8c3937830202fe4d110a5fc944a68fadf897",
+     "masked_leaves": 10,
+     "sha256": "d9ee4410b81fc5a4e2ed82a9782754dc9aa32f817cd147ff640daf3cd5b14ea0"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "44a5403d34a675b65c60769db4090fc4b6096dd7b7cc14a1973dfdc58a12e824",
+     "masked_leaves": 0,
+     "sha256": "b7cff9c93c4b569c425d910ab069226a57e6beabfb53cdf0140d738fbf7949d1"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "871d244174095209d3e726691c2f988424c389d5bc458a53f257c28d6f5e75df"
+  },
+  "design_thermal_axi": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "f8c2607a7060d2111861c9f24a8e6da99c8190c96bab8a88126e6f666d1f6630",
+     "masked_leaves": 0,
+     "sha256": "76da183d4b651c1ba392f3616502abb0bdbb923e33b3602025e287f263ed000b"
+    },
+    "mesh.msh": {
+     "bytes": 552031,
+     "kind": "text",
+     "sha256": "02d13615fc4a9482256a0b0bdf844dddb3ab8560f608ea6319ce37905460a06a"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "40f107a0cda93a818c2fd6764979504480dc857f83e63364d156e4585382cd4f",
+     "masked_leaves": 0,
+     "sha256": "5072e3274e1de6d1c6c66cbf6173f58048977cdcf47a0a165341d38a9f5e412a"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "057b62d53fb5714e0a297d5e396302c6849ad26b53787a230c025e4035a927f9",
+     "masked_leaves": 1,
+     "sha256": "d2da5574db81f1cdd7c1a708e4e193b0e2fc8d1bed50fc88b2c2fb6510e93f0d"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "d726d0b26939287c4c9a4da7540073b9d4c61f54499f0703c3b5222adc7e7924",
+     "masked_leaves": 10,
+     "sha256": "f1caa2478b0919faf28aff67c81c091191bb1e91994f2a75c6cbe42986efa12e"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "cc486d106aabc786079ed0322eb84b73491e4c94b4dd36556ac518880945baa9",
+     "masked_leaves": 0,
+     "sha256": "7f6bbab441b20f37124ffe2d5490d3e364be06038e457b6e6a3420bbcd6e942b"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "76da183d4b651c1ba392f3616502abb0bdbb923e33b3602025e287f263ed000b"
+  },
+  "example_cavity_pillbox": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "f8c2607a7060d2111861c9f24a8e6da99c8190c96bab8a88126e6f666d1f6630",
+     "masked_leaves": 0,
+     "sha256": "bec6835e98cf6f74fc3ae2e33e3514ea2b915c52b45a833843caab39fc772fd7"
+    },
+    "mesh.msh": {
+     "bytes": 484193,
+     "kind": "text",
+     "sha256": "01eb940ddf432dbb86f52df0d2951159f20c66d309654aeab57017f5c65b761e"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "392123b9dcfa78e31abda03338f71057ab5dd0b25934bd2ed18f494349e8008a",
+     "masked_leaves": 0,
+     "sha256": "1ddfb518bfb172f0b7c8234e0c475c1a3a128f26faedb620032441117cb0b6ed"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "6aa5aa3aa4d2da220a4a3eff17df5e03b2d321034708cb49651079ed1e74026a",
+     "masked_leaves": 1,
+     "sha256": "092c44f81eb3ee4982f5e52141051e36c8ba8ade879d4310dd6407fdf4d429ed"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "540a42481a0ee12ad269cdaf6099d7fff06ef697105693de6b8080555faee230",
+     "masked_leaves": 11,
+     "sha256": "a13a2f9084bf2add26e2e551381ae2498554960397933015d346b4a354601c75"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "4fac7843e21d356a57d690d6e3fb1cdc50edbae9a801d4907ce6e8acd286b0d2",
+     "masked_leaves": 0,
+     "sha256": "29e7f1cdcdb0ff83127990f2d6cbd358aba89d546443c73f4af785450183ea8a"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "bec6835e98cf6f74fc3ae2e33e3514ea2b915c52b45a833843caab39fc772fd7"
+  },
+  "example_hts_shield": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "0c0223644ecd8082e53d6630a635baaa83f9f8a92ed95f6e9b4ce812061c0b58",
+     "masked_leaves": 0,
+     "sha256": "7c574aaac02504b7118594e5725b8ad34bba16b5063cf09ca281466ad2051879"
+    },
+    "mesh.msh": {
+     "bytes": 4112866,
+     "kind": "text",
+     "sha256": "348de31bf08dda7ed9eb12e490b9693bc7265c5facfe2705bc00ef10f848ffed"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "cccca3d324d6c240c091ff5d044f083a2beaf778f39f315f0166cd74d4f12547",
+     "masked_leaves": 0,
+     "sha256": "0cdf492dd43dfa618e17080b9b59e58ba151556577fe445321b5d1e77fe65c93"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "4a07c0196f63c5f64ca320c8dff8b50cade55afbce1a62f0f1bd2c7862004ca4",
+     "masked_leaves": 1,
+     "sha256": "5ee274717f9e98e49c5a53ec30d835e77aafb70f0aa39ab85b1988297b959c10"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "e1dc6d63eabf69fd65fea0c427c465fd73252d456eba36c579aaa1c51849f4a6",
+     "masked_leaves": 15,
+     "sha256": "c4f4885503ee087d212eb97e722fac20166b16f2e41cf6329874730a26a438f4"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "0f56dcb448faa1416821212112366c4b17c257645403cb0f56f2c09b126d2434",
+     "masked_leaves": 4,
+     "sha256": "dfb65743760b69cb551982791b25040bf5a2df50001cb9b90b2287c24eb0b584"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "7c574aaac02504b7118594e5725b8ad34bba16b5063cf09ca281466ad2051879"
+  },
+  "example_long_solenoid_coax": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "d3fdcc332d12335446c9141c46dd2ff31579499a6808d7b3b5e11b5cd6cd4273",
+     "masked_leaves": 0,
+     "sha256": "b9c8e15a27663f56b6e7aab2a289e9b71bfddf7c7e37171ba3145686d70594e3"
+    },
+    "mesh.msh": {
+     "bytes": 15322521,
+     "kind": "text",
+     "sha256": "b934f3e8076c3c0b7c4b58ebbf93e1982fdcc1a3f075c151eaa43cd96289cfbb"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "c9a4b517ee400b3960b790c5d8492dfa5bcab20178806640beeb1d56bbcaf0b6",
+     "masked_leaves": 0,
+     "sha256": "ece49984db0e7056424b9ac745fffed6dc8545940d67a187173b0e885ec30b94"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "7857f17b6b5b21a42978f6c93d098ebd328046b3f423ae1d1c12f3302733e98e",
+     "masked_leaves": 1,
+     "sha256": "c07fe513a4b614ac75ba198f2cc7fc46b34373e9446ff44d4d3b2ecf5fd8d4ef"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "5927c2244c38879cd260885783686de1d9aaecfd46abc5df1a3123f90cf8b4f7",
+     "masked_leaves": 14,
+     "sha256": "1ffcbe39abf8f0771c36abc022d4ac401dd7c0e3091585185248536663420375"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "e2243d9c4796458e3206ec0f0c415ef38c81ff3c9b551417103627e138e4d97c",
+     "masked_leaves": 4,
+     "sha256": "3bcb8235fa4e3cc72074fac08f8d762e6d72edde864d6df8317d2b3bca832f47"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "b9c8e15a27663f56b6e7aab2a289e9b71bfddf7c7e37171ba3145686d70594e3"
+  },
+  "example_pickup_capacitance": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "f8c2607a7060d2111861c9f24a8e6da99c8190c96bab8a88126e6f666d1f6630",
+     "masked_leaves": 0,
+     "sha256": "413c283516e89c88e71839a11414ba84c5e19ea824326a8a5f120c27022da741"
+    },
+    "mesh.msh": {
+     "bytes": 3814607,
+     "kind": "text",
+     "sha256": "3d5231f4e015bb017713d4ea63af18f0472f9d06cb5053b951b104824372b84a"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "c968016cc453f97ef4791dfa10776cc1165f9a1dbb17826bd393fece9dc456ec",
+     "masked_leaves": 0,
+     "sha256": "d5413380e6faff3a86e7459e6696883b3bdae3864448349a87b256cd11e39ce7"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "5f13741fd64ae4906c6d5d6796f59ae3a69b9e66826b6ddbadb1f05757405a40",
+     "masked_leaves": 1,
+     "sha256": "d9f9bafbd31ead7b7b018eba5cfa190fce5d6dea701289753291c499673e46ff"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "1be739826e1f25f3add9786116bf1fa8f163e3d030042721a027cafa206b4560",
+     "masked_leaves": 9,
+     "sha256": "c4bdbd5472a6b7344b7ee794d627936ec2cf29853da664da6d210b735364f50c"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "8348f476a66d68352e5006749ae1e7303847d2fa7733197dbaf2e4044205af7f",
+     "masked_leaves": 0,
+     "sha256": "c7f7bbcf49c77700b57230028f5afa5c742f54de0e5f7c0470007d84cd891855"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "413c283516e89c88e71839a11414ba84c5e19ea824326a8a5f120c27022da741"
+  },
+  "mesh_3d_stage1_twoport": {
+   "file_set": [
+    "mesh3d.msh",
+    "mesh3d_in.json",
+    "mesh3d_info.json",
+    "mesh3d_mesher.log"
+   ],
+   "files": {
+    "mesh3d.msh": {
+     "bytes": 4343645,
+     "kind": "binary",
+     "sha256": "47f1d79570e0ce622cdfbe5491dc5389875b845554f7b19b797beb9918c45d5f"
+    },
+    "mesh3d_in.json": {
+     "kind": "json",
+     "layout_sha256": "e164f6bec07913a8860cb25f99ecad4e1488d9e14684a8a172b7cc5990d0c6a0",
+     "masked_leaves": 0,
+     "sha256": "3374543d2bab9e42a01cb1b25063deb756f7de90454c82354f60e7770abae832"
+    },
+    "mesh3d_info.json": {
+     "kind": "json",
+     "layout_sha256": "b9bc0a6bd70b3fb01d5dc5477c40f0440616bc5de02ec43bd12f486b1321a446",
+     "masked_leaves": 1,
+     "sha256": "7d2218430077bd3d4be2f26c249974afac12ea31e5bd9e12b6d1fbb30e12c1d7"
+    }
+   },
+   "mesher_process": {
+    "mesh3d_info.json/address_randomization": "off",
+    "mesh3d_info.json/high_order_canonical": "n/a"
+   },
+   "status": 0,
+   "stdout_sha256": "d9a3713e11c95fc7b106276e76e55783741cb262f7ddf7b71da73795fedcf703"
+  },
+  "mesh_3d_stage1_twoport_curved": {
+   "file_set": [
+    "mesh3d.msh",
+    "mesh3d_in.json",
+    "mesh3d_info.json",
+    "mesh3d_mesher.log"
+   ],
+   "files": {
+    "mesh3d.msh": {
+     "bytes": 9593038,
+     "kind": "binary",
+     "sha256": "9fc02958490937f2e24dd33d2c9f4e1966506205f2b470646c89a3b2a4a6f497"
+    },
+    "mesh3d_in.json": {
+     "kind": "json",
+     "layout_sha256": "e164f6bec07913a8860cb25f99ecad4e1488d9e14684a8a172b7cc5990d0c6a0",
+     "masked_leaves": 0,
+     "sha256": "6b964a8c86f8f436390dfc6cf07db21f631f5329a18afa06eea197bdb3559ca9"
+    },
+    "mesh3d_info.json": {
+     "kind": "json",
+     "layout_sha256": "d92165cc516d2dc6dd07a24263b59edeca9b2e13fdc8487f7571810ebdd7d8a6",
+     "masked_leaves": 1,
+     "sha256": "da724f5d3a761e1905b2e4fd1b5c01db4c29959cecbeaea307ba50f5d5de2808"
+    }
+   },
+   "mesher_process": {
+    "mesh3d_info.json/address_randomization": "off",
+    "mesh3d_info.json/high_order_canonical": "on"
+   },
+   "status": 0,
+   "stdout_sha256": "9783ecf9c402dde7601ccd9963bc0440d2759af9141ae88025b5262fedaacef1"
+  },
+  "solve_3d_ring": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh3d.msh",
+    "mesh3d_in.json",
+    "mesh3d_info.json",
+    "mesh3d_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "1c035d47b2fdd3f39e67afc778ebd737d31209eaaaf64f941891060beb7e0c81",
+     "masked_leaves": 0,
+     "sha256": "5240e74973e58276dcf025aa421316d1a1682386469a792ff447af3c20ccfa58"
+    },
+    "mesh3d.msh": {
+     "bytes": 2140745,
+     "kind": "binary",
+     "sha256": "bc95f15271423557e28f59618f0f843f470bf9028f219a185b3f750eee5f46ae"
+    },
+    "mesh3d_in.json": {
+     "kind": "json",
+     "layout_sha256": "ccafeb50e77e3c6ebf174bcf78de9dfe6ede2fdbeb4d285199329fcb6bd6895a",
+     "masked_leaves": 0,
+     "sha256": "2cafe4d79de48296cb9b6b0ff8cc0d0d3675364c0c952b427e7276d7b4d2a2a9"
+    },
+    "mesh3d_info.json": {
+     "kind": "json",
+     "layout_sha256": "3bcfe992abd5ff4f200f226e16968ecaa52dd2c5656c5f1397a994b855a6b8c1",
+     "masked_leaves": 1,
+     "sha256": "d26156a7f34a59517a5bdd4bfe745d5d670a630dc1c4c23405f0e32b243cca79"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "c8015121588ddb238dbd5e8f83fe56128e6475e0d9e527e3ce8ecda603263cad",
+     "masked_leaves": 20,
+     "sha256": "b75b0e5fcc4c0058b31953bd0c8c4fc6fe427411ede4cfcae89354d2d4126478"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "6be732882a70c9112c011f1201670d4feddda77d7238392f1d604efc5fe07e9b",
+     "masked_leaves": 0,
+     "sha256": "3991b4a60d258b96f4d4a9494a3e19de468671080b9777575570fe7bac640885"
+    }
+   },
+   "mesher_process": {
+    "mesh3d_info.json/address_randomization": "off",
+    "mesh3d_info.json/high_order_canonical": "n/a",
+    "results.json/mesh/info/address_randomization": "off",
+    "results.json/mesh/info/high_order_canonical": "n/a"
+   },
+   "status": 0,
+   "stdout_sha256": "5240e74973e58276dcf025aa421316d1a1682386469a792ff447af3c20ccfa58"
+  },
+  "solve_3d_ring_curved": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh3d.msh",
+    "mesh3d_in.json",
+    "mesh3d_info.json",
+    "mesh3d_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "1c035d47b2fdd3f39e67afc778ebd737d31209eaaaf64f941891060beb7e0c81",
+     "masked_leaves": 0,
+     "sha256": "92064e5152c256e27caac1efcedf4756dfd770c4f47978ed1dbfeedfc0fae27f"
+    },
+    "mesh3d.msh": {
+     "bytes": 2034502,
+     "kind": "binary",
+     "sha256": "c42264bc137c64c358433dcd420b25b10646ed2065961ad27c800f15b8b20426"
+    },
+    "mesh3d_in.json": {
+     "kind": "json",
+     "layout_sha256": "ccafeb50e77e3c6ebf174bcf78de9dfe6ede2fdbeb4d285199329fcb6bd6895a",
+     "masked_leaves": 0,
+     "sha256": "800c4e034a73ddb0f753fd9f6ca5e897461741d365819553ba77257fa5147137"
+    },
+    "mesh3d_info.json": {
+     "kind": "json",
+     "layout_sha256": "87ff6b0253fb6bf43b10575132b8db3ca9400cef22e562504e53fde2a194bade",
+     "masked_leaves": 1,
+     "sha256": "4fc00a440118dfc31ce65d8cc549d385a860da9c0767d2a6a068cd0375fe5cec"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "943c9007443b5da5f10b745c6dbb0d763c0e7d4dc45448c026b60c9972ebbc08",
+     "masked_leaves": 20,
+     "sha256": "b23983dfb59e190449977dbfcc5b2a320dc1bb5bb39aa008145a7fe2b33164ae"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "6be732882a70c9112c011f1201670d4feddda77d7238392f1d604efc5fe07e9b",
+     "masked_leaves": 0,
+     "sha256": "aa490c2ce2ead1553ab127ddfeae7f253998058835e9ebf62df475c3f708be03"
+    }
+   },
+   "mesher_process": {
+    "mesh3d_info.json/address_randomization": "off",
+    "mesh3d_info.json/high_order_canonical": "on",
+    "results.json/mesh/info/address_randomization": "off",
+    "results.json/mesh/info/high_order_canonical": "on"
+   },
+   "status": 0,
+   "stdout_sha256": "92064e5152c256e27caac1efcedf4756dfd770c4f47978ed1dbfeedfc0fae27f"
+  },
+  "template_core": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "4e60476fb33c734fb5a278220ecaba394eaacd4b71d6073241b6a4d638fa9b55",
+     "masked_leaves": 0,
+     "sha256": "b9fbd1de6ba84085fd3584753a282a170562e8709f9b7025f76ff0c2f0dcd9a6"
+    },
+    "mesh.msh": {
+     "bytes": 9533483,
+     "kind": "text",
+     "sha256": "fd05f4486cd18c9918d2ce81ff3e443ae00745c0221ca1d46a3389796a7481ba"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "79c1f99de1655c4932986f0861ab650e2ce0f7152d5d5ae685eff1c2e17a73df",
+     "masked_leaves": 0,
+     "sha256": "0bbad72852442ac86cc065817b43d0f17de6f92059eafb5f46f9187aea850109"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "057b62d53fb5714e0a297d5e396302c6849ad26b53787a230c025e4035a927f9",
+     "masked_leaves": 1,
+     "sha256": "6fbaf7916f0c7197a1a2bf547bd23797caee141e0e8fd8d00f75a92363668ce9"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "302f2de875c48401650c9ea36ee7f537729f6c546e7e12fd5a56913fc6b0ed7a",
+     "masked_leaves": 14,
+     "sha256": "288331f010056d77fe67a0cb3c865168fd6feb9654849df2195265e7f4adab3a"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "3eabacb7dd65a20dd624e4cb23414c89b31a7c0687c472ce857661312e2cc55c",
+     "masked_leaves": 4,
+     "sha256": "4c533a6e74a8fa89ec71b780196e7b0eaff70758371e398cf550e56a8053b79c"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "b9fbd1de6ba84085fd3584753a282a170562e8709f9b7025f76ff0c2f0dcd9a6"
+  },
+  "template_solenoid": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "d3fdcc332d12335446c9141c46dd2ff31579499a6808d7b3b5e11b5cd6cd4273",
+     "masked_leaves": 0,
+     "sha256": "6954dddd85a4cd71253caba853798fdd3673dce08fc53268efe9ca4ee4c4a655"
+    },
+    "mesh.msh": {
+     "bytes": 5048174,
+     "kind": "text",
+     "sha256": "17ae99bf4f88ee8def4d9bf5c5524dbd93a33ed593bfce9e325650bf653acb92"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "c9a4b517ee400b3960b790c5d8492dfa5bcab20178806640beeb1d56bbcaf0b6",
+     "masked_leaves": 0,
+     "sha256": "eb49aa9cb4460146f6e472f3cf14d83ed6cd1a7e6ee2482bd0057f3e267d1b53"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "7857f17b6b5b21a42978f6c93d098ebd328046b3f423ae1d1c12f3302733e98e",
+     "masked_leaves": 1,
+     "sha256": "f055aa8ae5c9b2ca6f8fbfc910b6954707acd8dbd91e2cdd984b48a0406365f4"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "830b654cd586a1d4f67db53c07834e985026b19f0f47a553e7cb31fe526a11ee",
+     "masked_leaves": 14,
+     "sha256": "0d51a326bf6e1d476f7cb445551f42490b1ba14f935b0fa552e90370ccd4dfdd"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "8df3ec5c016eeab82567fb22c4bc1abec5b7589362c0496cb87b64fc9bc9a669",
+     "masked_leaves": 4,
+     "sha256": "a6fff133a065808105c4df1de1e46b96224008565cf749fbafdac8755bfca864"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "6954dddd85a4cd71253caba853798fdd3673dce08fc53268efe9ca4ee4c4a655"
+  },
+  "template_toroid": {
+   "file_set": [
+    "axmp_status.json",
+    "mesh.msh",
+    "mesh_in.json",
+    "mesh_info.json",
+    "mesh_mesher.log",
+    "results.json",
+    "scene.json"
+   ],
+   "files": {
+    "axmp_status.json": {
+     "kind": "json",
+     "layout_sha256": "8a2b9b69cf0ae7af510784659b0c1c524942d1996650aa3097abec9b52ec6a26",
+     "masked_leaves": 0,
+     "sha256": "7a9effe29401034ee01fdc2a1baeb8623db6f77d7632f7b59e5ddcac8a711945"
+    },
+    "mesh.msh": {
+     "bytes": 5908220,
+     "kind": "text",
+     "sha256": "6b4016cf69c6434685d5f645da77d00a4d8858d2bdda3c7842ff60a9b8645adb"
+    },
+    "mesh_in.json": {
+     "kind": "json",
+     "layout_sha256": "3af0a2fee723140890c97f13d18d6f65431b89551397015858544c2f20b3591b",
+     "masked_leaves": 0,
+     "sha256": "1f38b4e324d6c5089b4a1475c2960d461736df9a408ec7b1db89701529761838"
+    },
+    "mesh_info.json": {
+     "kind": "json",
+     "layout_sha256": "6aa5aa3aa4d2da220a4a3eff17df5e03b2d321034708cb49651079ed1e74026a",
+     "masked_leaves": 1,
+     "sha256": "9bddc2e4b617f82cc8cd5d4f12a566f6bfe49d70df4a743f870d90288c00e23d"
+    },
+    "results.json": {
+     "kind": "json",
+     "layout_sha256": "7a04dca6fa17cb28e2cfff189b275e620c9a661e5cc9098057daf59e2b88b8fa",
+     "masked_leaves": 9,
+     "sha256": "2c8661bff3c7f57d992dfe973e1a6a7093104bdb0dde5abe9e275659e10a1388"
+    },
+    "scene.json": {
+     "kind": "json",
+     "layout_sha256": "8b617c36fe80cebd716b83936b66d275654bc073d17f645aee09523f33a02ed0",
+     "masked_leaves": 0,
+     "sha256": "b4675d1a8b8bc98ab62967c0c370ccb288366ce7756971bbcf070053bd1a47c5"
+    }
+   },
+   "mesher_process": {},
+   "status": 0,
+   "stdout_sha256": "7a9effe29401034ee01fdc2a1baeb8623db6f77d7632f7b59e5ddcac8a711945"
+  }
+ },
+ "format": "axionmultiphysics.g0.tierB/2",
+ "platform": "lawrencium-x86_64-mpi"
+}

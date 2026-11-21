@@ -1,0 +1,49 @@
+{
+ "compared": {
+  "build": "mpi",
+  "compiler": "GCC: (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "dependency_pins": "49dc1122fc559d032d12d34a5635a918ce549eb73a63d8ea78834f177694db8d",
+  "libc": "glibc-2.39",
+  "machine": "x86_64",
+  "mesher": "4.15.2-nox",
+  "os": "ubuntu-24.04",
+  "ranks": 1,
+  "strumpack": false,
+  "system": "linux"
+ },
+ "format": "axionmultiphysics.g0/1",
+ "informational": {
+  "build_info": {
+   "device": "cpu",
+   "engine_3d": true,
+   "fluids": true,
+   "git_dirty": false,
+   "git_sha": "8ed447cc3b7a643c55776da2bffcf06a12679074",
+   "gpu_backend": "",
+   "library": {
+    "build_dir": "/home/runner/work/axionMultiPhysics-dev/axionMultiPhysics-dev/build",
+    "git_dirty": false,
+    "git_dirty_files": "",
+    "git_sha": "8ed447cc3b7a643c55776da2bffcf06a12679074"
+   },
+   "metis": true,
+   "mfem": "4.10.0",
+   "mpi": true,
+   "openmp": true,
+   "source_commit": "8ed447cc3b7a643c55776da2bffcf06a12679074",
+   "source_dirty": "false",
+   "strumpack": false,
+   "strumpack_guard": "",
+   "strumpack_min_dofs": 300000,
+   "strumpack_mpi": false,
+   "strumpack_version": "",
+   "threads": 2,
+   "version": "0.1.0"
+  },
+  "ci": true,
+  "python": "3.12.16",
+  "runner_image": "20261111.370.1",
+  "threads_forced": 1
+ },
+ "platform": "linux-x86_64-mpi"
+}

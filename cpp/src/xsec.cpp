@@ -19,6 +19,7 @@
 #include "axionmultiphysics/axi.hpp"
 #include "axionmultiphysics/core.hpp"
 #include "axionmultiphysics/fullwave.hpp"
+#include "axionmultiphysics/mesh_quality.hpp"
 #include "axionmultiphysics/units.hpp"
 
 namespace axmp {
@@ -248,6 +249,17 @@ void XsecModel::run(const SolveOptions& o) {
                 "Check the shapes (x, y in metres) and that curves lie inside the regions; see " + base + "_mesher.log.");
   }
   P.mesh = std::make_unique<mfem::Mesh>((base + ".msh").c_str(), 1, 1, true);
+  {
+    mesh_quality::UntangledOptions untangled;
+    untangled.coords_2d = "(x, y)";
+    mesh_quality::require_untangled(
+        *P.mesh,
+        [&](int a) {
+          const auto it = P.region_of_attr.find(a);
+          return it == P.region_of_attr.end() ? strcat("attribute ", a) : it->second;
+        },
+        base + ".msh", untangled);
+  }
   for (int i = 0; i < d_.mesh.refinements; ++i) P.mesh->UniformRefinement();
   const int order = o.order > 0 ? o.order : d_.mesh.order;
   AXMP_REQUIRE(order >= 1 && order <= 6, strcat("FE order ", order, " out of range"), "/mesh/order", "Use 1..6 (2 default).");

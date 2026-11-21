@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "axionmultiphysics/core.hpp"
+#include "axionmultiphysics/fieldmap.hpp"
 #include "axionmultiphysics/model3d.hpp"
 #include "axionmultiphysics/fw2d.hpp"
 
@@ -64,6 +65,8 @@ void Model3D::write_paraview(const std::string&) const { no_3d_engine("Model3D::
 void Model3D::save(const std::string&) const { no_3d_engine("Model3D::save"); }
 
 std::unique_ptr<Model3D> Model3D::load(const std::string&) { no_3d_engine("Model3D::load"); }
+
+std::unique_ptr<fieldmap::Source> Model3D::field_source() const { no_3d_engine("Model3D::field_source"); }
 
 void Model3D::fullwave_analysis(const SolveOptions&) { no_3d_engine("Model3D::fullwave_analysis"); }
 

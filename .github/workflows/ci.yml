@@ -12,6 +12,8 @@
 #   packaging          the file-based packaging tests and an sdist check.
 # Weekly and on workflow_dispatch, linux-mpi runs the whole pytest suite instead, and macos-mpi follows the guide's
 # "MPI source build" with Homebrew's open-mpi and runs ctest and a 3D smoke set.
+# In the private development repository (bsafdi/axionMultiPhysics-dev), where macOS minutes are billed, both macOS jobs
+# run only on workflow_dispatch.
 #
 # The third-party stacks are cached on the hash of the scripts that build them, so a normal run compiles only
 # axionMultiPhysics itself.
@@ -19,7 +21,8 @@ name: ci
 
 # Changes that touch only documentation run nothing (the docs workflow builds the site); the documents and data
 # files that tests read (docs/install.md, docs/guides/install.md, the fluids and chemistry validation pages, JSON files
-# under docs/, the agent skill, the viewer's vendor README) still trigger it.
+# under docs/, the agent skill, the viewer's vendor README) still trigger it. Changes only under dev/ (the development
+# tracker of the private repository, removed at a release) run nothing either.
 on:
   push:
     branches: [main]
@@ -37,6 +40,7 @@ on:
       - "docs/**/*.json"
       - ".claude/skills/**"
       - "viewer/**"
+      - "!dev/**"
   pull_request:
     paths:
       - "**"
@@ -52,6 +56,7 @@ on:
       - "docs/**/*.json"
       - ".claude/skills/**"
       - "viewer/**"
+      - "!dev/**"
   schedule:
     - cron: "17 6 * * 1"   # Mondays 06:17 UTC: the full suite
   workflow_dispatch:
@@ -154,6 +159,7 @@ jobs:
 
   macos-sequential:
     name: macOS arm64 sequential (the guide's source build)
+    if: "!endsWith(github.repository, '/axionMultiPhysics-dev') || github.event_name == 'workflow_dispatch'"
     runs-on: macos-15
     timeout-minutes: 120
     steps:
@@ -320,7 +326,9 @@ jobs:
 
   macos-mpi:
     name: macOS arm64 MPI (the guide's source build, 3D engine)
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: >-
+      (github.event_name == 'schedule' && !endsWith(github.repository, '/axionMultiPhysics-dev'))
+      || github.event_name == 'workflow_dispatch'
     runs-on: macos-15
     timeout-minutes: 150
     steps:

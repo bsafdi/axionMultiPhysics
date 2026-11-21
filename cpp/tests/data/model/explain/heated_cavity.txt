@@ -1,0 +1,30 @@
+heated_cavity  (model document; planar, bounded; results per metre of depth)
+  parameters  Lc=0.046  T_cold=293.15  T_hot=303.15  beta=0.0034  cp=1005  k=0.026  mu=1.8e-05  rho=1.2
+  materials   air: density 1.2 kg/m^3, fluid(mu 1.8e-05 Pa s, beta 0.0034 1/K), thermal(k 0.026 W/(m K), cp 1005 J/(kg K))
+  regions     cavity [air]
+  boundaries  cold  of cavity where x = 0.046  used by heat  deferred: resolved by `axmp boundaries`
+              hot  of cavity where x = 0  used by heat  deferred: resolved by `axmp boundaries`
+              remaining  every boundary no entry names  used by flow, heat  deferred: resolved by `axmp boundaries`
+  physics     flow  [fluid.incompressible, beta]  on cavity
+                convection standard                                                           [default]
+                equation navier_stokes                                                        [written]
+                order 2                                                                       [default]
+                viscous_form stress                                                           [default]
+                remaining  wall  -> dirichlet 0
+              heat  [heat.transfer, beta]  on cavity
+                advective_form convective                                                     [default]
+                order 2                                                                       [default]
+                stabilization none                                                            [default]
+                cold  temperature  T_K=T_cold  -> dirichlet
+                hot  temperature  T_K=T_hot  -> dirichlet
+                remaining  insulation  -> natural: k dT/dn = 0
+  couplings   advection  flow -> heat
+              buoyancy  heat -> flow  T_ref_K=0.5*(T_hot+T_cold) gravity_m_s2=(0, -9.81)
+  mesh        size 0.0014375 m, geometry order 2                                              [geometry_order: default]
+  study       steady  stationary over [flow, heat]
+              coupling monolithic
+              continuation scale buoyancy, factors 0.01, 0.1, 1
+              flow: newton_rtol 1e-12, newton_maxit 30, line_search true                      [defaults]
+  outputs     Q_hot  Nu  Q_cold  u_max
+  route       flow + heat: fluid.incompressible + heat.transfer / stationary / planar -> boussinesq_planar (not implemented yet)
+  needs       the mesher; an MPI build with the fluids library; one rank for the solve

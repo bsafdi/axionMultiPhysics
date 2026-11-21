@@ -1,0 +1,169 @@
+{
+  "boundaries": {
+    "anode": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "bulk",
+        "where": {
+          "x": 0
+        }
+      },
+      "used_by": [
+        "cell"
+      ]
+    },
+    "cathode": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "bulk",
+        "where": {
+          "x": "gap"
+        }
+      },
+      "used_by": [
+        "cell"
+      ]
+    }
+  },
+  "description": "parallel-plate cell, secondary current distribution, linearized Butler-Volmer kinetics",
+  "materials": {
+    "bath": {
+      "electrolyte": {
+        "kappa_S_m": 1
+      }
+    }
+  },
+  "mesh": {
+    "geometry_order": 2,
+    "geometry_order_origin": "default",
+    "size": 0.000625
+  },
+  "name": "plate_cell",
+  "outputs": [
+    "I_anode",
+    "I_cathode",
+    "eta_worst",
+    "i_avg"
+  ],
+  "parameters": {
+    "Hc": 0.02,
+    "V_cell": 0.05,
+    "gap": 0.01,
+    "i0": 10,
+    "kappa": 1
+  },
+  "physics": {
+    "cell": {
+      "conditions": {
+        "anode": {
+          "data": {
+            "phi_s_V": "V_cell"
+          },
+          "engine_form": "kinetic: kappa dphi/dn = i(eta)",
+          "kind": "electrode",
+          "reactions": [
+            "plate"
+          ]
+        },
+        "cathode": {
+          "data": {
+            "phi_s_V": 0
+          },
+          "engine_form": "kinetic: kappa dphi/dn = i(eta)",
+          "kind": "electrode",
+          "reactions": [
+            "plate"
+          ]
+        },
+        "remaining": {
+          "data": {},
+          "engine_form": "natural: kappa dphi/dn = 0",
+          "kind": "insulation"
+        }
+      },
+      "domains": [
+        "bulk"
+      ],
+      "options": {
+        "T_K": {
+          "origin": "written",
+          "value": 298.15
+        },
+        "kinetics": {
+          "origin": "written",
+          "value": "secondary"
+        },
+        "order": {
+          "origin": "written",
+          "value": 2
+        }
+      },
+      "status": "beta",
+      "type": "electrochem.current_distribution"
+    }
+  },
+  "reactions": {
+    "electrode": {
+      "plate": {
+        "E_eq_V": 0,
+        "alpha_a": 0.5,
+        "alpha_c": 0.5,
+        "i0_A_m2": 10,
+        "kind": "linear"
+      }
+    }
+  },
+  "regions": [
+    {
+      "material": "bath",
+      "name": "bulk"
+    }
+  ],
+  "remaining": {
+    "used_by": [
+      "cell"
+    ]
+  },
+  "routes": [
+    {
+      "implemented": false,
+      "needs": {
+        "engine_3d": false,
+        "fluids": false,
+        "max_ranks": 1,
+        "mesher": true,
+        "mpi": false
+      },
+      "physics": [
+        "cell"
+      ],
+      "route": "current_distribution_planar",
+      "step": "default"
+    }
+  ],
+  "schema": "axionmultiphysics.explain/1",
+  "status": "beta",
+  "study": [
+    {
+      "id": "default",
+      "origin": "implicit",
+      "physics": [
+        "cell"
+      ],
+      "solvers": {
+        "cell": {
+          "newton_maxit": {
+            "origin": "default",
+            "value": 60
+          },
+          "newton_rtol": {
+            "origin": "default",
+            "value": 1e-12
+          }
+        }
+      },
+      "type": "stationary"
+    }
+  ],
+  "symmetry": "planar"
+}

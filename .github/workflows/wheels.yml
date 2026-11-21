@@ -48,11 +48,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-15-intel is GitHub's x86_64 macOS image.
-        include:
-          - {name: "manylinux x86_64", os: ubuntu-24.04, archs: x86_64}
-          - {name: "macOS x86_64", os: macos-15-intel, archs: x86_64}
-          - {name: "macOS arm64", os: macos-15, archs: arm64}
+        # macos-15-intel is GitHub's x86_64 macOS image.  In the private development repository
+        # (bsafdi/axionMultiPhysics-dev), where macOS minutes are billed, a pull request builds only the Linux wheel;
+        # a manual dispatch there builds all three.
+        include: ${{ fromJSON((github.event_name == 'pull_request' && endsWith(github.repository, '/axionMultiPhysics-dev')) && '[{"name":"manylinux x86_64","os":"ubuntu-24.04","archs":"x86_64"}]' || '[{"name":"manylinux x86_64","os":"ubuntu-24.04","archs":"x86_64"},{"name":"macOS x86_64","os":"macos-15-intel","archs":"x86_64"},{"name":"macOS arm64","os":"macos-15","archs":"arm64"}]') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -115,7 +114,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-15]
+        # Linux only for a pull request in the development repository (see the wheels job).
+        os: ${{ fromJSON((github.event_name == 'pull_request' && endsWith(github.repository, '/axionMultiPhysics-dev')) && '["ubuntu-24.04"]' || '["ubuntu-24.04","macos-15"]') }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

@@ -1,0 +1,71 @@
+{
+ "schema": "axionmultiphysics.design/1",
+ "name": "g0_ring3d_order2",
+ "symmetry": "3d",
+ "description": "G0 gate: a winding ring and a slit superconducting pickup ring, solved by the 3D engine at element order 2 on a curved mesh.",
+ "regions": [
+  {
+   "name": "coil",
+   "solid": {
+    "revolve": {
+     "profile": {
+      "rect": {
+       "r": [
+        0.5,
+        0.6
+       ],
+       "z": [
+        -0.1,
+        0.1
+       ]
+      }
+     }
+    }
+   },
+   "material": "winding"
+  },
+  {
+   "name": "ring",
+   "solid": {
+    "revolve": {
+     "profile": {
+      "rect": {
+       "r": [
+        0.25,
+        0.3
+       ],
+       "z": [
+        -0.05,
+        0.05
+       ]
+      }
+     }
+    }
+   },
+   "material": "superconductor"
+  }
+ ],
+ "windings": [
+  {
+   "name": "w",
+   "region": "coil",
+   "type": "azimuthal",
+   "ampere_turns": 10000.0
+  }
+ ],
+ "superconductors": [
+  {
+   "body": "ring",
+   "azimuthal_slit": true
+  }
+ ],
+ "pickup": {
+  "type": "azimuthal",
+  "conductor": "ring"
+ },
+ "mesh": {
+  "size": 0.5,
+  "surface_size": 0.16,
+  "order": 2
+ }
+}

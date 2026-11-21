@@ -84,6 +84,13 @@ struct SolveDiagnostics {
   double residual_lift = -1;
   int iterations = 0;
   double lu_residual = -1;
+  double mass_lu_residual_max = -1;  // worst relative residual of a dual-norm mass solve of this solve; -1 = none taken
+  // The Jacobian solves of this solve (counts), the mass solves of this solve that took more than one attempt, and the
+  // last Jacobian solve: its stats (lu.stage, lu.backend: the stage that produced its solution) and attempts.
+  fluids::LUCounts lu_counts;
+  long mass_lu_escalated = 0;
+  fluids::LUStats lu;
+  std::vector<fluids::LUAttempt> lu_attempts;
   long dofs = 0, free_dofs = 0;
   std::string failure;
 };
@@ -134,6 +141,15 @@ class ScalarTransport {
   // reported in the dual norm; extra steps only if the gate is missed
   SolveDiagnostics solve(mfem::Vector& T, const mfem::Vector* u, fluids::LUBackend lu, double rtol, int maxit = 4);
   double dual_norm(const mfem::Vector& R_full) const;  // over the free rows; consistent mass
+  // worst relative residual of the dual-norm mass solves since the last reset (-1: none); a non-finite residual counts
+  // as +infinity. The gate is fluids::kDualMassResidualMax.
+  double mass_lu_residual_max() const { return mass_res_max_; }
+  // the dual-norm mass solves since the last reset that took more than one attempt of the chain
+  long mass_lu_escalated() const { return mass_escalated_; }
+  void reset_mass_lu_residual() {
+    mass_res_max_ = -1;
+    mass_escalated_ = 0;
+  }
   // flux through the boundary from the discrete gradient (a pointwise, non-variational output): int -kappa dT/dn
   double surface_flux(const mfem::Vector& T, const std::vector<int>& attrs) const;
   // mesh size
@@ -157,12 +173,18 @@ class ScalarTransport {
   bool finalized_ = false;
   mutable std::unique_ptr<fluids::SparseLU> mass_lu_;
   mutable fluids::DistCsr mass_csr_;
+  mutable double mass_res_max_ = -1;
+  mutable long mass_escalated_ = 0;
   mutable std::vector<int> free_map_;  // dof -> free index (-1 for Dirichlet)
   mutable int nfree_ = 0;
   fluids::LUBackend lu_backend_ = fluids::LUBackend::EigenLU;
+  std::vector<fluids::LUStage> lu_chain_;
 
  public:
   void set_lu_backend(fluids::LUBackend b) { lu_backend_ = b; }
+  // The stages of the mass and Jacobian LUs (fluids::SparseLU); empty (the default): the default chain of the
+  // backend (fluids::default_chain). Before the first dual_norm() for the mass LU.
+  void set_lu_chain(std::vector<fluids::LUStage> chain) { lu_chain_ = std::move(chain); }
   int free_index(int dof) const { return free_map_[dof]; }
   int n_free() const { return nfree_; }
 };

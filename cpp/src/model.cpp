@@ -20,6 +20,7 @@
 #include "axionmultiphysics/conductor.hpp"
 #include "axionmultiphysics/core.hpp"
 #include "axionmultiphysics/cost.hpp"
+#include "bdr_face.hpp"
 #include "axionmultiphysics/hts.hpp"
 #include "axionmultiphysics/mesh_quality.hpp"
 #include "axionmultiphysics/scan.hpp"
@@ -173,7 +174,7 @@ std::vector<Body> find_bodies(const Space& sp, const MeshBundle& mb, const std::
     if (!layer_attr.empty()) {
       layer_face.assign(sp.mesh.GetNumFaces(), 0);
       for (int be = 0; be < sp.mesh.GetNBE(); ++be)
-        if (layer_attr.count(sp.mesh.GetBdrAttribute(be))) layer_face[sp.mesh.GetBdrElementFaceIndex(be)] = 1;
+        if (layer_attr.count(sp.mesh.GetBdrAttribute(be))) layer_face[checked_bdr_face(sp.mesh, be)] = 1;
     }
   }
   auto crosses = [&](int f) { return layer_face.empty() || !layer_face[f]; };
@@ -574,12 +575,14 @@ void AxiModel::mesh(const SolveOptions& o) {
   mo.mesher = o.mesher;
   mo.verbose = o.verbose;
   mo.size_field_file = o.size_field_file;
+  drop_mechanics();
   mb_ = build_mesh(d_, mo);
   int order = o.order > 0 ? o.order : d_.mesh.order;
   sp_ = std::make_unique<Space>(*mb_.mesh, order);
 }
 
 void AxiModel::set_mesh(MeshBundle mb, int order) {
+  drop_mechanics();
   mb_ = std::move(mb);
   sp_ = std::make_unique<Space>(*mb_.mesh, order > 0 ? order : d_.mesh.order);
 }
@@ -698,7 +701,7 @@ void AxiModel::solve(const SolveOptions& o) try {
     std::map<int, std::vector<const spec::Curve*>> on_face;
     for (int be = 0; be < sp.mesh.GetNBE(); ++be) {
       auto it = curve_of_attr.find(sp.mesh.GetBdrAttribute(be));
-      if (it != curve_of_attr.end()) on_face[sp.mesh.GetBdrElementFaceIndex(be)].push_back(it->second);
+      if (it != curve_of_attr.end()) on_face[checked_bdr_face(sp.mesh, be)].push_back(it->second);
     }
     for (auto& [f, cs] : on_face) {
       const spec::Curve* layer = nullptr;
@@ -1151,6 +1154,8 @@ void AxiModel::solve(const SolveOptions& o) try {
     fullwave_analysis(o);
     hts_analysis(o);
     electrostatics_analysis(o);  // electrostatics (cpp/src/axi_electro.cpp)
+  } else {
+    drop_mechanics();  // this solve has none: an earlier one is not this solve's
   }
   results_["timing"]["solve_s"] = timer.seconds();
 } catch (const SolverFailure& failure) {
@@ -1161,8 +1166,7 @@ void AxiModel::solve(const SolveOptions& o) try {
   } catch (const std::exception& e) {  // the original failure must survive a failing check
     note = strcat(" (The mesh check failed: ", e.what(), ")");
   }
-  if (failure.hint().empty()) note.erase(0, 1);  // the leading space
-  throw Error(failure.message(), failure.where(), failure.hint() + note);
+  throw with_hint_note(failure, note);
 }
 
 AxiModel::Sample AxiModel::eval(int e, const mfem::IntegrationPoint& ip) const {

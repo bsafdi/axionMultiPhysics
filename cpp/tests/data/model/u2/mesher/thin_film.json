@@ -1,0 +1,52 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "film",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      1e-05
+     ],
+     "z": [
+      0,
+      1e-06
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "top": {
+   "of": [
+    "film"
+   ],
+   "where": {
+    "y": [
+     1e-06
+    ]
+   }
+  },
+  "bottom": {
+   "of": [
+    "film"
+   ],
+   "where": {
+    "y": [
+     0
+    ]
+   }
+  }
+ },
+ "size": 2e-07,
+ "surface_size": 2e-07,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

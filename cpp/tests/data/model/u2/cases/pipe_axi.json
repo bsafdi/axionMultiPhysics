@@ -1,0 +1,115 @@
+{
+  "name": "pipe_axi",
+  "test": "tests/test_fluids_model_bridge.py::test_axisymmetric_pipe_axis",
+  "description": "axisymmetric Stokes, form laplacian (the API's default is stress), on the instance mesh of pipe = [p1, p2]: the axis condition on axis_attributes, no-slip on wall, the traction (0, +p_in, 0) on inlet (sigma_form n = -p_in n with n = -e_z), do_nothing on outlet; Hagen-Poiseuille u_z = p_in (R^2 - r^2) / (4 nu Lz), u_r = u_theta = 0, p = p_in (1 - z/Lz), Q = pi R^4 p_in / (8 nu Lz), exact in P2/P1",
+  "build": "mpi",
+  "mesh": "the mesher's unstructured mesh of the document (gmsh, bounded axisymmetric mode, algorithm and options of axmp-mesher), mesh.size = R/8, geometry order 2 (the default: straight edges, with nodes); one process",
+  "instance": "pipe",
+  "solver": {
+    "solver": "direct",
+    "lu": "the build's default (fluids.default_lu())",
+    "lu_threads": 1,
+    "lu_retry": "auto",
+    "direct_tol": 1e-10,
+    "form": "laplacian",
+    "geometry": "axisymmetric"
+  },
+  "data": {"R": 0.005, "Lz": 0.04, "nu": 1e-06, "p_in": 6.4e-05},
+  "tolerance": {
+    "u_z": {
+      "what": "max |u_z - u_z,HP| / u_max at the seven sample points (vertices, edge midpoints, centroid) of every element",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 8.847089727481716e-15,
+        "AMD EPYC 7401 24-Core Processor / mpi": 8.673617379884035e-15,
+        "AMD EPYC 7452 32-Core Processor / mpi": 8.673617379884035e-15
+      },
+      "asserted": 1e-12
+    },
+    "u_r": {
+      "what": "max |u_r| / u_max at the seven sample points (vertices, edge midpoints, centroid) of every element",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.824338097054285e-14,
+        "AMD EPYC 7401 24-Core Processor / mpi": 1.8191470681055218e-14,
+        "AMD EPYC 7452 32-Core Processor / mpi": 1.8191470681055218e-14
+      },
+      "asserted": 1e-12
+    },
+    "u_theta": {
+      "what": "max |u_theta| / u_max at the seven sample points (vertices, edge midpoints, centroid) of every element",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 0.0,
+        "AMD EPYC 7401 24-Core Processor / mpi": 0.0,
+        "AMD EPYC 7452 32-Core Processor / mpi": 0.0
+      },
+      "asserted": 1e-12
+    },
+    "p": {
+      "what": "max |p - p_HP| / p_in at the seven sample points (vertices, edge midpoints, centroid) of every element",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.7575933655526732e-14,
+        "AMD EPYC 7401 24-Core Processor / mpi": 1.7893571010747095e-14,
+        "AMD EPYC 7452 32-Core Processor / mpi": 1.7893571010747095e-14
+      },
+      "asserted": 1e-12
+    },
+    "Q_outlet": {
+      "what": "|Q(outlet) - Q| / Q, 2 pi r u . n by the instrument (the 2 pi r is the test's)",
+      "ceiling": 1e-09,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.3480948051721856e-16,
+        "AMD EPYC 7401 24-Core Processor / mpi": 9.4366636362053e-16,
+        "AMD EPYC 7452 32-Core Processor / mpi": 9.4366636362053e-16
+      },
+      "asserted": 1e-12
+    },
+    "Q_inlet": {
+      "what": "|Q(inlet) + Q| / Q (outward normal -e_z)",
+      "ceiling": 1e-09,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.7525232467238415e-15,
+        "AMD EPYC 7401 24-Core Processor / mpi": 1.2132853246549671e-15,
+        "AMD EPYC 7452 32-Core Processor / mpi": 1.2132853246549671e-15
+      },
+      "asserted": 1e-12
+    }
+  },
+  "recorded": {},
+  "unrecorded_platforms": [
+    "the lr7 nodes of feature rocky8 (n0150 to n0153), a second processor model of the lr7 partition",
+    "any other partition the gate is pointed at"
+  ],
+  "document": {
+    "schema": "axionmultiphysics.design/1",
+    "name": "pipe_axi",
+    "description": "an axisymmetric pipe of radius R and length Lz split at z = Lz/2 into the regions p1 and p2; the axis r = 0 is named by no boundary",
+    "symmetry": "axisymmetric",
+    "parameters": {"R": 0.005, "Lz": 0.04, "k": 0.6, "cp": 4180.0, "rho": 998.0},
+    "materials": {"water": {"density": "rho", "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+    "regions": [
+      {"name": "p1", "shape": {"rect": {"r": [0, "R"], "z": [0, "Lz/2"]}}, "material": "water"},
+      {"name": "p2", "shape": {"rect": {"r": [0, "R"], "z": ["Lz/2", "Lz"]}}, "material": "water"}
+    ],
+    "domains": {"pipe": ["p1", "p2"]},
+    "boundaries": {
+      "inlet": {"of": "p1", "where": {"z": 0}},
+      "outlet": {"of": "p2", "where": {"z": "Lz"}},
+      "wall": {"of": "pipe", "where": {"r": "R"}}
+    },
+    "physics": {
+      "heat": {
+        "type": "heat.transfer",
+        "domains": ["pipe"],
+        "boundary_conditions": {
+          "inlet": {"kind": "temperature", "T_K": 300.0},
+          "outlet": {"kind": "temperature", "T_K": 290.0},
+          "wall": {"kind": "insulation"}
+        }
+      }
+    },
+    "mesh": {"size": "R/8"}
+  }
+}

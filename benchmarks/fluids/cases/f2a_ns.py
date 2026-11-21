@@ -36,6 +36,11 @@ TOL = 1e-9
 SIDES = {"bottom": 1, "right": 2, "top": 3, "left": 4}
 PERM = [0, 2, 1]          # (u_r, u_z, u_t) <-> (u_r, u_t, u_z)
 N_PICARD = 3              # run block nonlinear_solver.start: Stokes, then 3 Picard steps, then Newton
+# The lid-driven cavity cases (C1 selfconv_ns_cavity_continuation, X1 xcode_cavity_re1000) run pure Newton from the
+# true Stokes solution: their records were produced with it, and the C1 line-search items (Armijo violations, computed
+# from the whole history) measure the Newton steps, which Picard steps would mix with. The two steady states agree to
+# round-off, so no number depends on it; the case texts state this count.
+N_PICARD_CAVITY = 0
 PTC_RELEASE_DT = 1e12     # C1 run.parameters.ptc.release: "pure Newton once dt > 1e12" (fixed as text)
 
 
@@ -247,6 +252,7 @@ def run_entry(level, sol, sec, h, info, family, refinement_level, form, conv, ax
                   "dofs_total": int(g("dofs_field", 0)), "files": [], "hash": (info or {}).get("hash"),
                   "all_boundary_triangles": (info or {}).get("all_boundary_triangles")},
          "solver": {"converged": bool(g("converged")), "relative_residual": float(g("relative_residual")),
+                    "residual_floor": g("residual_floor"), "stopped_at_floor": bool(g("stopped_at_floor")),
                     "residual_lift": g("residual_lift"), "iterations": int(g("iterations", -1)),
                     "history": hist, "newton_steps": sum(1 for x in hist if x.get("kind") == "newton"),
                     "strategy": g("strategy"), "convection": g("convection", conv), "viscous_form": form,
@@ -718,7 +724,7 @@ def _cavity(R, N, Re_list, form="lap", conv="standard", label=None, **kw):
     g = lid_data()
     bcs = [bc(SIDES[s], "dirichlet", g) for s in PLANAR_D]
     Re = float(Re_list[-1])
-    opts = dict(n_picard=0)
+    opts = dict(n_picard=N_PICARD_CAVITY)
     if len(Re_list) > 1:
         opts.update(continuation_re=[float(r) for r in Re_list], re=Re)
     opts.update(kw)

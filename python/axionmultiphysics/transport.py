@@ -59,13 +59,13 @@ class ScalarTransport:
             raise ValueError("the only stabilization is 'supg'")
         self._supg, self._tau = kind == "supg", tau_rule
 
-    def solve(self, criterion="dual_norm", rtol=1e-11, lu=None):
+    def solve(self, criterion="dual_norm", rtol=1e-11, lu=None, lu_retry="auto"):
         if criterion != "dual_norm":
             raise ValueError("only criterion='dual_norm' is offered by the operator")
         return _fl.solve_heat(self.mesh, self._kappa, capacity=self._cap, velocity=self._beta, source=self._src,
                               bcs=self._bcs, geometry=self.geometry, order=self.order, form=self._form,
                               supg=self._supg, tau_rule=self._tau, grad_kappa=self._gk, div_velocity=self._div,
-                              shift=self._shift, lu=lu, rtol=rtol)
+                              shift=self._shift, lu=lu, rtol=rtol, lu_retry=lu_retry)
 
 
 __all__ = ["ScalarTransport"]

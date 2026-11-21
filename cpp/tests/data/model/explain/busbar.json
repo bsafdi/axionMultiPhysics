@@ -1,0 +1,255 @@
+{
+  "boundaries": {
+    "bolt_ends": {
+      "resolution": "deferred",
+      "selector": {
+        "between": [
+          "bolt",
+          "exterior"
+        ]
+      },
+      "used_by": [
+        "current",
+        "solid"
+      ]
+    },
+    "skin": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "metal"
+      },
+      "used_by": [
+        "heat"
+      ]
+    },
+    "terminal": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "bar",
+        "where": {
+          "x": "L"
+        }
+      },
+      "used_by": [
+        "current"
+      ]
+    }
+  },
+  "couplings": [
+    {
+      "data": {},
+      "from": "current",
+      "term": "joule_heating",
+      "to": "heat"
+    },
+    {
+      "data": {
+        "T_ref_K": "T_amb"
+      },
+      "from": "heat",
+      "term": "thermal_expansion",
+      "to": "solid"
+    }
+  ],
+  "description": "copper bar with a titanium bolt: Joule heating, convective cooling, thermal expansion",
+  "domains": {
+    "metal": [
+      "bar",
+      "bolt"
+    ]
+  },
+  "materials": {
+    "copper": {
+      "density": 8960,
+      "electric": {
+        "sigma_S_m": {
+          "law": "expression",
+          "of": [
+            "T"
+          ]
+        }
+      },
+      "mechanical": {
+        "E_Pa": 110000000000.0,
+        "alpha_1_K": 1.7e-05,
+        "nu": 0.35
+      },
+      "thermal": {
+        "cp_J_kgK": 385,
+        "k_W_mK": 400
+      }
+    },
+    "titanium": {
+      "density": 4940,
+      "electric": {
+        "sigma_S_m": 740700.0
+      },
+      "mechanical": {
+        "E_Pa": 105500000000.0,
+        "alpha_1_K": 9.4e-06,
+        "nu": 0.33
+      },
+      "thermal": {
+        "cp_J_kgK": 710,
+        "k_W_mK": 7.5
+      }
+    }
+  },
+  "mesh": {
+    "geometry_order": 2,
+    "geometry_order_origin": "default",
+    "size": 0.004,
+    "surface_size": 0.0015
+  },
+  "name": "busbar",
+  "outputs": [
+    "I_total",
+    "P_joule",
+    "Q_cooling",
+    "T_max",
+    "sigma_vm",
+    "u_max"
+  ],
+  "parameters": {
+    "L": 0.09,
+    "T_amb": 293.15,
+    "V_app": 0.002,
+    "W": 0.05,
+    "htc": 5,
+    "rb": 0.003,
+    "tb": 0.005
+  },
+  "physics": {
+    "current": {
+      "conditions": {
+        "bolt_ends": {
+          "data": {},
+          "engine_form": "not implemented yet",
+          "kind": "ground"
+        },
+        "remaining": {
+          "data": {},
+          "engine_form": "not implemented yet",
+          "kind": "insulation"
+        },
+        "terminal": {
+          "data": {
+            "V_V": "V_app"
+          },
+          "engine_form": "not implemented yet",
+          "kind": "potential"
+        }
+      },
+      "domains": [
+        "bar",
+        "bolt"
+      ],
+      "options": {},
+      "status": "absent",
+      "type": "current.conduction"
+    },
+    "heat": {
+      "conditions": {
+        "skin": {
+          "data": {
+            "T_ext_K": "T_amb",
+            "h_W_m2K": "htc"
+          },
+          "engine_form": "robin: -k dT/dn = h (T - T_ext)",
+          "kind": "convection"
+        }
+      },
+      "domains": [
+        "bar",
+        "bolt"
+      ],
+      "options": {
+        "advective_form": {
+          "origin": "default",
+          "value": "convective"
+        },
+        "order": {
+          "origin": "default",
+          "value": 2
+        },
+        "stabilization": {
+          "origin": "default",
+          "value": "none"
+        }
+      },
+      "status": "beta",
+      "type": "heat.transfer"
+    },
+    "solid": {
+      "conditions": {
+        "bolt_ends": {
+          "data": {},
+          "engine_form": "not implemented yet",
+          "kind": "fixed"
+        },
+        "remaining": {
+          "data": {},
+          "engine_form": "not implemented yet",
+          "kind": "free"
+        }
+      },
+      "domains": [
+        "bar",
+        "bolt"
+      ],
+      "options": {},
+      "status": "absent",
+      "type": "solid.linear"
+    }
+  },
+  "regions": [
+    {
+      "material": "copper",
+      "name": "bar"
+    },
+    {
+      "material": "titanium",
+      "name": "bolt"
+    }
+  ],
+  "remaining": {
+    "used_by": [
+      "current",
+      "solid"
+    ]
+  },
+  "routes": [
+    {
+      "implemented": false,
+      "physics": [
+        "current",
+        "heat",
+        "solid"
+      ],
+      "route": null,
+      "step": "steady"
+    }
+  ],
+  "schema": "axionmultiphysics.explain/1",
+  "status": "beta",
+  "study": [
+    {
+      "coupling": {
+        "max_iterations": 25,
+        "strategy": "gauss_seidel",
+        "strategy_origin": "written",
+        "tolerance": 1e-08
+      },
+      "id": "steady",
+      "origin": "written",
+      "physics": [
+        "current",
+        "heat",
+        "solid"
+      ],
+      "solvers": {},
+      "type": "stationary"
+    }
+  ],
+  "symmetry": "3d"
+}

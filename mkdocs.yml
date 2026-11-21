@@ -31,6 +31,7 @@ exclude_docs: |
   developer/
   cavity/
   validation/
+  !validation/particles.md
   physics/*.md
   srf/*.md
   /comsol_export.md
@@ -206,12 +207,21 @@ nav:
   - COMSOL:
       - Export and import: guides/comsol.md
   - Designs and solvers: guides/solvers.md
+  - Model documents (beta):
+      - Meshes and named boundaries: guides/model_meshes.md
+      - Physics catalogue: reference/physics_catalogue.md
+      - Error codes: reference/error_codes.md
   - Visualization: guides/visualization.md
   - Fluids and chemistry (beta):
       - Fluids: guides/fluids.md
       - Fluids walkthrough: examples/fluids_demo.ipynb
       - Chemistry: guides/chemistry.md
       - Chemistry walkthrough: examples/chemistry_demo.ipynb
+  - Export to Geant4 and particle transport (beta):
+      - Field maps: guides/field_maps.md
+      - Solids and GDML: guides/solids.md
+      - Transport and its driver: guides/particles.md
+      - Validation: validation/particles.md
   - Chat assistants (MCP): guides/mcp.md
   - About: about.md
   - API reference: api.md

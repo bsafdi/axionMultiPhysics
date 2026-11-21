@@ -1,0 +1,62 @@
+{
+ "bounded": true,
+ "geometry": "axisymmetric",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "box",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      1
+     ],
+     "z": [
+      0,
+      1
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "bottom": {
+   "of": [
+    "box"
+   ],
+   "where": {
+    "z": [
+     0
+    ]
+   }
+  },
+  "right": {
+   "of": [
+    "box"
+   ],
+   "where": {
+    "r": [
+     1
+    ]
+   }
+  },
+  "top": {
+   "of": [
+    "box"
+   ],
+   "where": {
+    "z": [
+     1
+    ]
+   }
+  }
+ },
+ "size": 0.125,
+ "surface_size": 0.125,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

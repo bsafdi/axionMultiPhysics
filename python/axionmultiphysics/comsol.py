@@ -2066,6 +2066,29 @@ def _core():
     return c
 
 
+def _refuse_model_document(source) -> None:
+    """Refuses a model document (one with a top-level "physics" key) given to :func:`export_comsol`: a Design, a
+    dict, a ``.json`` file or the ``design.json`` of a run directory.  Any other source, and a file that cannot be read
+    as JSON here, is left to the export (its errors are unchanged).  The compiled core is imported only to refuse."""
+    if isinstance(source, (str, os.PathLike)):   # os.DirEntry is a path-like too
+        try:
+            p = Path(source)
+            f = p / "design.json" if p.is_dir() else p
+            if f.suffix != ".json" or not f.is_file():
+                return
+            doc = json.loads(f.read_text())
+        except (OSError, ValueError):   # unreadable here: left to the export, whose errors are unchanged
+            return
+    elif isinstance(source, dict):
+        doc = source
+    else:
+        doc = getattr(source, "doc", None)   # a Design
+    if isinstance(doc, dict) and "physics" in doc:
+        from .design import _require_em_document
+
+        _require_em_document(doc, "export_comsol")
+
+
 def export_comsol(source, out: str | Path, *, format: str = "mphtxt", order: int = 1,
                   workdir: str | Path | None = None, mesher: str = "", verbose: int = 0,
                   class_name: str | None = None, feature_angle: float | None = None,
@@ -2088,8 +2111,13 @@ def export_comsol(source, out: str | Path, *, format: str = "mphtxt", order: int
     (:mod:`axionmultiphysics.comsol_physics`).  The design is needed: a design, a design
     ``.json`` or a run directory with ``design.json``.
 
+    A model document (beta: a design with a top-level ``physics`` key, given directly, as a ``.json`` or as the
+    ``design.json`` of a run directory) is refused with ``model.em_only_operation`` before anything is resolved,
+    meshed or written: the export builds an electromagnetic COMSOL model.
+
     Returns a summary dict (files written, entity counts, selections, approximations).
     """
+    _refuse_model_document(source)
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
     fmt = format.lower()
@@ -2252,7 +2280,12 @@ def main(argv: list[str] | None = None) -> int:
                             verbose=a.verbose, class_name=a.class_name, feature_angle=a.feature_angle,
                             physics=a.physics)
     except Exception as ex:  # noqa: BLE001  (CLI: report as JSON like axmp)
-        print(json.dumps({"ok": False, "error": str(ex)}, indent=2))
+        from ._error_payload import error_payload
+
+        # an error with a code (a model document's refusal) prints its fields as the MCP tools do; any other error
+        # prints as it always has
+        out = error_payload(ex)
+        print(json.dumps(out if "code" in out else {"ok": False, "error": str(ex)}, indent=2))
         return 1
     print(json.dumps({"ok": True, **res}, indent=2))
     return 0

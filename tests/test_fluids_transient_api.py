@@ -19,7 +19,8 @@ B, R, T, L = 1, 2, 3, 4
 RHO, MU = 1.25, 0.05
 
 
-def rect(nx, ny):
+def rect_arrays(nx, ny):
+    """The vertices and triangles of rect(nx, ny), in the element order the solver keeps."""
     xs, ys = np.linspace(0, 1, nx + 1), np.linspace(0, 1, ny + 1)
     V = np.array([[x, y] for y in ys for x in xs])
     vid = lambda i, j: j * (nx + 1) + i  # noqa: E731
@@ -28,6 +29,13 @@ def rect(nx, ny):
         for i in range(nx):
             a, b, c, d = vid(i, j), vid(i + 1, j), vid(i + 1, j + 1), vid(i, j + 1)
             tri += [[a, b, c], [a, c, d]]
+    return V, np.array(tri)
+
+
+def rect(nx, ny):
+    xs, ys = np.linspace(0, 1, nx + 1), np.linspace(0, 1, ny + 1)
+    V, tri = rect_arrays(nx, ny)
+    vid = lambda i, j: j * (nx + 1) + i  # noqa: E731
     seg, att = [], []
     for i in range(nx):
         seg += [[vid(i, 0), vid(i + 1, 0)], [vid(i + 1, ny), vid(i, ny)]]
@@ -98,8 +106,44 @@ def test_bdf2_exact_with_exact_second_level_variable_steps():
     assert err_at(ts, t) < 1e-9
 
 
+def discrete_divergence(snap, V, tri):
+    """max_a |int N_a div u| over the P1 vertex hats, assembled here in numpy from the released P2 field.
+
+    This is what the Leray projection drives to zero. A Taylor-Hood velocity is discretely, not pointwise, divergence
+    free, so the pointwise divergence of a projected field stays O(1) while every pressure-space test of it vanishes;
+    the pointwise value therefore carries no absolute bound. The 3-point degree-2 midpoint rule is exact for
+    N_a div u (degree 1 + 1) on straight triangles, so the only error here is round-off, and the assembly is
+    independent of the solver's own discrete divergence operator.
+    """
+    q = np.array([[0.5, 0.0], [0.5, 0.5], [0.0, 0.5]])
+    w = np.full(3, 1.0 / 6.0)
+    N = np.stack([1 - q[:, 0] - q[:, 1], q[:, 0], q[:, 1]], axis=1)
+    el = np.arange(snap.n_elements, dtype=np.int32)
+    _, grad = snap.velocity(el, q)
+    grad = np.asarray(grad)
+    div = grad[..., 0, 0] + grad[..., 1, 1]
+    P = V[tri]
+    det = np.abs((P[:, 1, 0] - P[:, 0, 0]) * (P[:, 2, 1] - P[:, 0, 1])
+                 - (P[:, 2, 0] - P[:, 0, 0]) * (P[:, 1, 1] - P[:, 0, 1]))
+    out = np.zeros(len(V))
+    contrib = det[:, None] * (div * w[None, :]) @ N
+    for a in range(3):
+        np.add.at(out, tri[:, a], contrib[:, a])
+    return float(np.max(np.abs(out)))
+
+
 def test_initial_projection_divergence_free():
-    mesh = rect(8, 8)
+    """The projected state is discretely divergence free to an ABSOLUTE bound, and initialize() says so.
+
+    The projection solves [M B^T; B 0] with a refined relative residual <= min(1e-12, 1e-2 newton_rtol) = 1e-14 at
+    the default newton_rtol, and this problem's right-hand side has magnitude ~1e-2, so the continuity rows of the
+    projected state are expected near 1e-16; measured 1.1e-17 on this mesh. The bound 1e-14 is three decades above
+    that and eleven below the interpolant's 4.6e-3, and it rejects a projection accepted at a fixed 1e-6 accuracy
+    floor (which would leave ~1e-8) -- which a bound of the form "smaller than the interpolant's" does not.
+    """
+    n = 8
+    mesh = rect(n, n)
+    V, tri = rect_arrays(n, n)
 
     def u0(X, Y):  # not divergence free, zero on the boundary
         s = X * (1 - X) * Y * (1 - Y)
@@ -108,17 +152,13 @@ def test_initial_projection_divergence_free():
     divs = {}
     for proj in (True, False):
         ts = fluids.TransientNavierStokes(mesh, MU, RHO, None, bcs, scheme="newton", lu="eigen", vectorized=True)
-        assert ts.initialize(u0, 0.0, proj)
+        assert ts.initialize(u0, 0.0, proj) is True
         snap = ts.snapshot()
-        el = np.arange(snap.n_elements, dtype=np.int32)
-        q = np.array([[1 / 3, 1 / 3]])
-        _, g = snap.velocity(el, q)
-        g = np.asarray(g)
-        divs[proj] = float(np.max(np.abs(g[..., 0, 0] + g[..., 1, 1])))
+        divs[proj] = discrete_divergence(snap, V, tri)
         P, U = snap.boundary_nodes([B, R, T, L])
         assert np.max(np.abs(np.asarray(U))) == 0.0     # nodal Dirichlet data (zero)
-    assert divs[False] > 1e-3
-    assert divs[True] < divs[False]
+    assert divs[False] > 1e-3, divs
+    assert divs[True] <= 1e-14, divs
 
 
 def test_adaptive_reaches_T_with_ratio_cap_and_rejections():

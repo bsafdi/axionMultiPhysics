@@ -1,0 +1,1259 @@
+{
+ "corpus": {
+  "accepted_duplicate_key": {
+   "python": {
+    "ok": "{\"name\":\"toroid\",\"ok\":true,\"parameters\":{\"H\":2.0,\"NI\":1000000.0,\"R\":2.0,\"f\":0.04,\"g\":0.01,\"ts\":0.01,\"tw\":0.02,\"y\":0.6065306597126334}}"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"toroid\",\n  \"ok\": true,\n  \"regions\": 2,\n  \"windings\": 1\n}\n"
+   }
+  },
+  "accepted_schema_missing": {
+   "python": {
+    "ok": "{\"name\":\"toroid\",\"ok\":true,\"parameters\":{\"H\":2.0,\"NI\":1000000.0,\"R\":2.0,\"f\":0.04,\"g\":0.01,\"ts\":0.01,\"tw\":0.02,\"y\":0.6065306597126334}}"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"toroid\",\n  \"ok\": true,\n  \"regions\": 2,\n  \"windings\": 1\n}\n"
+   }
+  },
+  "background_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /background] Hint: Allowed fields here: Br, Bz, Bz_grid, interpolation, notes, r, scale, source, type, z.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /background] Hint: Allowed fields here: Br, Bz, Bz_grid, interpolation, notes, r, scale, source, type, z."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: Br, Bz, Bz_grid, interpolation, notes, r, scale, source, type, z.\",\n  \"ok\": false,\n  \"where\": \"/background\"\n}\n"
+   }
+  },
+  "benchmarks_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /benchmarks/0] Hint: Allowed fields here: Q, T, eta_A, name.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /benchmarks/0] Hint: Allowed fields here: Q, T, eta_A, name."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: Q, T, eta_A, name.\",\n  \"ok\": false,\n  \"where\": \"/benchmarks/0\"\n}\n"
+   }
+  },
+  "cavity_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /cavity] Hint: Allowed fields here: allow_lossless_walls, form_factor, interior_point, losses, notes.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /cavity] Hint: Allowed fields here: allow_lossless_walls, form_factor, interior_point, losses, notes."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: allow_lossless_walls, form_factor, interior_point, losses, notes.\",\n  \"ok\": false,\n  \"where\": \"/cavity\"\n}\n"
+   }
+  },
+  "circuits_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /circuits/0] Hint: Allowed fields here: current, flux_linkage, name, notes, type.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /circuits/0] Hint: Allowed fields here: current, flux_linkage, name, notes, type."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: current, flux_linkage, name, notes, type.\",\n  \"ok\": false,\n  \"where\": \"/circuits/0\"\n}\n"
+   }
+  },
+  "conductors_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /conductors/nbti] Hint: Allowed fields here: B0, B_T, B_min, Bc20, C0, Ca1, Ca2, E0, Jc, Jc0, T_K, T_op, T_ref, Tc, Tc0, alpha, b_exp, beta, eps_0a, fill_factor, gamma, k_anis, law, m_T, n_value, notes, p, q, strain, tape_normal.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /conductors/nbti] Hint: Allowed fields here: B0, B_T, B_min, Bc20, C0, Ca1, Ca2, E0, Jc, Jc0, T_K, T_op, T_ref, Tc, Tc0, alpha, b_exp, beta, eps_0a, fill_factor, gamma, k_anis, law, m_T, n_value, notes, p, q, strain, tape_normal."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: B0, B_T, B_min, Bc20, C0, Ca1, Ca2, E0, Jc, Jc0, T_K, T_op, T_ref, Tc, Tc0, alpha, b_exp, beta, eps_0a, fill_factor, gamma, k_anis, law, m_T, n_value, notes, p, q, strain, tape_normal.\",\n  \"ok\": false,\n  \"where\": \"/conductors/nbti\"\n}\n"
+   }
+  },
+  "cost_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /cost] Hint: Allowed fields here: B_peak_cap, a, cold_envelope, iron_cost_per_kg, kappa, load_line_cap, model, p_area, p_energy, sc_wall_cap.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /cost] Hint: Allowed fields here: B_peak_cap, a, cold_envelope, iron_cost_per_kg, kappa, load_line_cap, model, p_area, p_energy, sc_wall_cap."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: B_peak_cap, a, cold_envelope, iron_cost_per_kg, kappa, load_line_cap, model, p_area, p_energy, sc_wall_cap.\",\n  \"ok\": false,\n  \"where\": \"/cost\"\n}\n"
+   }
+  },
+  "curves_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /curves/0] Hint: Allowed fields here: material, mesh_size, name, notes, path, surface_size, thickness.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /curves/0] Hint: Allowed fields here: material, mesh_size, name, notes, path, surface_size, thickness."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: material, mesh_size, name, notes, path, surface_size, thickness.\",\n  \"ok\": false,\n  \"where\": \"/curves/0\"\n}\n"
+   }
+  },
+  "electrostatics_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /electrostatics] Hint: Allowed fields here: boundary, notes.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /electrostatics] Hint: Allowed fields here: boundary, notes."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: boundary, notes.\",\n  \"ok\": false,\n  \"where\": \"/electrostatics\"\n}\n"
+   }
+  },
+  "empty_object": {
+   "python": {
+    "args": [
+     "\"missing required field 'name'\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "missing required field 'name'"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"missing required field 'name'\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "fullwave_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /fullwave] Hint: Allowed fields here: adaptive, boundary, dtn_modes, eigensolver, f_max, f_min, families, field_currents, field_export_directory, field_probes, frequencies, modes, notes, pml, points, ports, rf_only, scene_frequency, source, source_check, source_controls, source_quadrature_order, source_regions, surface_quadrature_file, surface_quadrature_order, target_f_Hz, thickness_m, validation_loads, validation_shunt_R_ohm.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /fullwave] Hint: Allowed fields here: adaptive, boundary, dtn_modes, eigensolver, f_max, f_min, families, field_currents, field_export_directory, field_probes, frequencies, modes, notes, pml, points, ports, rf_only, scene_frequency, source, source_check, source_controls, source_quadrature_order, source_regions, surface_quadrature_file, surface_quadrature_order, target_f_Hz, thickness_m, validation_loads, validation_shunt_R_ohm."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: adaptive, boundary, dtn_modes, eigensolver, f_max, f_min, families, field_currents, field_export_directory, field_probes, frequencies, modes, notes, pml, points, ports, rf_only, scene_frequency, source, source_check, source_controls, source_quadrature_order, source_regions, surface_quadrature_file, surface_quadrature_order, target_f_Hz, thickness_m, validation_loads, validation_shunt_R_ohm.\",\n  \"ok\": false,\n  \"where\": \"/fullwave\"\n}\n"
+   }
+  },
+  "hts_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /hts] Hint: Allowed fields here: drive, e_floor, field_of_view, max_newton, newton_tol, notes, profile_points, regions, steps_per_segment, waveform.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /hts] Hint: Allowed fields here: drive, e_floor, field_of_view, max_newton, newton_tol, notes, profile_points, regions, steps_per_segment, waveform."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: drive, e_floor, field_of_view, max_newton, newton_tol, notes, profile_points, regions, steps_per_segment, waveform.\",\n  \"ok\": false,\n  \"where\": \"/hts\"\n}\n"
+   }
+  },
+  "material_mechanical_E_not_positive": {
+   "python": {
+    "args": [
+     "\"E_Pa (Young's modulus) must be positive [at /materials/m/mechanical/E_Pa]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "E_Pa (Young's modulus) must be positive [at /materials/m/mechanical/E_Pa]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"E_Pa (Young's modulus) must be positive\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/mechanical/E_Pa\"\n}\n"
+   }
+  },
+  "material_mechanical_missing_nu": {
+   "python": {
+    "args": [
+     "\"missing required field 'nu' [at /materials/m/mechanical]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "missing required field 'nu' [at /materials/m/mechanical]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"missing required field 'nu'\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/mechanical\"\n}\n"
+   }
+  },
+  "material_mechanical_nu_too_large": {
+   "python": {
+    "args": [
+     "\"Poisson's ratio nu = 0.5 must satisfy -1 < nu < 0.5 [at /materials/m/mechanical/nu] Hint: nu = 0.5 is incompressible and makes the displacement formulation singular.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "Poisson's ratio nu = 0.5 must satisfy -1 < nu < 0.5 [at /materials/m/mechanical/nu] Hint: nu = 0.5 is incompressible and makes the displacement formulation singular."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"Poisson's ratio nu = 0.5 must satisfy -1 < nu < 0.5\",\n  \"hint\": \"nu = 0.5 is incompressible and makes the displacement formulation singular.\",\n  \"ok\": false,\n  \"where\": \"/materials/m/mechanical/nu\"\n}\n"
+   }
+  },
+  "material_mechanical_nu_too_small": {
+   "python": {
+    "args": [
+     "\"Poisson's ratio nu = -1 must satisfy -1 < nu < 0.5 [at /materials/m/mechanical/nu] Hint: nu = 0.5 is incompressible and makes the displacement formulation singular.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "Poisson's ratio nu = -1 must satisfy -1 < nu < 0.5 [at /materials/m/mechanical/nu] Hint: nu = 0.5 is incompressible and makes the displacement formulation singular."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"Poisson's ratio nu = -1 must satisfy -1 < nu < 0.5\",\n  \"hint\": \"nu = 0.5 is incompressible and makes the displacement formulation singular.\",\n  \"ok\": false,\n  \"where\": \"/materials/m/mechanical/nu\"\n}\n"
+   }
+  },
+  "material_mechanical_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /materials/m/mechanical] Hint: Allowed fields here: E_Pa, alpha, notes, nu.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /materials/m/mechanical] Hint: Allowed fields here: E_Pa, alpha, notes, nu."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: E_Pa, alpha, notes, nu.\",\n  \"ok\": false,\n  \"where\": \"/materials/m/mechanical\"\n}\n"
+   }
+  },
+  "material_rf_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /materials/m/rf] Hint: Allowed fields here: A_ohm_K, Delta_over_kTc, RRR, R_res_ohm, Rs_bcs_ohm, Rs_ohm, T_K, T_grid_K, Tc_K, exponent, f_Hz, f_ref, flux_flow, log_factor, magnetoresistance, model, notes, rho_300K_ohm_m, rho_l_ohm_m2, rho_ohm_m, specularity, v_F_m_s.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /materials/m/rf] Hint: Allowed fields here: A_ohm_K, Delta_over_kTc, RRR, R_res_ohm, Rs_bcs_ohm, Rs_ohm, T_K, T_grid_K, Tc_K, exponent, f_Hz, f_ref, flux_flow, log_factor, magnetoresistance, model, notes, rho_300K_ohm_m, rho_l_ohm_m2, rho_ohm_m, specularity, v_F_m_s."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: A_ohm_K, Delta_over_kTc, RRR, R_res_ohm, Rs_bcs_ohm, Rs_ohm, T_K, T_grid_K, Tc_K, exponent, f_Hz, f_ref, flux_flow, log_factor, magnetoresistance, model, notes, rho_300K_ohm_m, rho_l_ohm_m2, rho_ohm_m, specularity, v_F_m_s.\",\n  \"ok\": false,\n  \"where\": \"/materials/m/rf\"\n}\n"
+   }
+  },
+  "material_thermal_k_not_positive": {
+   "python": {
+    "args": [
+     "'k_W_mK must be positive [at /materials/m/thermal/k_W_mK]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "k_W_mK must be positive [at /materials/m/thermal/k_W_mK]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"k_W_mK must be positive\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/thermal/k_W_mK\"\n}\n"
+   }
+  },
+  "material_thermal_missing_k": {
+   "python": {
+    "args": [
+     "\"[json.exception.out_of_range.403] key 'k_W_mK' not found\""
+    ],
+    "exception": "builtins.RuntimeError",
+    "str": "[json.exception.out_of_range.403] key 'k_W_mK' not found"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"[json.exception.out_of_range.403] key 'k_W_mK' not found\",\n  \"ok\": false\n}\n"
+   }
+  },
+  "material_thermal_table_bad_row": {
+   "python": {
+    "args": [
+     "'each k(T) entry is [T_K, k_W_mK] [at /materials/m/thermal/k_W_mK/0]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "each k(T) entry is [T_K, k_W_mK] [at /materials/m/thermal/k_W_mK/0]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"each k(T) entry is [T_K, k_W_mK]\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/thermal/k_W_mK/0\"\n}\n"
+   }
+  },
+  "material_thermal_table_k_not_positive": {
+   "python": {
+    "args": [
+     "'k must be positive [at /materials/m/thermal/k_W_mK]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "k must be positive [at /materials/m/thermal/k_W_mK]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"k must be positive\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/thermal/k_W_mK\"\n}\n"
+   }
+  },
+  "material_thermal_table_not_increasing": {
+   "python": {
+    "args": [
+     "'the k(T) table must be strictly increasing in T [at /materials/m/thermal/k_W_mK]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "the k(T) table must be strictly increasing in T [at /materials/m/thermal/k_W_mK]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"the k(T) table must be strictly increasing in T\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/thermal/k_W_mK\"\n}\n"
+   }
+  },
+  "material_thermal_table_one_row": {
+   "python": {
+    "args": [
+     "'a k(T) table needs at least two [T, k] pairs [at /materials/m/thermal/k_W_mK]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "a k(T) table needs at least two [T, k] pairs [at /materials/m/thermal/k_W_mK]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"a k(T) table needs at least two [T, k] pairs\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/thermal/k_W_mK\"\n}\n"
+   }
+  },
+  "material_thermal_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /materials/m/thermal] Hint: Allowed fields here: k_W_mK, notes.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /materials/m/thermal] Hint: Allowed fields here: k_W_mK, notes."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: k_W_mK, notes.\",\n  \"ok\": false,\n  \"where\": \"/materials/m/thermal\"\n}\n"
+   }
+  },
+  "material_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /materials/m] Hint: Allowed fields here: B, B_sat, H, bh, cost_per_kg, density, eps_r, kind, mechanical, mu_r, rf, sigma_S_m, tan_delta, thermal, warm.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /materials/m] Hint: Allowed fields here: B, B_sat, H, bh, cost_per_kg, density, eps_r, kind, mechanical, mu_r, rf, sigma_S_m, tan_delta, thermal, warm."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: B, B_sat, H, bh, cost_per_kg, density, eps_r, kind, mechanical, mu_r, rf, sigma_S_m, tan_delta, thermal, warm.\",\n  \"ok\": false,\n  \"where\": \"/materials/m\"\n}\n"
+   }
+  },
+  "materials_negative_mu": {
+   "python": {
+    "args": [
+     "'mu_r must be >= 1 [at /materials/m/mu_r]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "mu_r must be >= 1 [at /materials/m/mu_r]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mu_r must be >= 1\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/materials/m/mu_r\"\n}\n"
+   }
+  },
+  "materials_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /materials/m] Hint: Allowed fields here: B, B_sat, H, bh, cost_per_kg, density, eps_r, kind, mechanical, mu_r, rf, sigma_S_m, tan_delta, thermal, warm.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /materials/m] Hint: Allowed fields here: B, B_sat, H, bh, cost_per_kg, density, eps_r, kind, mechanical, mu_r, rf, sigma_S_m, tan_delta, thermal, warm."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: B, B_sat, H, bh, cost_per_kg, density, eps_r, kind, mechanical, mu_r, rf, sigma_S_m, tan_delta, thermal, warm.\",\n  \"ok\": false,\n  \"where\": \"/materials/m\"\n}\n"
+   }
+  },
+  "mechanics_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /mechanics] Hint: Allowed fields here: cooldown, external_field, notes, pressures, probes, supports, symmetry_planes.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /mechanics] Hint: Allowed fields here: cooldown, external_field, notes, pressures, probes, supports, symmetry_planes."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: cooldown, external_field, notes, pressures, probes, supports, symmetry_planes.\",\n  \"ok\": false,\n  \"where\": \"/mechanics\"\n}\n"
+   }
+  },
+  "mesh_file_missing": {
+   "python": {
+    "args": [
+     "'mesh.file and mesh.info_file must be supplied together [at /mesh]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "mesh.file and mesh.info_file must be supplied together [at /mesh]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh.file and mesh.info_file must be supplied together\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/mesh\"\n}\n"
+   }
+  },
+  "mesh_not_object": {
+   "python": {
+    "args": [
+     "'expected an object [at /mesh]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "expected an object [at /mesh]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"expected an object\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/mesh\"\n}\n"
+   }
+  },
+  "mesh_order_big": {
+   "python": {
+    "args": [
+     "'mesh order must be between 1 and 8 [at /mesh/order]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "mesh order must be between 1 and 8 [at /mesh/order]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh order must be between 1 and 8\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/mesh/order\"\n}\n"
+   }
+  },
+  "mesh_order_string": {
+   "python": {
+    "args": [
+     "\"cannot evaluate expression 'two': unknown name 'two' (near position 3) [at /mesh/order] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "cannot evaluate expression 'two': unknown name 'two' (near position 3) [at /mesh/order] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"cannot evaluate expression 'two': unknown name 'two' (near position 3)\",\n  \"hint\": \"Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\",\n  \"ok\": false,\n  \"where\": \"/mesh/order\"\n}\n"
+   }
+  },
+  "mesh_order_zero": {
+   "python": {
+    "args": [
+     "'mesh order must be between 1 and 8 [at /mesh/order]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "mesh order must be between 1 and 8 [at /mesh/order]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh order must be between 1 and 8\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/mesh/order\"\n}\n"
+   }
+  },
+  "mesh_size_bad_expr": {
+   "python": {
+    "args": [
+     "\"cannot evaluate expression 'max(R, ': unexpected end (near position 7) [at /mesh/size] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "cannot evaluate expression 'max(R, ': unexpected end (near position 7) [at /mesh/size] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"cannot evaluate expression 'max(R, ': unexpected end (near position 7)\",\n  \"hint\": \"Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\",\n  \"ok\": false,\n  \"where\": \"/mesh/size\"\n}\n"
+   }
+  },
+  "mesh_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /mesh] Hint: Allowed fields here: adapt, algorithm3d, curvature_points, domain_center_z, domain_radius, domain_solid, extend_from_boundary, far_size, file, geometry_order, info_file, optimize_netgen, order, refinements, remove_pec, size, surface_layer, surface_size, symmetry, threads.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /mesh] Hint: Allowed fields here: adapt, algorithm3d, curvature_points, domain_center_z, domain_radius, domain_solid, extend_from_boundary, far_size, file, geometry_order, info_file, optimize_netgen, order, refinements, remove_pec, size, surface_layer, surface_size, symmetry, threads."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: adapt, algorithm3d, curvature_points, domain_center_z, domain_radius, domain_solid, extend_from_boundary, far_size, file, geometry_order, info_file, optimize_netgen, order, refinements, remove_pec, size, surface_layer, surface_size, symmetry, threads.\",\n  \"ok\": false,\n  \"where\": \"/mesh\"\n}\n"
+   }
+  },
+  "not_json_empty_file": {
+   "python": {
+    "args": [
+     "'invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 1: attempting to parse an empty input; check that your input string or stream contains the expected JSON'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 1: attempting to parse an empty input; check that your input string or stream contains the expected JSON"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"invalid JSON in '<OUT>/corpus/not_json_empty_file.json': [json.exception.parse_error.101] parse error at line 1, column 1: attempting to parse an empty input; check that your input string or stream contains the expected JSON\",\n  \"hint\": \"Check for trailing commas and unquoted names.\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "not_json_text": {
+   "python": {
+    "args": [
+     "\"invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 2: syntax error while parsing value - invalid literal; last read: 'th'\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 2: syntax error while parsing value - invalid literal; last read: 'th'"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"invalid JSON in '<OUT>/corpus/not_json_text.json': [json.exception.parse_error.101] parse error at line 1, column 2: syntax error while parsing value - invalid literal; last read: 'th'\",\n  \"hint\": \"Check for trailing commas and unquoted names.\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "not_json_trailing_comma": {
+   "python": {
+    "args": [
+     "\"invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 41: syntax error while parsing object key - unexpected '}'; expected string literal\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 41: syntax error while parsing object key - unexpected '}'; expected string literal"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"invalid JSON in '<OUT>/corpus/not_json_trailing_comma.json': [json.exception.parse_error.101] parse error at line 1, column 41: syntax error while parsing object key - unexpected '}'; expected string literal\",\n  \"hint\": \"Check for trailing commas and unquoted names.\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "not_json_truncated": {
+   "python": {
+    "args": [
+     "'invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 201: syntax error while parsing object key - invalid string: missing closing quote; last read: \\'\"\\'; expected string literal'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "invalid JSON for design: [json.exception.parse_error.101] parse error at line 1, column 201: syntax error while parsing object key - invalid string: missing closing quote; last read: '\"'; expected string literal"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"invalid JSON in '<OUT>/corpus/not_json_truncated.json': [json.exception.parse_error.101] parse error at line 1, column 201: syntax error while parsing object key - invalid string: missing closing quote; last read: '\\\"'; expected string literal\",\n  \"hint\": \"Check for trailing commas and unquoted names.\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "param_cycle": {
+   "python": {
+    "args": [
+     "\"parameters form a dependency cycle through 'H' [at /parameters/H] Hint: Make sure no parameter depends on itself, directly or indirectly.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "parameters form a dependency cycle through 'H' [at /parameters/H] Hint: Make sure no parameter depends on itself, directly or indirectly."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"parameters form a dependency cycle through 'H'\",\n  \"hint\": \"Make sure no parameter depends on itself, directly or indirectly.\",\n  \"ok\": false,\n  \"where\": \"/parameters/H\"\n}\n"
+   }
+  },
+  "param_divide_by_zero": {
+   "python": {
+    "args": [
+     "\"expression '1/0' evaluated to a non-finite value [at /parameters/f] Hint: Check for division by zero or log of a non-positive number.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "expression '1/0' evaluated to a non-finite value [at /parameters/f] Hint: Check for division by zero or log of a non-positive number."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"expression '1/0' evaluated to a non-finite value\",\n  \"hint\": \"Check for division by zero or log of a non-positive number.\",\n  \"ok\": false,\n  \"where\": \"/parameters/f\"\n}\n"
+   }
+  },
+  "param_not_number": {
+   "python": {
+    "args": [
+     "'parameter values must be numbers or expression strings [at /parameters/R]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "parameter values must be numbers or expression strings [at /parameters/R]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"parameter values must be numbers or expression strings\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/parameters/R\"\n}\n"
+   }
+  },
+  "param_syntax": {
+   "python": {
+    "args": [
+     "\"cannot evaluate expression '(0.02*R': missing ')' (near position 7) [at /parameters/f] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "cannot evaluate expression '(0.02*R': missing ')' (near position 7) [at /parameters/f] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"cannot evaluate expression '(0.02*R': missing ')' (near position 7)\",\n  \"hint\": \"Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\",\n  \"ok\": false,\n  \"where\": \"/parameters/f\"\n}\n"
+   }
+  },
+  "param_undefined_ref": {
+   "python": {
+    "args": [
+     "'parameter \\'f\\' refers to unknown name \\'Q\\' [at /parameters/f] Hint: Define it under \"parameters\" or use a number.'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "parameter 'f' refers to unknown name 'Q' [at /parameters/f] Hint: Define it under \"parameters\" or use a number."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"parameter 'f' refers to unknown name 'Q'\",\n  \"hint\": \"Define it under \\\"parameters\\\" or use a number.\",\n  \"ok\": false,\n  \"where\": \"/parameters/f\"\n}\n"
+   }
+  },
+  "param_unknown_function": {
+   "python": {
+    "args": [
+     "\"cannot evaluate expression 'frobnicate(R)': unknown function 'frobnicate' (near position 13) [at /parameters/f] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "cannot evaluate expression 'frobnicate(R)': unknown function 'frobnicate' (near position 13) [at /parameters/f] Hint: Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"cannot evaluate expression 'frobnicate(R)': unknown function 'frobnicate' (near position 13)\",\n  \"hint\": \"Use numbers, parameter names, + - * / ^, parentheses and functions such as sqrt, exp, log, min, max.\",\n  \"ok\": false,\n  \"where\": \"/parameters/f\"\n}\n"
+   }
+  },
+  "params_not_object": {
+   "python": {
+    "args": [
+     "'parameters must be an object of name: value [at /parameters]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "parameters must be an object of name: value [at /parameters]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"parameters must be an object of name: value\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/parameters\"\n}\n"
+   }
+  },
+  "pickup_bad_type": {
+   "python": {
+    "args": [
+     "\"pickup type must be 'azimuthal', 'poloidal' or 'port' [at /pickup/type] Hint: azimuthal: readout current circulates around the axis on a slit superconductor (toroid sheath). poloidal: readout current flows across a gap between conductors (coax, CORE neck).\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "pickup type must be 'azimuthal', 'poloidal' or 'port' [at /pickup/type] Hint: azimuthal: readout current circulates around the axis on a slit superconductor (toroid sheath). poloidal: readout current flows across a gap between conductors (coax, CORE neck)."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"pickup type must be 'azimuthal', 'poloidal' or 'port'\",\n  \"hint\": \"azimuthal: readout current circulates around the axis on a slit superconductor (toroid sheath). poloidal: readout current flows across a gap between conductors (coax, CORE neck).\",\n  \"ok\": false,\n  \"where\": \"/pickup/type\"\n}\n"
+   }
+  },
+  "pickup_unknown_conductor": {
+   "python": {
+    "args": [
+     "\"pickup conductor 'nowhere' is not a region or curve [at /pickup/conductor]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "pickup conductor 'nowhere' is not a region or curve [at /pickup/conductor]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"pickup conductor 'nowhere' is not a region or curve\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/pickup/conductor\"\n}\n"
+   }
+  },
+  "pickup_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /pickup] Hint: Allowed fields here: conductor, inside_point, notes, port, port_boundary, toward, type.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /pickup] Hint: Allowed fields here: conductor, inside_point, notes, port, port_boundary, toward, type."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: conductor, inside_point, notes, port, port_boundary, toward, type.\",\n  \"ok\": false,\n  \"where\": \"/pickup\"\n}\n"
+   }
+  },
+  "region_duplicate_name": {
+   "python": {
+    "args": [
+     "\"duplicate name 'winding' [at /regions/1/name] Hint: Region and curve names must be unique.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "duplicate name 'winding' [at /regions/1/name] Hint: Region and curve names must be unique."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"duplicate name 'winding'\",\n  \"hint\": \"Region and curve names must be unique.\",\n  \"ok\": false,\n  \"where\": \"/regions/1/name\"\n}\n"
+   }
+  },
+  "region_missing_name": {
+   "python": {
+    "args": [
+     "\"missing required field 'name' [at /regions/0]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "missing required field 'name' [at /regions/0]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"missing required field 'name'\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/regions/0\"\n}\n"
+   }
+  },
+  "region_missing_shape": {
+   "python": {
+    "args": [
+     "\"axisymmetric regions need a 'shape' in the (r, z) half-plane [at /regions/0]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "axisymmetric regions need a 'shape' in the (r, z) half-plane [at /regions/0]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"axisymmetric regions need a 'shape' in the (r, z) half-plane\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/regions/0\"\n}\n"
+   }
+  },
+  "region_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /regions/0] Hint: Allowed fields here: enabled, material, mesh_size, name, notes, shape, solid, surface_size.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /regions/0] Hint: Allowed fields here: enabled, material, mesh_size, name, notes, shape, solid, surface_size."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: enabled, material, mesh_size, name, notes, shape, solid, surface_size.\",\n  \"ok\": false,\n  \"where\": \"/regions/0\"\n}\n"
+   }
+  },
+  "region_unknown_material": {
+   "python": {
+    "args": [
+     "'unknown material \\'unobtainium\\' [at /regions/0/material] Hint: Define it under \"materials\" or use one of: air, copper, copper_classical, iron, iron_knee, nb, superconductor, vacuum, winding.'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown material 'unobtainium' [at /regions/0/material] Hint: Define it under \"materials\" or use one of: air, copper, copper_classical, iron, iron_knee, nb, superconductor, vacuum, winding."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown material 'unobtainium'\",\n  \"hint\": \"Define it under \\\"materials\\\" or use one of: air, copper, copper_classical, iron, iron_knee, nb, superconductor, vacuum, winding.\",\n  \"ok\": false,\n  \"where\": \"/regions/0/material\"\n}\n"
+   }
+  },
+  "regions_empty": {
+   "python": {
+    "args": [
+     "'the design has no regions or curves [at /regions] Hint: Add at least one region, e.g. a winding.'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "the design has no regions or curves [at /regions] Hint: Add at least one region, e.g. a winding."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"the design has no regions or curves\",\n  \"hint\": \"Add at least one region, e.g. a winding.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   }
+  },
+  "regions_not_list": {
+   "python": {
+    "args": [
+     "'regions must be a list [at /regions]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "regions must be a list [at /regions]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"regions must be a list\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   }
+  },
+  "scan_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /scan] Hint: Allowed fields here: C_QCD, E_over_N, Q_axion, Theta95, f_max, f_min, live_time, ma_fa, model, rho_DM.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /scan] Hint: Allowed fields here: C_QCD, E_over_N, Q_axion, Theta95, f_max, f_min, live_time, ma_fa, model, rho_DM."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: C_QCD, E_over_N, Q_axion, Theta95, f_max, f_min, live_time, ma_fa, model, rho_DM.\",\n  \"ok\": false,\n  \"where\": \"/scan\"\n}\n"
+   }
+  },
+  "schema_not_string": {
+   "python": {
+    "args": [
+     "'expected a string [at /schema]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "expected a string [at /schema]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"expected a string\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/schema\"\n}\n"
+   }
+  },
+  "schema_wrong": {
+   "python": {
+    "args": [
+     "'unsupported schema \\'axionmultiphysics.design/9\\' [at /schema] Hint: This version reads \"axionmultiphysics.design/1\".'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unsupported schema 'axionmultiphysics.design/9' [at /schema] Hint: This version reads \"axionmultiphysics.design/1\"."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unsupported schema 'axionmultiphysics.design/9'\",\n  \"hint\": \"This version reads \\\"axionmultiphysics.design/1\\\".\",\n  \"ok\": false,\n  \"where\": \"/schema\"\n}\n"
+   }
+  },
+  "shape_frame_no_thickness": {
+   "python": {
+    "args": [
+     "\"missing required field 'thickness' [at /regions/0/shape/frame]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "missing required field 'thickness' [at /regions/0/shape/frame]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"missing required field 'thickness'\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/regions/0/shape/frame\"\n}\n"
+   }
+  },
+  "shape_frame_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /regions/0/shape/frame] Hint: Allowed fields here: fillet, r, thickness, z.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /regions/0/shape/frame] Hint: Allowed fields here: fillet, r, thickness, z."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: fillet, r, thickness, z.\",\n  \"ok\": false,\n  \"where\": \"/regions/0/shape/frame\"\n}\n"
+   }
+  },
+  "shape_inverted_r": {
+   "python": {
+    "args": [
+     "'range must satisfy min < max (got 2.02, 1.19306) [at /regions/0/shape/frame/r]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "range must satisfy min < max (got 2.02, 1.19306) [at /regions/0/shape/frame/r]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"range must satisfy min < max (got 2.02, 1.19306)\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/regions/0/shape/frame/r\"\n}\n"
+   }
+  },
+  "shape_negative_r": {
+   "python": {
+    "args": [
+     "'radius r = -2 is negative [at /regions/0/shape/frame/r] Hint: Axisymmetric geometry lives in the half-plane r >= 0; r is the distance from the symmetry axis.'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "radius r = -2 is negative [at /regions/0/shape/frame/r] Hint: Axisymmetric geometry lives in the half-plane r >= 0; r is the distance from the symmetry axis."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"radius r = -2 is negative\",\n  \"hint\": \"Axisymmetric geometry lives in the half-plane r >= 0; r is the distance from the symmetry axis.\",\n  \"ok\": false,\n  \"where\": \"/regions/0/shape/frame/r\"\n}\n"
+   }
+  },
+  "shape_r_one_value": {
+   "python": {
+    "args": [
+     "'expected a range [min, max] [at /regions/0/shape/frame/r]'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "expected a range [min, max] [at /regions/0/shape/frame/r]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"expected a range [min, max]\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/regions/0/shape/frame/r\"\n}\n"
+   }
+  },
+  "shape_unknown_kind": {
+   "python": {
+    "args": [
+     "\"unknown shape type 'hexagon' [at /regions/0/shape] Hint: Use one of rect, frame, polygon, contour, disk, union, difference.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown shape type 'hexagon' [at /regions/0/shape] Hint: Use one of rect, frame, polygon, contour, disk, union, difference."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown shape type 'hexagon'\",\n  \"hint\": \"Use one of rect, frame, polygon, contour, disk, union, difference.\",\n  \"ok\": false,\n  \"where\": \"/regions/0/shape\"\n}\n"
+   }
+  },
+  "supercon_unknown_body": {
+   "python": {
+    "args": [
+     "\"unknown superconducting body 'nowhere' [at /superconductors/0/body]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown superconducting body 'nowhere' [at /superconductors/0/body]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown superconducting body 'nowhere'\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/superconductors/0/body\"\n}\n"
+   }
+  },
+  "supercon_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /superconductors/0] Hint: Allowed fields here: axis, azimuthal, azimuthal_slit, body, notes, poloidal.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /superconductors/0] Hint: Allowed fields here: axis, azimuthal, azimuthal_slit, body, notes, poloidal."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: axis, azimuthal, azimuthal_slit, body, notes, poloidal.\",\n  \"ok\": false,\n  \"where\": \"/superconductors/0\"\n}\n"
+   }
+  },
+  "symmetry_unknown": {
+   "python": {
+    "args": [
+     "'symmetry must be \\'axisymmetric\\', \\'3d\\', \\'xsec\\' or \\'planar\\' [at /symmetry] Hint: \"xsec\": the (x, y) cross-section of a z-uniform cavity (TM_z/TE_z modes; docs/design_format.md); \"planar\": a 2D (x, y) full-wave model on an imported mesh (e.g. a COMSOL 2D import).'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "symmetry must be 'axisymmetric', '3d', 'xsec' or 'planar' [at /symmetry] Hint: \"xsec\": the (x, y) cross-section of a z-uniform cavity (TM_z/TE_z modes; docs/design_format.md); \"planar\": a 2D (x, y) full-wave model on an imported mesh (e.g. a COMSOL 2D import)."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"symmetry must be 'axisymmetric', '3d', 'xsec' or 'planar'\",\n  \"hint\": \"\\\"xsec\\\": the (x, y) cross-section of a z-uniform cavity (TM_z/TE_z modes; docs/design_format.md); \\\"planar\\\": a 2D (x, y) full-wave model on an imported mesh (e.g. a COMSOL 2D import).\",\n  \"ok\": false,\n  \"where\": \"/symmetry\"\n}\n"
+   }
+  },
+  "thermal_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /thermal] Hint: Allowed fields here: fixed, loads, notes, probes.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /thermal] Hint: Allowed fields here: fixed, loads, notes, probes."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: fixed, loads, notes, probes.\",\n  \"ok\": false,\n  \"where\": \"/thermal\"\n}\n"
+   }
+  },
+  "top_array": {
+   "python": {
+    "args": [
+     "'expected an object'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "expected an object"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"expected an object\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "top_null": {
+   "python": {
+    "args": [
+     "'expected an object'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "expected an object"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"expected an object\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "top_number": {
+   "python": {
+    "args": [
+     "'expected an object'"
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "expected an object"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"expected an object\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "top_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' Hint: Allowed fields here: background, benchmarks, cavity, circuits, conductors, cost, curves, description, electrostatics, fullwave, hts, materials, mechanics, mesh, name, notes, parameters, pickup, regions, scan, schema, superconductors, symmetry, thermal, windings.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' Hint: Allowed fields here: background, benchmarks, cavity, circuits, conductors, cost, curves, description, electrostatics, fullwave, hts, materials, mechanics, mesh, name, notes, parameters, pickup, regions, scan, schema, superconductors, symmetry, thermal, windings."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: background, benchmarks, cavity, circuits, conductors, cost, curves, description, electrostatics, fullwave, hts, materials, mechanics, mesh, name, notes, parameters, pickup, regions, scan, schema, superconductors, symmetry, thermal, windings.\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "top_unknown_key_typo": {
+   "python": {
+    "args": [
+     "\"unknown field 'region' Hint: Allowed fields here: background, benchmarks, cavity, circuits, conductors, cost, curves, description, electrostatics, fullwave, hts, materials, mechanics, mesh, name, notes, parameters, pickup, regions, scan, schema, superconductors, symmetry, thermal, windings.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'region' Hint: Allowed fields here: background, benchmarks, cavity, circuits, conductors, cost, curves, description, electrostatics, fullwave, hts, materials, mechanics, mesh, name, notes, parameters, pickup, regions, scan, schema, superconductors, symmetry, thermal, windings."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'region'\",\n  \"hint\": \"Allowed fields here: background, benchmarks, cavity, circuits, conductors, cost, curves, description, electrostatics, fullwave, hts, materials, mechanics, mesh, name, notes, parameters, pickup, regions, scan, schema, superconductors, symmetry, thermal, windings.\",\n  \"ok\": false,\n  \"where\": \"\"\n}\n"
+   }
+  },
+  "winding_bad_type": {
+   "python": {
+    "args": [
+     "\"winding type must be 'azimuthal' or 'poloidal' [at /windings/0/type] Hint: azimuthal: current circulates around the symmetry axis (solenoid/CORE magnet). poloidal: current loops around the region's cross-section (toroid magnet). loop (3D): a harmonic current around the region's single loop (racetrack, saddle or any closed coil), right-handed about axis.direction.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "winding type must be 'azimuthal' or 'poloidal' [at /windings/0/type] Hint: azimuthal: current circulates around the symmetry axis (solenoid/CORE magnet). poloidal: current loops around the region's cross-section (toroid magnet). loop (3D): a harmonic current around the region's single loop (racetrack, saddle or any closed coil), right-handed about axis.direction."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"winding type must be 'azimuthal' or 'poloidal'\",\n  \"hint\": \"azimuthal: current circulates around the symmetry axis (solenoid/CORE magnet). poloidal: current loops around the region's cross-section (toroid magnet). loop (3D): a harmonic current around the region's single loop (racetrack, saddle or any closed coil), right-handed about axis.direction.\",\n  \"ok\": false,\n  \"where\": \"/windings/0/type\"\n}\n"
+   }
+  },
+  "winding_missing_ampere_turns": {
+   "python": {
+    "args": [
+     "\"missing required field 'ampere_turns' [at /windings/0]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "missing required field 'ampere_turns' [at /windings/0]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"missing required field 'ampere_turns'\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/windings/0\"\n}\n"
+   }
+  },
+  "winding_unknown_key": {
+   "python": {
+    "args": [
+     "\"unknown field 'bogus' [at /windings/0] Hint: Allowed fields here: ampere_turns, axis, circuit, conductor, name, notes, region, turns, type.\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "unknown field 'bogus' [at /windings/0] Hint: Allowed fields here: ampere_turns, axis, circuit, conductor, name, notes, region, turns, type."
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"unknown field 'bogus'\",\n  \"hint\": \"Allowed fields here: ampere_turns, axis, circuit, conductor, name, notes, region, turns, type.\",\n  \"ok\": false,\n  \"where\": \"/windings/0\"\n}\n"
+   }
+  },
+  "winding_unknown_region": {
+   "python": {
+    "args": [
+     "\"winding refers to unknown region 'nowhere' [at /windings/0/region]\""
+    ],
+    "exception": "axionmultiphysics._core.AxionMultiPhysicsError",
+    "str": "winding refers to unknown region 'nowhere' [at /windings/0/region]"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"winding refers to unknown region 'nowhere'\",\n  \"hint\": \"\",\n  \"ok\": false,\n  \"where\": \"/windings/0/region\"\n}\n"
+   }
+  },
+  "windings_not_list": {
+   "python": {
+    "args": [
+     "'[json.exception.type_error.304] cannot use at() with string'"
+    ],
+    "exception": "builtins.RuntimeError",
+    "str": "[json.exception.type_error.304] cannot use at() with string"
+   },
+   "validate": {
+    "status": 1,
+    "stdout": "{\n  \"error\": \"[json.exception.type_error.304] cannot use at() with string\",\n  \"ok\": false\n}\n"
+   }
+  }
+ },
+ "designs": {
+  "benchmarks_designs_curved_probe_shell": {
+   "mesh": {
+    "mesher_input": {},
+    "status": 1,
+    "stdout": "{\n  \"error\": \"the 3D engine is not available in this build of axionMultiPhysics (needed for meshing a design with \\\"symmetry\\\": \\\"3d\\\")\",\n  \"hint\": \"This build has no MPI: it was configured with AXMP_MPI=OFF against an MFEM built with MFEM_USE_MPI=NO (the sequential configuration, also that of the wheels, which cannot require a system MPI). The axisymmetric and full-wave engines are unaffected. For 3D (\\\"symmetry\\\": \\\"3d\\\", axionmultiphysics.convert.to_3d), use the MPI source build: see docs/guides/install.md, section \\\"MPI source build\\\".\",\n  \"ok\": false,\n  \"where\": \"/symmetry\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.3,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.02,\n    \"surface_size\": 0.008,\n    \"symmetry\": []\n  },\n  \"name\": \"curved_probe_shell\",\n  \"parameters\": {},\n  \"regions\": [\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"nb\",\n      \"name\": \"shell\",\n      \"solid\": {\n        \"revolve\": {\n          \"angles\": [\n            0.0,\n            360.0\n          ],\n          \"axis\": [\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"center\": [\n            0.0,\n            0.0,\n            0.0\n          ],\n          \"profile\": {\n            \"frame\": {\n              \"fillet\": 0.0055,\n              \"r\": [\n                0.05,\n                0.15\n              ],\n              \"thickness\": 0.005,\n              \"z\": [\n                -0.05,\n                0.05\n              ]\n            }\n          }\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"3d\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"curved_probe_shell\",\n  \"ok\": true,\n  \"regions\": 1,\n  \"windings\": 0\n}\n"
+   }
+  },
+  "benchmarks_designs_solenoid_exterior": {
+   "mesh": {
+    "mesher_input": {},
+    "status": 1,
+    "stdout": "{\n  \"error\": \"the 3D engine is not available in this build of axionMultiPhysics (needed for meshing a design with \\\"symmetry\\\": \\\"3d\\\")\",\n  \"hint\": \"This build has no MPI: it was configured with AXMP_MPI=OFF against an MFEM built with MFEM_USE_MPI=NO (the sequential configuration, also that of the wheels, which cannot require a system MPI). The axisymmetric and full-wave engines are unaffected. For 3D (\\\"symmetry\\\": \\\"3d\\\", axionmultiphysics.convert.to_3d), use the MPI source build: see docs/guides/install.md, section \\\"MPI source build\\\".\",\n  \"ok\": false,\n  \"where\": \"/symmetry\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 3.0,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.35,\n    \"surface_size\": 0.08,\n    \"symmetry\": []\n  },\n  \"name\": \"solenoid_3d\",\n  \"parameters\": {\n    \"H\": 2.0,\n    \"NI\": 1000000.0,\n    \"R\": 1.0,\n    \"g\": 0.005,\n    \"tc\": 0.005,\n    \"tp\": 0.01,\n    \"tw\": 0.01,\n    \"x\": 0.534\n  },\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"port\",\n    \"type\": \"port\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"winding\",\n      \"name\": \"winding\",\n      \"solid\": {\n        \"revolve\": {\n          \"angles\": [\n            0.0,\n            360.0\n          ],\n          \"axis\": [\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"center\": [\n            0.0,\n            0.0,\n            0.0\n          ],\n          \"profile\": {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                1.0,\n                1.01\n              ],\n              \"z\": [\n                -1.0,\n                1.0\n              ]\n            }\n          }\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_inner\",\n      \"solid\": {\n        \"revolve\": {\n          \"angles\": [\n            0.0,\n            360.0\n          ],\n          \"axis\": [\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"center\": [\n            0.0,\n            0.0,\n            0.0\n          ],\n          \"profile\": {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.529,\n                0.534\n              ],\n              \"z\": [\n                -1.0,\n                1.0\n              ]\n            }\n          }\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_outer\",\n      \"solid\": {\n        \"revolve\": {\n          \"angles\": [\n            0.0,\n            360.0\n          ],\n          \"axis\": [\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"center\": [\n            0.0,\n            0.0,\n            0.0\n          ],\n          \"profile\": {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.99,\n                0.995\n              ],\n              \"z\": [\n                -1.0,\n                1.0\n              ]\n            }\n          }\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_short\",\n      \"solid\": {\n        \"revolve\": {\n          \"angles\": [\n            0.0,\n            360.0\n          ],\n          \"axis\": [\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"center\": [\n            0.0,\n            0.0,\n            0.0\n          ],\n          \"profile\": {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.529,\n                0.995\n              ],\n              \"z\": [\n                0.995,\n                1.0\n              ]\n            }\n          }\n        }\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"port\",\n      \"solid\": {\n        \"revolve\": {\n          \"angles\": [\n            0.0,\n            360.0\n          ],\n          \"axis\": [\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"center\": [\n            0.0,\n            0.0,\n            0.0\n          ],\n          \"profile\": {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.534,\n                0.99\n              ],\n              \"z\": [\n                -1.0,\n                -0.99\n              ]\n            }\n          }\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"3d\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"solenoid_3d\",\n  \"ok\": true,\n  \"regions\": 5,\n  \"windings\": 1\n}\n"
+   }
+  },
+  "benchmarks_designs_stage1_twoport": {
+   "mesh": {
+    "mesher_input": {},
+    "status": 1,
+    "stdout": "{\n  \"error\": \"the 3D engine is not available in this build of axionMultiPhysics (needed for meshing a design with \\\"symmetry\\\": \\\"3d\\\")\",\n  \"hint\": \"This build has no MPI: it was configured with AXMP_MPI=OFF against an MFEM built with MFEM_USE_MPI=NO (the sequential configuration, also that of the wheels, which cannot require a system MPI). The axisymmetric and full-wave engines are unaffected. For 3D (\\\"symmetry\\\": \\\"3d\\\", axionmultiphysics.convert.to_3d), use the MPI source build: see docs/guides/install.md, section \\\"MPI source build\\\".\",\n  \"ok\": false,\n  \"where\": \"/symmetry\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.7,\n    \"order\": 1,\n    \"remove_pec\": false,\n    \"size\": 0.32,\n    \"surface_size\": 0.16,\n    \"symmetry\": []\n  },\n  \"name\": \"stage1_two_independent_slit_ports\",\n  \"parameters\": {},\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"gap0\",\n    \"type\": \"port\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"loop\",\n      \"solid\": {\n        \"difference\": [\n          {\n            \"box\": {\n              \"max\": [\n                0.3,\n                0.05,\n                0.3\n              ],\n              \"min\": [\n                -0.3,\n                -0.05,\n                -0.3\n              ]\n            }\n          },\n          {\n            \"box\": {\n              \"max\": [\n                0.2,\n                0.06,\n                0.2\n              ],\n              \"min\": [\n                -0.2,\n                -0.06,\n                -0.2\n              ]\n            }\n          },\n          {\n            \"box\": {\n              \"max\": [\n                0.04,\n                0.06,\n                0.31\n              ],\n              \"min\": [\n                -0.04,\n                -0.06,\n                0.19\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"gap0\",\n      \"solid\": {\n        \"box\": {\n          \"max\": [\n            0.04,\n            -0.005,\n            0.3\n          ],\n          \"min\": [\n            -0.04,\n            -0.05,\n            0.2\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"gap1\",\n      \"solid\": {\n        \"box\": {\n          \"max\": [\n            0.04,\n            0.05,\n            0.3\n          ],\n          \"min\": [\n            -0.04,\n            0.005,\n            0.2\n          ]\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"3d\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"stage1_two_independent_slit_ports\",\n  \"ok\": true,\n  \"regions\": 3,\n  \"windings\": 0\n}\n"
+   }
+  },
+  "examples_cavity_pillbox": {
+   "mesh": {
+    "mesher_input": {
+     "mesh_in.json": "{\n  \"air_attr\": 1,\n  \"axis_attr\": 900,\n  \"curves\": [],\n  \"device_radius\": 0.15556349186104046,\n  \"domain_center_z\": 0.0,\n  \"domain_radius\": 0.2333452377915607,\n  \"far_size\": 0.007636205049959692,\n  \"info\": \"<OUT>/mesh/examples_cavity_pillbox/mesh_info.json\",\n  \"order\": 2,\n  \"outer_attr\": 901,\n  \"output\": \"<OUT>/mesh/examples_cavity_pillbox/mesh.msh\",\n  \"refine_regions\": [\n    \"wall\"\n  ],\n  \"regions\": [\n    {\n      \"attr\": 2,\n      \"name\": \"cavity\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.0,\n            0.1\n          ],\n          \"z\": [\n            -0.1,\n            0.1\n          ]\n        }\n      },\n      \"size\": 0.02\n    },\n    {\n      \"attr\": 3,\n      \"name\": \"wall\",\n      \"shape\": {\n        \"union\": [\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.1,\n                0.11\n              ],\n              \"z\": [\n                -0.11,\n                0.11\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.1\n              ],\n              \"z\": [\n                0.1,\n                0.11\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.1\n              ],\n              \"z\": [\n                -0.11,\n                -0.1\n              ]\n            }\n          }\n        ]\n      }\n    }\n  ],\n  \"size\": 0.02,\n  \"surface_layer\": 0.08,\n  \"surface_size\": 0.02,\n  \"verbose\": 0\n}"
+    },
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh generation failed: no info file\",\n  \"hint\": \"Check that shapes are valid and lie within r >= 0; see <OUT>/mesh/examples_cavity_pillbox/mesh_mesher.log.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"wall_cu\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.2333452377915607,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.02,\n    \"surface_size\": 0.02,\n    \"symmetry\": []\n  },\n  \"name\": \"cavity_pillbox\",\n  \"parameters\": {},\n  \"regions\": [\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"mesh_size\": 0.02,\n      \"name\": \"cavity\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.0,\n            0.1\n          ],\n          \"z\": [\n            -0.1,\n            0.1\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"wall_cu\",\n      \"name\": \"wall\",\n      \"shape\": {\n        \"union\": [\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.1,\n                0.11\n              ],\n              \"z\": [\n                -0.11,\n                0.11\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.1\n              ],\n              \"z\": [\n                0.1,\n                0.11\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.1\n              ],\n              \"z\": [\n                -0.11,\n                -0.1\n              ]\n            }\n          }\n        ]\n      }\n    }\n  ],\n  \"symmetry\": \"axisymmetric\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"cavity_pillbox\",\n  \"ok\": true,\n  \"regions\": 2,\n  \"windings\": 0\n}\n"
+   }
+  },
+  "examples_comsol_toroid_comsol_toroid_lossless": {
+   "mesh": {
+    "mesher_input": {},
+    "status": 1,
+    "stdout": "{\n  \"error\": \"the 3D engine is not available in this build of axionMultiPhysics (needed for meshing a design with \\\"symmetry\\\": \\\"3d\\\")\",\n  \"hint\": \"This build has no MPI: it was configured with AXMP_MPI=OFF against an MFEM built with MFEM_USE_MPI=NO (the sequential configuration, also that of the wheels, which cannot require a system MPI). The axisymmetric and full-wave engines are unaffected. For 3D (\\\"symmetry\\\": \\\"3d\\\", axionmultiphysics.convert.to_3d), use the MPI source build: see docs/guides/install.md, section \\\"MPI source build\\\".\",\n  \"ok\": false,\n  \"where\": \"/symmetry\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 1.5,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.12,\n    \"surface_size\": 0.03,\n    \"symmetry\": []\n  },\n  \"name\": \"comsol_toroid_lossless\",\n  \"parameters\": {},\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"port\",\n    \"type\": \"port\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"superconductor\",\n      \"name\": \"sheath\",\n      \"solid\": {\n        \"difference\": [\n          {\n            \"revolve\": {\n              \"angles\": [\n                0.0,\n                360.0\n              ],\n              \"axis\": [\n                0.0,\n                0.0,\n                1.0\n              ],\n              \"center\": [\n                0.0,\n                0.0,\n                0.0\n              ],\n              \"profile\": {\n                \"frame\": {\n                  \"fillet\": 0.0,\n                  \"r\": [\n                    0.5,\n                    1.0\n                  ],\n                  \"thickness\": 0.025,\n                  \"z\": [\n                    -0.25,\n                    0.25\n                  ]\n                }\n              }\n            }\n          },\n          {\n            \"box\": {\n              \"max\": [\n                1.05,\n                0.01,\n                0.3\n              ],\n              \"min\": [\n                0.45,\n                -0.01,\n                -0.3\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"port\",\n      \"solid\": {\n        \"box\": {\n          \"max\": [\n            1.0,\n            0.01,\n            -0.2\n          ],\n          \"min\": [\n            0.975,\n            -0.01,\n            -0.25\n          ]\n        }\n      },\n      \"surface_size\": 0.005\n    }\n  ],\n  \"symmetry\": \"3d\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"comsol_toroid_lossless\",\n  \"ok\": true,\n  \"regions\": 2,\n  \"windings\": 0\n}\n"
+   }
+  },
+  "examples_comsol_toroid_comsol_toroid_lossy": {
+   "mesh": {
+    "mesher_input": {},
+    "status": 1,
+    "stdout": "{\n  \"error\": \"the 3D engine is not available in this build of axionMultiPhysics (needed for meshing a design with \\\"symmetry\\\": \\\"3d\\\")\",\n  \"hint\": \"This build has no MPI: it was configured with AXMP_MPI=OFF against an MFEM built with MFEM_USE_MPI=NO (the sequential configuration, also that of the wheels, which cannot require a system MPI). The axisymmetric and full-wave engines are unaffected. For 3D (\\\"symmetry\\\": \\\"3d\\\", axionmultiphysics.convert.to_3d), use the MPI source build: see docs/guides/install.md, section \\\"MPI source build\\\".\",\n  \"ok\": false,\n  \"where\": \"/symmetry\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"lossy_dielectric\": {\n      \"eps_r\": 3.0,\n      \"kind\": \"linear\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.002\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 1.5,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.12,\n    \"surface_size\": 0.03,\n    \"symmetry\": []\n  },\n  \"name\": \"comsol_toroid_lossy\",\n  \"parameters\": {},\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"port\",\n    \"type\": \"port\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"superconductor\",\n      \"name\": \"sheath\",\n      \"solid\": {\n        \"difference\": [\n          {\n            \"revolve\": {\n              \"angles\": [\n                0.0,\n                360.0\n              ],\n              \"axis\": [\n                0.0,\n                0.0,\n                1.0\n              ],\n              \"center\": [\n                0.0,\n                0.0,\n                0.0\n              ],\n              \"profile\": {\n                \"frame\": {\n                  \"fillet\": 0.0,\n                  \"r\": [\n                    0.5,\n                    1.0\n                  ],\n                  \"thickness\": 0.025,\n                  \"z\": [\n                    -0.25,\n                    0.25\n                  ]\n                }\n              }\n            }\n          },\n          {\n            \"box\": {\n              \"max\": [\n                1.05,\n                0.01,\n                0.3\n              ],\n              \"min\": [\n                0.45,\n                -0.01,\n                -0.3\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"port\",\n      \"solid\": {\n        \"box\": {\n          \"max\": [\n            1.0,\n            0.01,\n            -0.2\n          ],\n          \"min\": [\n            0.975,\n            -0.01,\n            -0.25\n          ]\n        }\n      },\n      \"surface_size\": 0.005\n    },\n    {\n      \"kind\": \"linear\",\n      \"material\": \"lossy_dielectric\",\n      \"name\": \"support\",\n      \"solid\": {\n        \"revolve\": {\n          \"angles\": [\n            0.0,\n            360.0\n          ],\n          \"axis\": [\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"center\": [\n            0.0,\n            0.0,\n            0.0\n          ],\n          \"profile\": {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.6,\n                0.9\n              ],\n              \"z\": [\n                -0.225,\n                -0.175\n              ]\n            }\n          }\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"3d\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"comsol_toroid_lossy\",\n  \"ok\": true,\n  \"regions\": 3,\n  \"windings\": 0\n}\n"
+   }
+  },
+  "examples_hts_shield": {
+   "mesh": {
+    "mesher_input": {
+     "mesh_in.json": "{\n  \"air_attr\": 1,\n  \"axis_attr\": 900,\n  \"curves\": [],\n  \"device_radius\": 0.7874642849044012,\n  \"domain_center_z\": 0.0,\n  \"domain_radius\": 1.6,\n  \"far_size\": 0.05235987755982988,\n  \"info\": \"<OUT>/mesh/examples_hts_shield/mesh_info.json\",\n  \"order\": 2,\n  \"outer_attr\": 901,\n  \"output\": \"<OUT>/mesh/examples_hts_shield/mesh.msh\",\n  \"refine_regions\": [\n    \"winding\",\n    \"shield\",\n    \"coax_inner\",\n    \"coax_outer\",\n    \"coax_short\",\n    \"port\"\n  ],\n  \"regions\": [\n    {\n      \"attr\": 2,\n      \"name\": \"winding\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.5,\n            0.51\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 3,\n      \"name\": \"shield\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.47,\n            0.48\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      },\n      \"size\": 0.0025\n    },\n    {\n      \"attr\": 4,\n      \"name\": \"coax_inner\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.196,\n            0.2\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 5,\n      \"name\": \"coax_outer\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.44599999999999995,\n            0.44999999999999996\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 6,\n      \"name\": \"coax_short\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.196,\n            0.44999999999999996\n          ],\n          \"z\": [\n            0.596,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 7,\n      \"name\": \"port\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.2,\n            0.44599999999999995\n          ],\n          \"z\": [\n            -0.6,\n            -0.59\n          ]\n        }\n      }\n    }\n  ],\n  \"size\": 0.05,\n  \"surface_layer\": 0.2,\n  \"surface_size\": 0.005,\n  \"verbose\": 0\n}"
+    },
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh generation failed: no info file\",\n  \"hint\": \"Check that shapes are valid and lie within r >= 0; see <OUT>/mesh/examples_hts_shield/mesh_mesher.log.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 1.6,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.05,\n    \"surface_size\": 0.005,\n    \"symmetry\": []\n  },\n  \"name\": \"hts_shield\",\n  \"parameters\": {\n    \"H\": 1.2,\n    \"NI\": 1000000.0,\n    \"R\": 0.5,\n    \"g\": 0.02,\n    \"gc\": 0.02,\n    \"tc\": 0.004,\n    \"tp\": 0.01,\n    \"ts\": 0.01,\n    \"tw\": 0.01,\n    \"x\": 0.4\n  },\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"port\",\n    \"type\": \"poloidal\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"winding\",\n      \"name\": \"winding\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.5,\n            0.51\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"superconductor\",\n      \"mesh_size\": 0.0025,\n      \"name\": \"shield\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.47,\n            0.48\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_inner\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.196,\n            0.2\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_outer\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.44599999999999995,\n            0.44999999999999996\n          ],\n          \"z\": [\n            -0.6,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_short\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.196,\n            0.44999999999999996\n          ],\n          \"z\": [\n            0.596,\n            0.6\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"port\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.2,\n            0.44599999999999995\n          ],\n          \"z\": [\n            -0.6,\n            -0.59\n          ]\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"axisymmetric\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"hts_shield\",\n  \"ok\": true,\n  \"regions\": 6,\n  \"windings\": 1\n}\n"
+   }
+  },
+  "examples_long_solenoid_coax": {
+   "mesh": {
+    "mesher_input": {
+     "mesh_in.json": "{\n  \"air_attr\": 1,\n  \"axis_attr\": 900,\n  \"curves\": [],\n  \"device_radius\": 5.110792502146805,\n  \"domain_center_z\": 0.0,\n  \"domain_radius\": 12.776981255367012,\n  \"far_size\": 0.4181257338220364,\n  \"info\": \"<OUT>/mesh/examples_long_solenoid_coax/mesh_info.json\",\n  \"order\": 2,\n  \"outer_attr\": 901,\n  \"output\": \"<OUT>/mesh/examples_long_solenoid_coax/mesh.msh\",\n  \"refine_regions\": [\n    \"coil\",\n    \"inner\",\n    \"outer\",\n    \"cap\",\n    \"port\"\n  ],\n  \"regions\": [\n    {\n      \"attr\": 2,\n      \"name\": \"coil\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.01\n          ],\n          \"z\": [\n            -5.0,\n            5.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 3,\n      \"name\": \"inner\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.524,\n            0.534\n          ],\n          \"z\": [\n            -4.98,\n            5.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 4,\n      \"name\": \"outer\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.98,\n            0.99\n          ],\n          \"z\": [\n            -4.98,\n            5.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 5,\n      \"name\": \"cap\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.524,\n            0.99\n          ],\n          \"z\": [\n            5.0,\n            5.01\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 6,\n      \"name\": \"port\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.534,\n            0.98\n          ],\n          \"z\": [\n            -4.98,\n            -4.970000000000001\n          ]\n        }\n      }\n    }\n  ],\n  \"size\": 0.1,\n  \"surface_layer\": 0.4,\n  \"surface_size\": 0.01,\n  \"verbose\": 0\n}"
+    },
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh generation failed: no info file\",\n  \"hint\": \"Check that shapes are valid and lie within r >= 0; see <OUT>/mesh/examples_long_solenoid_coax/mesh_mesher.log.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.0,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.1,\n    \"surface_size\": 0.01,\n    \"symmetry\": []\n  },\n  \"name\": \"long_solenoid_coax\",\n  \"parameters\": {\n    \"H\": 10.0,\n    \"NI\": 1000000.0,\n    \"R\": 1.0,\n    \"g\": 0.02,\n    \"t\": 0.01,\n    \"x\": 0.534\n  },\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"port\",\n    \"type\": \"poloidal\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"winding\",\n      \"name\": \"coil\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.01\n          ],\n          \"z\": [\n            -5.0,\n            5.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"inner\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.524,\n            0.534\n          ],\n          \"z\": [\n            -4.98,\n            5.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"outer\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.98,\n            0.99\n          ],\n          \"z\": [\n            -4.98,\n            5.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"cap\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.524,\n            0.99\n          ],\n          \"z\": [\n            5.0,\n            5.01\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"port\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.534,\n            0.98\n          ],\n          \"z\": [\n            -4.98,\n            -4.970000000000001\n          ]\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"axisymmetric\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"long_solenoid_coax\",\n  \"ok\": true,\n  \"regions\": 5,\n  \"windings\": 1\n}\n"
+   }
+  },
+  "examples_pickup_capacitance": {
+   "mesh": {
+    "mesher_input": {
+     "mesh_in.json": "{\n  \"air_attr\": 1,\n  \"axis_attr\": 900,\n  \"curves\": [],\n  \"device_radius\": 0.4242640687119285,\n  \"domain_center_z\": 0.0,\n  \"domain_radius\": 1.0606601717798212,\n  \"far_size\": 0.03471002295436223,\n  \"info\": \"<OUT>/mesh/examples_pickup_capacitance/mesh_info.json\",\n  \"order\": 2,\n  \"outer_attr\": 901,\n  \"output\": \"<OUT>/mesh/examples_pickup_capacitance/mesh.msh\",\n  \"refine_regions\": [\n    \"can\",\n    \"ring\"\n  ],\n  \"regions\": [\n    {\n      \"attr\": 2,\n      \"name\": \"can\",\n      \"shape\": {\n        \"difference\": [\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.3\n              ],\n              \"z\": [\n                -0.3,\n                0.3\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.295\n              ],\n              \"z\": [\n                -0.295,\n                0.295\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"attr\": 3,\n      \"name\": \"ring\",\n      \"shape\": {\n        \"disk\": {\n          \"center\": [\n            0.15,\n            0.0\n          ],\n          \"radius\": 0.01\n        }\n      }\n    },\n    {\n      \"attr\": 4,\n      \"name\": \"support\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.13,\n            0.16999999999999998\n          ],\n          \"z\": [\n            -0.02,\n            -0.01\n          ]\n        }\n      }\n    }\n  ],\n  \"size\": 0.02,\n  \"surface_layer\": 0.08,\n  \"surface_size\": 0.002,\n  \"verbose\": 0\n}"
+    },
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh generation failed: no info file\",\n  \"hint\": \"Check that shapes are valid and lie within r >= 0; see <OUT>/mesh/examples_pickup_capacitance/mesh_mesher.log.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"g10\": {\n      \"eps_r\": 3.0,\n      \"kind\": \"linear\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.0,\n    \"order\": 3,\n    \"remove_pec\": false,\n    \"size\": 0.02,\n    \"surface_size\": 0.002,\n    \"symmetry\": []\n  },\n  \"name\": \"pickup_capacitance\",\n  \"parameters\": {\n    \"Rr\": 0.15,\n    \"Rs\": 0.3,\n    \"br\": 0.01,\n    \"eps_d\": 3.0,\n    \"td\": 0.01,\n    \"ts\": 0.005\n  },\n  \"regions\": [\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"nb\",\n      \"name\": \"can\",\n      \"shape\": {\n        \"difference\": [\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.3\n              ],\n              \"z\": [\n                -0.3,\n                0.3\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.0,\n              \"r\": [\n                0.0,\n                0.295\n              ],\n              \"z\": [\n                -0.295,\n                0.295\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"nb\",\n      \"name\": \"ring\",\n      \"shape\": {\n        \"disk\": {\n          \"center\": [\n            0.15,\n            0.0\n          ],\n          \"radius\": 0.01\n        }\n      }\n    },\n    {\n      \"kind\": \"linear\",\n      \"material\": \"g10\",\n      \"name\": \"support\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.13,\n            0.16999999999999998\n          ],\n          \"z\": [\n            -0.02,\n            -0.01\n          ]\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"axisymmetric\"\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"pickup_capacitance\",\n  \"ok\": true,\n  \"regions\": 3,\n  \"windings\": 0\n}\n"
+   }
+  },
+  "template_core": {
+   "mesh": {
+    "mesher_input": {
+     "mesh_in.json": "{\n  \"air_attr\": 1,\n  \"axis_attr\": 900,\n  \"curves\": [],\n  \"device_radius\": 2.7055868125048215,\n  \"domain_center_z\": 0.0,\n  \"domain_radius\": 6.7639670312620535,\n  \"far_size\": 0.22135030348475448,\n  \"info\": \"<OUT>/mesh/template_core/mesh_info.json\",\n  \"order\": 2,\n  \"outer_attr\": 901,\n  \"output\": \"<OUT>/mesh/template_core/mesh.msh\",\n  \"refine_regions\": [\n    \"coil_upper\",\n    \"coil_lower\",\n    \"cavity\",\n    \"neck\"\n  ],\n  \"regions\": [\n    {\n      \"attr\": 2,\n      \"name\": \"coil_upper\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.02\n          ],\n          \"z\": [\n            0.01,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 3,\n      \"name\": \"coil_lower\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.02\n          ],\n          \"z\": [\n            -1.0,\n            -0.01\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 4,\n      \"name\": \"cavity\",\n      \"shape\": {\n        \"union\": [\n          {\n            \"difference\": [\n              {\n                \"frame\": {\n                  \"fillet\": 0.05,\n                  \"r\": [\n                    1.07,\n                    2.51\n                  ],\n                  \"thickness\": 0.01,\n                  \"z\": [\n                    -1.01,\n                    1.01\n                  ]\n                }\n              },\n              {\n                \"rect\": {\n                  \"fillet\": 0.0,\n                  \"r\": [\n                    1.07,\n                    1.08\n                  ],\n                  \"z\": [\n                    -0.015,\n                    0.015\n                  ]\n                }\n              }\n            ]\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.003,\n              \"r\": [\n                1.07,\n                1.08\n              ],\n              \"z\": [\n                0.005,\n                0.025\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.003,\n              \"r\": [\n                1.07,\n                1.08\n              ],\n              \"z\": [\n                -0.025,\n                -0.005\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"attr\": 5,\n      \"name\": \"neck\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.073,\n            1.0770000000000002\n          ],\n          \"z\": [\n            -0.005,\n            0.005\n          ]\n        }\n      }\n    }\n  ],\n  \"size\": 0.08333333333333333,\n  \"surface_layer\": 0.3333333333333333,\n  \"surface_size\": 0.005,\n  \"verbose\": 0\n}"
+    },
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh generation failed: no info file\",\n  \"hint\": \"Check that shapes are valid and lie within r >= 0; see <OUT>/mesh/template_core/mesh_mesher.log.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [\n    \"iron_cap_upper\",\n    \"iron_cap_lower\"\n  ],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.0,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.08333333333333333,\n    \"surface_size\": 0.005,\n    \"symmetry\": []\n  },\n  \"name\": \"core\",\n  \"parameters\": {\n    \"H\": 2.0,\n    \"NI\": 1000000.0,\n    \"Rc\": 1.0,\n    \"a\": 1.08,\n    \"b\": 2.5,\n    \"cl\": 0.05,\n    \"f\": 0.05,\n    \"fl\": 0.003,\n    \"gc\": 0.02,\n    \"gn\": 0.01,\n    \"h\": 2.0,\n    \"iron_dz\": 0.02,\n    \"iron_r0\": 0.0,\n    \"iron_r1\": 2.51,\n    \"iron_t\": 0.0,\n    \"tw\": 0.02,\n    \"w\": 0.01\n  },\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"neck\",\n    \"type\": \"poloidal\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"winding\",\n      \"name\": \"coil_upper\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.02\n          ],\n          \"z\": [\n            0.01,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"winding\",\n      \"name\": \"coil_lower\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.02\n          ],\n          \"z\": [\n            -1.0,\n            -0.01\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"nb\",\n      \"name\": \"cavity\",\n      \"shape\": {\n        \"union\": [\n          {\n            \"difference\": [\n              {\n                \"frame\": {\n                  \"fillet\": 0.05,\n                  \"r\": [\n                    1.07,\n                    2.51\n                  ],\n                  \"thickness\": 0.01,\n                  \"z\": [\n                    -1.01,\n                    1.01\n                  ]\n                }\n              },\n              {\n                \"rect\": {\n                  \"fillet\": 0.0,\n                  \"r\": [\n                    1.07,\n                    1.08\n                  ],\n                  \"z\": [\n                    -0.015,\n                    0.015\n                  ]\n                }\n              }\n            ]\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.003,\n              \"r\": [\n                1.07,\n                1.08\n              ],\n              \"z\": [\n                0.005,\n                0.025\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": 0.003,\n              \"r\": [\n                1.07,\n                1.08\n              ],\n              \"z\": [\n                -0.025,\n                -0.005\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"neck\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.073,\n            1.0770000000000002\n          ],\n          \"z\": [\n            -0.005,\n            0.005\n          ]\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"axisymmetric\"\n}\n"
+   },
+   "template": {
+    "status": 0,
+    "stdout": "{\n  \"cost\": {\n    \"sc_wall_cap\": 0.086\n  },\n  \"description\": \"CORE topology (DMRadio-Core): a split solenoid of inner radius Rc, thickness tw and height H drives an axial field through the bore; a superconducting toroidal cavity (inner radius a, outer radius b, height h, wall w, corner radius f) surrounds it and carries the readout current poloidally. The cavity's inner wall has a circumferential neck gap of height gn at z = 0, which is the readout port (tuning capacitor to an on-axis readout); the coil is split by gc to let the neck through. The cavity must stay superconducting: check the superconductor surface field. The neck lips are rounded with radius fl (fl = 0 gives sharp lips, where the surface field is singular and grows under mesh refinement). The cavity's inner corners are rounded with radius max(f - w, 0) and its outer corners with f. Optional iron caps above and below the cavity (iron_t > 0, built-in nonlinear 'iron') route return flux. For a long CORE the geometry factor is g = y^2 ln(1/y) with y = a/b.\",\n  \"mesh\": {\n    \"order\": 2,\n    \"size\": \"max(b, H)/30\",\n    \"surface_size\": \"min(w, gn)/2\"\n  },\n  \"name\": \"core\",\n  \"notes\": \"generated from template 'core'\",\n  \"parameters\": {\n    \"H\": 2.0,\n    \"NI\": 1000000.0,\n    \"Rc\": 1.0,\n    \"a\": \"Rc+tw+cl+w\",\n    \"b\": \"2.5*Rc\",\n    \"cl\": \"0.05*Rc\",\n    \"f\": \"0.05*Rc\",\n    \"fl\": \"0.3*w\",\n    \"gc\": \"0.02*Rc\",\n    \"gn\": \"0.01*Rc\",\n    \"h\": \"H\",\n    \"iron_dz\": \"0.02*Rc\",\n    \"iron_r0\": \"0\",\n    \"iron_r1\": \"b+w\",\n    \"iron_t\": 0.0,\n    \"tw\": \"0.02*Rc\",\n    \"w\": \"0.01*Rc\"\n  },\n  \"pickup\": {\n    \"port\": \"neck\",\n    \"type\": \"poloidal\"\n  },\n  \"regions\": [\n    {\n      \"material\": \"winding\",\n      \"name\": \"coil_upper\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"Rc\",\n            \"Rc+tw\"\n          ],\n          \"z\": [\n            \"gc/2\",\n            \"H/2\"\n          ]\n        }\n      }\n    },\n    {\n      \"material\": \"winding\",\n      \"name\": \"coil_lower\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"Rc\",\n            \"Rc+tw\"\n          ],\n          \"z\": [\n            \"-H/2\",\n            \"-gc/2\"\n          ]\n        }\n      }\n    },\n    {\n      \"material\": \"nb\",\n      \"name\": \"cavity\",\n      \"shape\": {\n        \"union\": [\n          {\n            \"difference\": [\n              {\n                \"frame\": {\n                  \"fillet\": \"f\",\n                  \"r\": [\n                    \"a-w\",\n                    \"b+w\"\n                  ],\n                  \"thickness\": \"w\",\n                  \"z\": [\n                    \"-h/2-w\",\n                    \"h/2+w\"\n                  ]\n                }\n              },\n              {\n                \"rect\": {\n                  \"r\": [\n                    \"a-w\",\n                    \"a\"\n                  ],\n                  \"z\": [\n                    \"-gn/2-w\",\n                    \"gn/2+w\"\n                  ]\n                }\n              }\n            ]\n          },\n          {\n            \"rect\": {\n              \"fillet\": \"fl\",\n              \"r\": [\n                \"a-w\",\n                \"a\"\n              ],\n              \"z\": [\n                \"gn/2\",\n                \"gn/2+2*w\"\n              ]\n            }\n          },\n          {\n            \"rect\": {\n              \"fillet\": \"fl\",\n              \"r\": [\n                \"a-w\",\n                \"a\"\n              ],\n              \"z\": [\n                \"-gn/2-2*w\",\n                \"-gn/2\"\n              ]\n            }\n          }\n        ]\n      }\n    },\n    {\n      \"material\": \"vacuum\",\n      \"name\": \"neck\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"a-w+fl\",\n            \"a-fl\"\n          ],\n          \"z\": [\n            \"-gn/2\",\n            \"gn/2\"\n          ]\n        }\n      }\n    },\n    {\n      \"enabled\": \"iron_t\",\n      \"material\": \"iron\",\n      \"name\": \"iron_cap_upper\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"iron_r0\",\n            \"iron_r1\"\n          ],\n          \"z\": [\n            \"h/2+w+iron_dz\",\n            \"h/2+w+iron_dz+iron_t\"\n          ]\n        }\n      }\n    },\n    {\n      \"enabled\": \"iron_t\",\n      \"material\": \"iron\",\n      \"name\": \"iron_cap_lower\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"iron_r0\",\n            \"iron_r1\"\n          ],\n          \"z\": [\n            \"-h/2-w-iron_dz-iron_t\",\n            \"-h/2-w-iron_dz\"\n          ]\n        }\n      }\n    }\n  ],\n  \"schema\": \"axionmultiphysics.design/1\",\n  \"superconductors\": [\n    {\n      \"azimuthal\": {\n        \"net_current\": 0\n      },\n      \"body\": \"cavity\"\n    }\n  ],\n  \"windings\": [\n    {\n      \"ampere_turns\": \"NI/2\",\n      \"name\": \"upper\",\n      \"region\": \"coil_upper\",\n      \"type\": \"azimuthal\"\n    },\n    {\n      \"ampere_turns\": \"NI/2\",\n      \"name\": \"lower\",\n      \"region\": \"coil_lower\",\n      \"type\": \"azimuthal\"\n    }\n  ]\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"core\",\n  \"ok\": true,\n  \"regions\": 4,\n  \"windings\": 2\n}\n"
+   }
+  },
+  "template_solenoid": {
+   "mesh": {
+    "mesher_input": {
+     "mesh_in.json": "{\n  \"air_attr\": 1,\n  \"axis_attr\": 900,\n  \"curves\": [],\n  \"device_radius\": 1.4213022197970424,\n  \"domain_center_z\": 0.0,\n  \"domain_radius\": 3.553255549492606,\n  \"far_size\": 0.11628001594388682,\n  \"info\": \"<OUT>/mesh/template_solenoid/mesh_info.json\",\n  \"order\": 2,\n  \"outer_attr\": 901,\n  \"output\": \"<OUT>/mesh/template_solenoid/mesh.msh\",\n  \"refine_regions\": [\n    \"winding\",\n    \"coax_inner\",\n    \"coax_outer\",\n    \"coax_short\",\n    \"port\"\n  ],\n  \"regions\": [\n    {\n      \"attr\": 2,\n      \"name\": \"winding\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.01\n          ],\n          \"z\": [\n            -1.0,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 3,\n      \"name\": \"coax_inner\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.529,\n            0.534\n          ],\n          \"z\": [\n            -1.0,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 4,\n      \"name\": \"coax_outer\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.99,\n            0.995\n          ],\n          \"z\": [\n            -1.0,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 5,\n      \"name\": \"coax_short\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.529,\n            0.995\n          ],\n          \"z\": [\n            0.995,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 6,\n      \"name\": \"port\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.534,\n            0.99\n          ],\n          \"z\": [\n            -1.0,\n            -0.99\n          ]\n        }\n      }\n    }\n  ],\n  \"size\": 0.06666666666666667,\n  \"surface_layer\": 0.26666666666666666,\n  \"surface_size\": 0.005,\n  \"verbose\": 0\n}"
+    },
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh generation failed: no info file\",\n  \"hint\": \"Check that shapes are valid and lie within r >= 0; see <OUT>/mesh/template_solenoid/mesh_mesher.log.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.0,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.06666666666666667,\n    \"surface_size\": 0.005,\n    \"symmetry\": []\n  },\n  \"name\": \"solenoid\",\n  \"parameters\": {\n    \"H\": 2.0,\n    \"NI\": 1000000.0,\n    \"R\": 1.0,\n    \"g\": 0.005,\n    \"tc\": 0.005,\n    \"tp\": 0.01,\n    \"tw\": 0.01,\n    \"x\": 0.534\n  },\n  \"pickup\": {\n    \"conductor\": \"\",\n    \"port\": \"port\",\n    \"type\": \"poloidal\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"winding\",\n      \"name\": \"winding\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.0,\n            1.01\n          ],\n          \"z\": [\n            -1.0,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_inner\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.529,\n            0.534\n          ],\n          \"z\": [\n            -1.0,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_outer\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.99,\n            0.995\n          ],\n          \"z\": [\n            -1.0,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"conductor\",\n      \"material\": \"copper\",\n      \"name\": \"coax_short\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.529,\n            0.995\n          ],\n          \"z\": [\n            0.995,\n            1.0\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"vacuum\",\n      \"name\": \"port\",\n      \"shape\": {\n        \"rect\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            0.534,\n            0.99\n          ],\n          \"z\": [\n            -1.0,\n            -0.99\n          ]\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"axisymmetric\"\n}\n"
+   },
+   "template": {
+    "status": 0,
+    "stdout": "{\n  \"benchmarks\": [\n    \"optimistic\",\n    \"conservative_solenoid\"\n  ],\n  \"description\": \"Solenoid magnet with an immersed shorted coaxial pickup (DMRadio-m^3 topology). The winding (inner radius R, thickness tw, height H) produces an axial field that penetrates the coax; the coax walls (copper: transparent to the static field, perfect conductors at RF) have inner radius x R and outer radius R - g. The readout port spans the bottom gap between the conductors; the top is shorted. For a long solenoid the geometry factor is g = (1 - x^2)^2 / (4 ln 1/x), largest at x = 0.534.\",\n  \"mesh\": {\n    \"order\": 2,\n    \"size\": \"max(R, H)/30\",\n    \"surface_size\": \"min(tc, g)\"\n  },\n  \"name\": \"solenoid\",\n  \"notes\": \"generated from template 'solenoid'\",\n  \"parameters\": {\n    \"H\": 2.0,\n    \"NI\": 1000000.0,\n    \"R\": 1.0,\n    \"g\": \"0.005*R\",\n    \"tc\": \"0.005*R\",\n    \"tp\": \"0.01*R\",\n    \"tw\": \"0.01*R\",\n    \"x\": 0.534\n  },\n  \"pickup\": {\n    \"port\": \"port\",\n    \"type\": \"poloidal\"\n  },\n  \"regions\": [\n    {\n      \"material\": \"winding\",\n      \"name\": \"winding\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"R\",\n            \"R+tw\"\n          ],\n          \"z\": [\n            \"-H/2\",\n            \"H/2\"\n          ]\n        }\n      }\n    },\n    {\n      \"material\": \"copper\",\n      \"name\": \"coax_inner\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"x*R-tc\",\n            \"x*R\"\n          ],\n          \"z\": [\n            \"-H/2\",\n            \"H/2\"\n          ]\n        }\n      }\n    },\n    {\n      \"material\": \"copper\",\n      \"name\": \"coax_outer\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"R-g-tc\",\n            \"R-g\"\n          ],\n          \"z\": [\n            \"-H/2\",\n            \"H/2\"\n          ]\n        }\n      }\n    },\n    {\n      \"material\": \"copper\",\n      \"name\": \"coax_short\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"x*R-tc\",\n            \"R-g\"\n          ],\n          \"z\": [\n            \"H/2-tc\",\n            \"H/2\"\n          ]\n        }\n      }\n    },\n    {\n      \"material\": \"vacuum\",\n      \"name\": \"port\",\n      \"shape\": {\n        \"rect\": {\n          \"r\": [\n            \"x*R\",\n            \"R-g-tc\"\n          ],\n          \"z\": [\n            \"-H/2\",\n            \"-H/2+tp\"\n          ]\n        }\n      }\n    }\n  ],\n  \"schema\": \"axionmultiphysics.design/1\",\n  \"windings\": [\n    {\n      \"ampere_turns\": \"NI\",\n      \"name\": \"solenoid\",\n      \"region\": \"winding\",\n      \"type\": \"azimuthal\"\n    }\n  ]\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"solenoid\",\n  \"ok\": true,\n  \"regions\": 5,\n  \"windings\": 1\n}\n"
+   }
+  },
+  "template_toroid": {
+   "mesh": {
+    "mesher_input": {
+     "mesh_in.json": "{\n  \"air_attr\": 1,\n  \"axis_attr\": 900,\n  \"curves\": [],\n  \"device_radius\": 2.2898034850178735,\n  \"domain_center_z\": 0.0,\n  \"domain_radius\": 5.724508712544684,\n  \"far_size\": 0.1873341095493869,\n  \"info\": \"<OUT>/mesh/template_toroid/mesh_info.json\",\n  \"order\": 2,\n  \"outer_attr\": 901,\n  \"output\": \"<OUT>/mesh/template_toroid/mesh.msh\",\n  \"refine_regions\": [\n    \"winding\",\n    \"sheath\"\n  ],\n  \"regions\": [\n    {\n      \"attr\": 2,\n      \"name\": \"winding\",\n      \"shape\": {\n        \"frame\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.1930613194252668,\n            2.02\n          ],\n          \"thickness\": 0.02,\n          \"z\": [\n            -1.02,\n            1.02\n          ]\n        }\n      }\n    },\n    {\n      \"attr\": 3,\n      \"name\": \"sheath\",\n      \"shape\": {\n        \"frame\": {\n          \"fillet\": 0.04,\n          \"r\": [\n            1.1730613194252668,\n            2.0399999999999996\n          ],\n          \"thickness\": 0.01,\n          \"z\": [\n            -1.04,\n            1.04\n          ]\n        }\n      }\n    }\n  ],\n  \"size\": 0.06666666666666667,\n  \"surface_layer\": 0.26666666666666666,\n  \"surface_size\": 0.01,\n  \"verbose\": 0\n}"
+    },
+    "status": 1,
+    "stdout": "{\n  \"error\": \"mesh generation failed: no info file\",\n  \"hint\": \"Check that shapes are valid and lie within r >= 0; see <OUT>/mesh/template_toroid/mesh_mesher.log.\",\n  \"ok\": false,\n  \"where\": \"/regions\"\n}\n"
+   },
+   "resolve": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": [],\n  \"disabled_regions\": [],\n  \"materials\": {\n    \"air\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"anomalous\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"copper_classical\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"conductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"skin\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"iron_knee\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"iron\",\n      \"mu_r\": 1000.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"nb\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"superconductor\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"superconductor\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"vacuum\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    },\n    \"winding\": {\n      \"eps_r\": 1.0,\n      \"kind\": \"vacuum\",\n      \"mu_r\": 1.0,\n      \"rf_model\": \"\",\n      \"sigma_S_m\": 0.0,\n      \"tan_delta\": 0.0\n    }\n  },\n  \"mesh\": {\n    \"domain_center_z\": 0.0,\n    \"domain_radius\": 0.0,\n    \"order\": 2,\n    \"remove_pec\": false,\n    \"size\": 0.06666666666666667,\n    \"surface_size\": 0.01,\n    \"symmetry\": []\n  },\n  \"name\": \"toroid\",\n  \"parameters\": {\n    \"H\": 2.0,\n    \"NI\": 1000000.0,\n    \"R\": 2.0,\n    \"f\": 0.04,\n    \"g\": 0.01,\n    \"ts\": 0.01,\n    \"tw\": 0.02,\n    \"y\": 0.6065306597126334\n  },\n  \"pickup\": {\n    \"conductor\": \"sheath\",\n    \"port\": \"\",\n    \"type\": \"azimuthal\"\n  },\n  \"regions\": [\n    {\n      \"kind\": \"vacuum\",\n      \"material\": \"winding\",\n      \"name\": \"winding\",\n      \"shape\": {\n        \"frame\": {\n          \"fillet\": 0.0,\n          \"r\": [\n            1.1930613194252668,\n            2.02\n          ],\n          \"thickness\": 0.02,\n          \"z\": [\n            -1.02,\n            1.02\n          ]\n        }\n      }\n    },\n    {\n      \"kind\": \"superconductor\",\n      \"material\": \"nb\",\n      \"name\": \"sheath\",\n      \"shape\": {\n        \"frame\": {\n          \"fillet\": 0.04,\n          \"r\": [\n            1.1730613194252668,\n            2.0399999999999996\n          ],\n          \"thickness\": 0.01,\n          \"z\": [\n            -1.04,\n            1.04\n          ]\n        }\n      }\n    }\n  ],\n  \"symmetry\": \"axisymmetric\"\n}\n"
+   },
+   "template": {
+    "status": 0,
+    "stdout": "{\n  \"description\": \"Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).\",\n  \"mesh\": {\n    \"order\": 2,\n    \"size\": \"max(R, H)/30\",\n    \"surface_size\": \"min(ts, g, tw)\"\n  },\n  \"name\": \"toroid\",\n  \"notes\": \"generated from template 'toroid'\",\n  \"parameters\": {\n    \"H\": 2.0,\n    \"NI\": 1000000.0,\n    \"R\": 2.0,\n    \"f\": \"0.02*R\",\n    \"g\": \"0.005*R\",\n    \"ts\": \"0.005*R\",\n    \"tw\": \"0.01*R\",\n    \"y\": \"exp(-0.5)\"\n  },\n  \"pickup\": {\n    \"conductor\": \"sheath\",\n    \"type\": \"azimuthal\"\n  },\n  \"regions\": [\n    {\n      \"material\": \"winding\",\n      \"name\": \"winding\",\n      \"shape\": {\n        \"frame\": {\n          \"r\": [\n            \"y*R-tw\",\n            \"R+tw\"\n          ],\n          \"thickness\": \"tw\",\n          \"z\": [\n            \"-H/2-tw\",\n            \"H/2+tw\"\n          ]\n        }\n      }\n    },\n    {\n      \"material\": \"nb\",\n      \"name\": \"sheath\",\n      \"shape\": {\n        \"frame\": {\n          \"fillet\": \"f\",\n          \"r\": [\n            \"y*R-tw-g-ts\",\n            \"R+tw+g+ts\"\n          ],\n          \"thickness\": \"ts\",\n          \"z\": [\n            \"-H/2-tw-g-ts\",\n            \"H/2+tw+g+ts\"\n          ]\n        }\n      }\n    }\n  ],\n  \"schema\": \"axionmultiphysics.design/1\",\n  \"superconductors\": [\n    {\n      \"azimuthal\": {\n        \"net_current\": 0\n      },\n      \"azimuthal_slit\": true,\n      \"body\": \"sheath\",\n      \"poloidal\": {\n        \"net_current\": 0\n      }\n    }\n  ],\n  \"windings\": [\n    {\n      \"ampere_turns\": \"NI\",\n      \"name\": \"toroid\",\n      \"region\": \"winding\",\n      \"type\": \"poloidal\"\n    }\n  ]\n}\n"
+   },
+   "validate": {
+    "status": 0,
+    "stdout": "{\n  \"curves\": 0,\n  \"name\": \"toroid\",\n  \"ok\": true,\n  \"regions\": 2,\n  \"windings\": 1\n}\n"
+   }
+  }
+ },
+ "format": "axionmultiphysics.g0/1",
+ "platform": "macos-arm64-sequential"
+}

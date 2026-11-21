@@ -1,0 +1,2439 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "background": {
+      "additionalProperties": false,
+      "properties": {
+        "Br": {
+          "type": "array"
+        },
+        "Bz": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "Bz_grid": {
+          "type": "array"
+        },
+        "interpolation": {
+          "enum": [
+            "hermite",
+            "bilinear"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "r": {
+          "type": "array"
+        },
+        "scale": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "source": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "uniform",
+            "grid"
+          ]
+        },
+        "z": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "benchmarks": {
+      "type": "array"
+    },
+    "cavity": {
+      "additionalProperties": false,
+      "properties": {
+        "allow_lossless_walls": {
+          "type": "boolean"
+        },
+        "end_cap_material": {
+          "type": "string"
+        },
+        "form_factor": {
+          "additionalProperties": false,
+          "properties": {
+            "B0": {
+              "enum": [
+                "applied",
+                "static"
+              ]
+            },
+            "B_ref_point": {
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "maxItems": 3,
+              "minItems": 2,
+              "type": "array"
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "interior_point": {
+          "items": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "maxItems": 3,
+          "minItems": 2,
+          "type": "array"
+        },
+        "length": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "losses": {
+          "type": "boolean"
+        },
+        "mode_overlaps": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "wall_material": {
+          "type": "string"
+        },
+        "wall_samples": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "circuits": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "current": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "flux_linkage": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "persistent",
+              "current"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "conductors": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "B0": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "B_T": {
+            "type": "array"
+          },
+          "B_min": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "Bc20": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "C0": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "Ca1": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "Ca2": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "E0": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "Jc": {
+            "type": "array"
+          },
+          "Jc0": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "T_K": {
+            "type": "array"
+          },
+          "T_op": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "T_ref": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "Tc": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "Tc0": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "alpha": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "b_exp": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "beta": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "eps_0a": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "fill_factor": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "gamma": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "k_anis": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "law": {
+            "enum": [
+              "nbti_bottura",
+              "nb3sn_durham",
+              "rebco_kim",
+              "table"
+            ]
+          },
+          "m_T": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "n_value": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "p": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "q": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "strain": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "tape_normal": {
+            "items": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "type": "object"
+    },
+    "cost": {
+      "additionalProperties": false,
+      "properties": {
+        "B_peak_cap": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "a": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "cold_envelope": {
+          "enum": [
+            "bounding_cylinder"
+          ]
+        },
+        "iron_cost_per_kg": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "kappa": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "load_line_cap": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "model": {
+          "type": "string"
+        },
+        "p_area": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "p_energy": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "sc_wall_cap": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "curves": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "material": {
+            "type": "string"
+          },
+          "mesh_size": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "path": {
+            "description": "one of segment[[r,z],[r,z]], polyline{points,closed}, rect{r,z,fillet}, arc{center,radius,angles}",
+            "type": "object"
+          },
+          "surface_size": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "thickness": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "path"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "description": {
+      "type": "string"
+    },
+    "electrostatics": {
+      "additionalProperties": false,
+      "properties": {
+        "boundary": {
+          "enum": [
+            "open",
+            "grounded"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "fullwave": {
+      "additionalProperties": false,
+      "properties": {
+        "adaptive": {
+          "additionalProperties": false,
+          "properties": {
+            "dense_points": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "f_max_Hz": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "f_min_Hz": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "initial_points": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "max_solves": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "notes": {
+              "type": "string"
+            },
+            "spacing": {
+              "enum": [
+                "log",
+                "linear"
+              ]
+            },
+            "tolerance": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "f_min_Hz",
+            "f_max_Hz"
+          ],
+          "type": "object"
+        },
+        "boundary": {
+          "enum": [
+            "radiation",
+            "pec"
+          ]
+        },
+        "dtn_modes": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "eigensolver": {
+          "additionalProperties": false,
+          "properties": {
+            "completeness_steps": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "max_iter": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "max_steps": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": {
+              "enum": [
+                "ame",
+                "shift_invert"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            },
+            "tol": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "f_max": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "f_min": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "families": {
+          "items": {
+            "enum": [
+              "TE",
+              "TM"
+            ]
+          },
+          "type": "array"
+        },
+        "field_currents": {
+          "type": "object"
+        },
+        "field_export_directory": {
+          "type": "string"
+        },
+        "field_probes": {
+          "items": {
+            "items": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "frequencies": {
+          "items": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "modes": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "pml": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "axis": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "description": "expression over parameters",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "maxItems": 3,
+                "minItems": 3,
+                "type": "array"
+              },
+              "center": {
+                "type": "array"
+              },
+              "curvature": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "notes": {
+                "type": "string"
+              },
+              "regions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "scaling_factor": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": {
+                "enum": [
+                  "cartesian",
+                  "cylindrical",
+                  "spherical"
+                ]
+              },
+              "wavelength_m": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "regions"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "points": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "ports": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              },
+              "toward": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "description": "expression over parameters",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "maxItems": 3,
+                "minItems": 3,
+                "type": "array"
+              }
+            },
+            "required": [
+              "name",
+              "region",
+              "toward"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "rf_only": {
+          "type": "boolean"
+        },
+        "scene_frequency": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "source": {
+          "type": "object"
+        },
+        "source_check": {
+          "type": "boolean"
+        },
+        "source_controls": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "quadrature_order": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "source": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "name",
+              "source"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "source_quadrature_order": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "source_regions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "surface_quadrature_file": {
+          "type": "string"
+        },
+        "surface_quadrature_order": {
+          "type": "number"
+        },
+        "target_f_Hz": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "thickness_m": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "validation_loads": {
+          "type": "array"
+        },
+        "validation_shunt_R_ohm": {
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "hts": {
+      "additionalProperties": false,
+      "properties": {
+        "drive": {
+          "additionalProperties": false,
+          "properties": {
+            "cycles": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "ramp_down": {
+              "type": "boolean"
+            },
+            "scale": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "t_hold": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "t_hold_end": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "t_ramp": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "e_floor": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "field_of_view": {
+          "items": {
+            "items": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "type": "array"
+        },
+        "max_newton": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "newton_tol": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "notes": {
+          "type": "string"
+        },
+        "profile_points": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "regions": {
+          "items": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "conductor": {
+                    "type": "string"
+                  },
+                  "initial": {
+                    "enum": [
+                      "zero_field_cooled",
+                      "field_cooled"
+                    ]
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "region": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "region"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "steps_per_segment": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "waveform": {
+          "additionalProperties": false,
+          "properties": {
+            "scales": {
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            },
+            "times": {
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "times",
+            "scales"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "regions"
+      ],
+      "type": "object"
+    },
+    "materials": {
+      "additionalProperties": {
+        "additionalProperties": false,
+        "properties": {
+          "B": {
+            "type": "array"
+          },
+          "B_sat": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "H": {
+            "type": "array"
+          },
+          "bh": {
+            "enum": [
+              "knee",
+              "table"
+            ]
+          },
+          "cost_per_kg": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "density": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "eps_r": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "kind": {
+            "enum": [
+              "vacuum",
+              "linear",
+              "iron",
+              "superconductor",
+              "conductor"
+            ]
+          },
+          "mechanical": {
+            "additionalProperties": false,
+            "properties": {
+              "E_Pa": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "alpha": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "notes": {
+                "type": "string"
+              },
+              "nu": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "E_Pa",
+              "nu"
+            ],
+            "type": "object"
+          },
+          "mu_r": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "rf": {
+            "type": "object"
+          },
+          "sigma_S_m": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "tan_delta": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "thermal": {
+            "additionalProperties": false,
+            "properties": {
+              "k_W_mK": {
+                "oneOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "description": "expression over parameters",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "array"
+                  }
+                ]
+              },
+              "notes": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "k_W_mK"
+            ],
+            "type": "object"
+          },
+          "warm": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      },
+      "type": "object"
+    },
+    "mechanics": {
+      "additionalProperties": false,
+      "properties": {
+        "cooldown": {
+          "type": "boolean"
+        },
+        "external_field": {
+          "type": "object"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "pressures": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              },
+              "on": {
+                "type": "string"
+              },
+              "p_Pa": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "on",
+              "p_Pa"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "probes": {
+          "type": "array"
+        },
+        "supports": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "fix": {
+                "enum": [
+                  "all",
+                  "r",
+                  "z",
+                  "x",
+                  "y"
+                ]
+              },
+              "notes": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "region"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "symmetry_planes": {
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "mesh": {
+      "additionalProperties": false,
+      "properties": {
+        "adapt": {
+          "additionalProperties": false,
+          "properties": {
+            "cycles": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "max_elements": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "reduction": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "tol": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "description": "expression over parameters",
+                  "type": "string"
+                }
+              ]
+            },
+            "watch": {
+              "items": {
+                "enum": [
+                  "Psi",
+                  "L_p",
+                  "W_mag",
+                  "Gamma"
+                ]
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "algorithm3d": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "curvature_points": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "domain_center_z": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "domain_radius": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "domain_solid": {
+          "description": "3D: box, cylinder, sphere, torus, cone, revolve{profile,angles}, extrude, step, union, difference, intersection, imported (mesh.file); optional rotate/translate",
+          "type": "object"
+        },
+        "extend_from_boundary": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "far_size": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "file": {
+          "type": "string"
+        },
+        "geometry_order": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "info_file": {
+          "type": "string"
+        },
+        "optimize_netgen": {
+          "type": "boolean"
+        },
+        "order": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "refinements": {
+          "description": "uniform refinements of the generated mesh; the parser refuses them with mesh.adapt",
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "remove_pec": {
+          "type": "boolean"
+        },
+        "size": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "surface_layer": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "surface_size": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "symmetry": {
+          "type": "array"
+        },
+        "threads": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "parameters": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "number"
+          },
+          {
+            "description": "expression over parameters",
+            "type": "string"
+          }
+        ]
+      },
+      "type": "object"
+    },
+    "pickup": {
+      "additionalProperties": false,
+      "properties": {
+        "conductor": {
+          "type": "string"
+        },
+        "inside_point": {
+          "items": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "port": {
+          "type": "string"
+        },
+        "port_boundary": {
+          "type": "string"
+        },
+        "toward": {
+          "items": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        },
+        "type": {
+          "enum": [
+            "azimuthal",
+            "poloidal",
+            "port"
+          ]
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "type": "object"
+    },
+    "regions": {
+      "items": {
+        "additionalProperties": false,
+        "anyOf": [
+          {
+            "required": [
+              "shape"
+            ]
+          },
+          {
+            "required": [
+              "solid"
+            ]
+          }
+        ],
+        "properties": {
+          "enabled": {
+            "description": "the region exists only if this evaluates to nonzero",
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              }
+            ]
+          },
+          "material": {
+            "type": "string"
+          },
+          "mesh_size": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "shape": {
+            "description": "one of rect{r,z,fillet}, frame{r,z,thickness,fillet}, polygon{points,fillet,fillets} (points are [r,z] or [r,z,fillet]; 'fillets' is a parallel list of per-vertex radii), contour{start,segments: [{line:[r,z]} | {ellipse:{center,axes,t}}]} (exact elliptical arcs), disk{center,radius}, union[shapes], difference[shapes], imported{} (2D imported meshes, mesh.file); cross-section (xsec) designs: (x, y) coordinates, rect{x,y}, disk{pivot,arm,angle_deg,radius}",
+            "type": "object"
+          },
+          "solid": {
+            "description": "3D: box, cylinder, sphere, torus, cone, revolve{profile,angles}, extrude, step, union, difference, intersection, imported (mesh.file); optional rotate/translate",
+            "type": "object"
+          },
+          "surface_size": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "scan": {
+      "additionalProperties": false,
+      "properties": {
+        "C_QCD": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "E_over_N": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "Q_axion": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "Theta95": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "f_max": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "f_min": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "live_time": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "ma_fa": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "model": {
+          "type": "string"
+        },
+        "rho_DM": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "description": "expression over parameters",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "schema": {
+      "const": "axionmultiphysics.design/1"
+    },
+    "superconductors": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "axis": {
+            "additionalProperties": false,
+            "properties": {
+              "direction": {
+                "type": "array"
+              },
+              "origin": {
+                "type": "array"
+              }
+            },
+            "type": "object"
+          },
+          "azimuthal": {
+            "additionalProperties": false,
+            "maxProperties": 1,
+            "minProperties": 1,
+            "properties": {
+              "flux": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "net_current": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "type": "object"
+          },
+          "azimuthal_slit": {
+            "type": "boolean"
+          },
+          "body": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "poloidal": {
+            "additionalProperties": false,
+            "maxProperties": 1,
+            "minProperties": 1,
+            "properties": {
+              "flux": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "net_current": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "symmetry": {
+      "enum": [
+        "axisymmetric",
+        "3d",
+        "xsec",
+        "planar"
+      ]
+    },
+    "thermal": {
+      "additionalProperties": false,
+      "properties": {
+        "fixed": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "T_K": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "curve": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "T_K"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "loads": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "W": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "W_m3": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "description": "expression over parameters",
+                    "type": "string"
+                  }
+                ]
+              },
+              "notes": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "region"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "probes": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "fixed"
+      ],
+      "type": "object"
+    },
+    "windings": {
+      "items": {
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "required": [
+              "ampere_turns"
+            ]
+          },
+          {
+            "required": [
+              "circuit",
+              "turns"
+            ]
+          }
+        ],
+        "properties": {
+          "ampere_turns": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "axis": {
+            "type": "object"
+          },
+          "circuit": {
+            "type": "string"
+          },
+          "conductor": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "turns": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "description": "expression over parameters",
+                "type": "string"
+              }
+            ]
+          },
+          "type": {
+            "enum": [
+              "azimuthal",
+              "poloidal",
+              "loop"
+            ]
+          }
+        },
+        "required": [
+          "region",
+          "type"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "regions"
+  ],
+  "title": "axionMultiPhysics design (axionmultiphysics.design/1)",
+  "type": "object"
+}

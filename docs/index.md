@@ -13,6 +13,8 @@ axionMultiPhysics is a finite-element package for electromagnetics, structural m
 - Shape sensitivities and optimization: adjoint gradients, with local, global and derivative-free optimizers.
 - Fluids (beta): Stokes and Navier–Stokes flow, steady and transient, inductionless MHD, and heat transport with natural convection.
 - Electrochemistry (beta): stiff chemical kinetics, reactors, and current distributions in electrolytes.
+- Model documents (beta): one physics-based input format for fluids, heat, electrochemistry and coupled physics, with a physics catalogue, validation, `axmp explain`, `axmp patch` and a JSON Schema; planar and axisymmetric documents are meshed with named boundaries, and the meshes can be handed to the fluids and chemistry engines. Solving a model document is not available yet.
+- Export to Geant4 and particle transport (beta): field maps of solved designs, solids and GDML of axisymmetric and 3D designs, and particle transport in `axmp-transport`, a separate Geant4 program built on request, through the solids and the field map of a design.
 
 Axisymmetric problems run on one machine; 3D problems use MPI.
 
@@ -25,6 +27,8 @@ Axisymmetric problems run on one machine; 3D problems use MPI.
 - [Mechanics and thermal](../examples/mechanics_thermal_demo.ipynb): forces and stresses in a winding, cooldown, and heat loads.
 - [Fluids](guides/fluids.md) and [chemistry](guides/chemistry.md) (beta): incompressible flow and current distributions in electrolytes.
 - [COMSOL export and import](guides/comsol.md): exchange of designs, meshes, and model settings.
+- [Meshes of model documents](guides/model_meshes.md) (beta): named boundaries, bounded 2D meshes, and meshes for the fluids and chemistry engines.
+- [Field maps](guides/field_maps.md), [solids and GDML](guides/solids.md) and [particle transport](guides/particles.md) (beta): from a solved design to Geant4, with the transport's [validation](validation/particles.md).
 
 [Installation](guides/install.md) ·
 [Quick start](../examples/notebook_quickstart.ipynb) ·

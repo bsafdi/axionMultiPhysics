@@ -14,6 +14,11 @@ They cover the expression parser, mesh quality and topology checks, the open-bou
 STRUMPACK threading, the scan and surface-resistance models, the renderer, the rational fit of the adaptive sweep, and
 the C++ parts of the fluids (MPI builds) and chemistry modules.
 
+## The compatibility gate
+
+`tests/g0/` records what an electromagnetic design observes (messages, exit statuses, mesher inputs, meshes, results) and
+compares each build with the record: see [G0](g0.md).
+
 ## The pytest suite
 
 ```bash
@@ -32,6 +37,7 @@ Environment variables select the heavier tests:
 |---|---|
 | `AXMP_MPI=1` | tests that start several MPI ranks (up to 16, so the allocation needs 16 slots) |
 | `AXMP_SLOW=1` | the slow 3D tests: quantitative 3D cross-checks, convergence studies, large full-wave cases |
+| `AXMP_TRANSPORT=<path>` | the tests marked `px_transport` (`tests/test_transport_hello.py` and the linkage test of `tests/test_process_rule.py`): the path of an `axmp-transport` built with `-DAXMP_BUILD_TRANSPORT=ON` against a Geant4 with its data sets. Without it they skip; set to something that is not an executable file, they fail. The gate of the development cluster runs them |
 | `AXIONMULTIPHYSICS_BROWSER_TESTS=1` | a headless rendering smoke test of the viewer (needs Firefox) |
 
 `tests/test_gpu.py` runs only with a CUDA build and a visible GPU. The full suite (`AXMP_SLOW=1 AXMP_MPI=1`) takes

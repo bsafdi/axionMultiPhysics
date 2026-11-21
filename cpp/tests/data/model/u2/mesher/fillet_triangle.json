@@ -1,0 +1,44 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "a",
+   "attr": 1,
+   "shape": {
+    "polygon": {
+     "points": [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       0
+      ],
+      [
+       0.3,
+       0.8
+      ]
+     ],
+     "fillet": 0.05
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "wall": {
+   "of": [
+    "a"
+   ]
+  }
+ },
+ "size": 0.05,
+ "surface_size": 0.05,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

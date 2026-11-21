@@ -120,12 +120,17 @@ def _f64(a):
 def gls_problem(vertices, triangles, *, mu=None, mu_nodal=None, rho=1.0, force=None, advect=None, mode="navier_stokes",
                 form="stress", dt=0.0, bdf=1, history=(), dirichlet=None, stabilization=None, lu=None, lu_threads=1,
                 newton_rtol=1e-12, newton_maxit=40, line_search=True, viscosity_scales=None, continuation_re=None,
-                re=None, geometry="planar", solve=True):
+                re=None, geometry="planar", solve=True, lu_retry="auto"):
     """See the module docstring. mode "stokes" (w = 0: no convective and no SUPG term), "oseen" (w = advect) or
     "navier_stokes" (w = u). form "stress" (2 mu eps:eps) | "laplacian" (mu grad u : grad v). dirichlet = (nodes [m],
     values [m, 2]): the nodal velocity data. Never raises on non-convergence (check diagnostics["converged"]); a singular
-    or failed linear solve is reported as a failure, never rescued."""
-    from . import default_lu
+    or failed linear solve is reported as a failure, never rescued. The step solves are accepted on their relative
+    residual at max(newton_rtol, 1e-11); the history gives each step's lu_attempts and lu_stage, the diagnostics the
+    last step's lu_stage, lu_attempts, lu_backward_error and the counts of solve_navier_stokes (the mass solves are
+    sparse Cholesky: mass_lu_escalated is 0). lu_retry="auto" (default): a direct solve whose solution misses its accuracy gate is solved again with the next
+    configuration of a recorded chain (docs/physics/fluids.md, "Linear solvers"); "off": the first configuration
+    (lu) alone."""
+    from . import _lu_retry, default_lu
     if geometry != "planar":
         raise ValueError("axisymmetric stabilized P1/P1 is not implemented (the GLS solver is planar)")
     if mode not in ("stokes", "oseen", "navier_stokes"):
@@ -197,7 +202,7 @@ def gls_problem(vertices, triangles, *, mu=None, mu_nodal=None, rho=1.0, force=N
                           hist[1] if len(hist) > 1 else None, dn, dv, float(rho), mode, form, float(dt), int(bdf),
                           bool(st["supg"]), bool(st["pspg"]), bool(st["lsic"]), lu or default_lu(), int(lu_threads),
                           float(newton_rtol), int(newton_maxit), bool(line_search),
-                          [float(s) for s in (viscosity_scales or [])], bool(solve))
+                          [float(s) for s in (viscosity_scales or [])], bool(solve), lu_retry=_lu_retry(lu_retry))
     return GlsSolution(core, V, T, mode, form, float(dt), int(bdf))
 
 

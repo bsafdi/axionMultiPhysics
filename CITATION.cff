@@ -22,8 +22,8 @@ authors:
     family-names: Foster
   - given-names: Benjamin R.
     family-names: Safdi
-version: 0.1.0
-date-released: 2026-11-16
+version: 0.2.0
+date-released: 2026-11-20
 license: BSD-3-Clause
 repository-code: https://github.com/bsafdi/axionMultiPhysics
 url: https://bsafdi.github.io/axionMultiPhysics/

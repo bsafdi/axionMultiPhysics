@@ -5,7 +5,9 @@
 //      reactor;
 //   3. orders of BDF1..4 (exact start) and ESDIRK3(2) on A -> B, final-time error;
 //   4. adaptive bdf2 / onestep / vsvo: stop-time outputs are step ends, accuracy, the event time;
-//   5. invariant-form equilibrium: consistent initialization and the constraint along an adaptive run.
+//   5. invariant-form equilibrium: consistent initialization and the constraint along an adaptive run;
+//   6. the starting-step estimate: a derivative that is not finite at the trial point gives a smaller start, while an
+//      exception raised by the problem's own right-hand side propagates unchanged.
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -151,6 +153,65 @@ int main() {
     double g = 0;
     for (const auto& y : tr.y) g = std::max(g, std::fabs(es.constraint(y)[0]));
     CHECK(g < 1e-12, "constraint residual %g", g);
+  }
+  // 6
+  {
+    // y' = -y, y(0) = 1.  With no initial step given, the first right-hand-side call after t = 0 is the trial point of
+    // the starting-step estimate.
+    struct UserAbort {};  // not derived from std::exception: stands for an error that is not the solver's to judge
+    auto make = [](int mode, int* trial_calls) {
+      axmp::time::Problem P;
+      P.n = 1;
+      P.f = [mode, trial_calls](double t, const Vec& y) -> Vec {
+        if (t > 0.0 && (*trial_calls)++ == 0) {
+          if (mode == 1) throw UserAbort{};
+          if (mode == 2) throw std::logic_error("programming error in the callback");
+          if (mode == 3) return Vec::Constant(1, std::nan(""));
+        }
+        return Vec(-y);
+      };
+      P.jac = [](double, const Vec&) { return Mat::Constant(1, 1, -1.0); };
+      return P;
+    };
+    axmp::time::AdaptiveOptions o;
+    o.method = "bdf2"; o.rtol = 1e-8; o.atol = Vec::Constant(1, 1e-10);
+    Vec y0 = Vec::Constant(1, 1.0);
+    for (int mode : {1, 2}) {
+      int calls = 0;
+      bool propagated = false;
+      try {
+        axmp::time::integrate_adaptive(make(mode, &calls), o, 0.0, y0, {1.0});
+      } catch (const UserAbort&) {
+        propagated = mode == 1;
+      } catch (const std::logic_error&) {
+        propagated = mode == 2;
+      } catch (...) {
+      }
+      CHECK(propagated, "an exception from f at the trial point propagates unchanged (mode %d)", mode);
+    }
+    {
+      int calls = 0;
+      axmp::time::Trajectory tr;
+      bool ok = true;
+      try {
+        tr = axmp::time::integrate_adaptive(make(3, &calls), o, 0.0, y0, {1.0});
+      } catch (...) {
+        ok = false;
+      }
+      CHECK(ok, "a non-finite derivative at the trial point is a numerical failure: smaller start, run completes");
+      CHECK(ok && std::fabs(tr.y.back()[0] - std::exp(-1.0)) < 1e-6, "the run after a smaller start is accurate");
+    }
+    int calls = 0;
+    bool typed = false;
+    try {
+      Vec nanv = Vec::Constant(1, 1.0);
+      axmp::time::Problem P = make(3, &calls);
+      axmp::time::consistent_derivative(P, 1.0, nanv);
+    } catch (const axmp::time::ConsistentDerivativeError&) {
+      typed = true;
+    } catch (...) {
+    }
+    CHECK(typed, "consistent_derivative reports a non-finite result as ConsistentDerivativeError");
   }
   std::printf("%s (%d failures)\n", failures ? "FAILED" : "OK", failures);
   return failures ? 1 : 0;

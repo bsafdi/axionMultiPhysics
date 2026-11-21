@@ -594,6 +594,9 @@ def global_optimize(design, objective: Any = "cost", params: dict | None = None,
     evaluated point, plus the amplitude-root and adjoint-polish solves).  The default ``workdir`` is a
     new directory per run under ``runs/<design>__global/``.
     """
+    from .design import _require_em_document
+
+    _require_em_document(design, "global_optimize")
     import pickle
 
     import numpy as np
@@ -1019,7 +1022,10 @@ def optimize(design, objective: Any = "cost", params: dict | None = None, *args,
     """Optimize a design: ``method="global"`` runs :func:`global_optimize` (differential evolution);
     any other ``method`` (default: L-BFGS-B, or SLSQP with constraints) runs the adjoint-gradient
     local optimizer :func:`axionmultiphysics.sensitivity.optimize` with the same arguments."""
+    from .design import _require_em_document
     from .sensitivity import optimize as _local
+
+    _require_em_document(design, "optimize")
 
     if method is None and args:
         # positional arguments follow sensitivity.optimize's signature (bounds, constraints, sense, method, ...)

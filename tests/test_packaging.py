@@ -195,6 +195,22 @@ def test_only_model3d_uses_mpi_or_hypre():
     )
 
 
+def test_the_selection_unit_includes_only_the_standard_library_and_json():
+    """The selection semantics of the named boundaries (model_selection.hpp and .cpp) are compiled into the library and
+    into axmp-mesher, the separate program that links gmsh: they include the C++ standard library, nlohmann/json and
+    their own header, and nothing of the library, MFEM or gmsh."""
+    allowed_quoted = {"axionmultiphysics/model_selection.hpp"}
+    for rel in ("cpp/include/axionmultiphysics/model_selection.hpp", "cpp/src/model_selection.cpp"):
+        text = (ROOT / rel).read_text("utf-8")
+        includes = re.findall(r'^\s*#\s*include\s*([<"])([^>"]+)[>"]', text, re.M)
+        assert includes or rel.endswith(".hpp"), f"{rel} includes nothing"
+        for kind, name in includes:
+            if kind == "<":
+                assert re.fullmatch(r"[a-z_]+", name) or name == "nlohmann/json.hpp", f"{rel} includes <{name}>"
+            else:
+                assert name in allowed_quoted, f'{rel} includes "{name}"'
+
+
 def test_the_stub_defines_everything_model3d_declares():
     header = (ROOT / "cpp" / "include" / "axionmultiphysics" / "model3d.hpp").read_text("utf-8")
     stub = (ROOT / "cpp" / "src" / "model3d_nompi.cpp").read_text("utf-8")
@@ -233,10 +249,23 @@ def test_workflows_exist():
     ci_text, wh_text = ci.read_text("utf-8"), wheels.read_text("utf-8")
     assert "build_deps" in ci_text and "pytest" in ci_text
     assert "cibuildwheel" in wh_text
-    # one job per native architecture: no cross-compiling of the MFEM dependency
+    # one job per native architecture: no cross-compiling of the MFEM dependency (the matrix is YAML or, where it
+    # depends on the repository, JSON inside fromJSON)
     for runner in ("ubuntu-24.04", "macos-15-intel", "macos-15"):
-        assert re.search(rf"os: {re.escape(runner)}[,}}]", wh_text), f"wheels.yml has no {runner} job"
+        assert re.search(rf'"?os"?: ?"?{re.escape(runner)}"?[,}}]', wh_text), f"wheels.yml has no {runner} job"
 
+
+
+def test_g0_workflow_runs_macos_only_on_demand_in_the_development_repository():
+    """The G0 gate has a macOS job; in the private development repository (macOS minutes are billed at ten times the
+    Linux rate) it must run only on a manual dispatch, as ci.yml's macOS jobs do."""
+    text = (ROOT / ".github" / "workflows" / "g0.yml").read_text("utf-8")
+    jobs = re.split(r"^  (?=[a-z][\w-]*:\s*$)", text.split("\njobs:\n", 1)[1], flags=re.M)
+    mac = [j for j in jobs if "macos" in j.split("steps:")[0]]
+    assert mac, "g0.yml has no macOS job"
+    for j in mac:
+        assert "endsWith(github.repository, '/axionMultiPhysics-dev')" in j.split("steps:")[0]
+        assert "github.event_name == 'workflow_dispatch'" in j.split("steps:")[0]
 
 
 # ----------------------------------------------------------------- the install guide and the containers

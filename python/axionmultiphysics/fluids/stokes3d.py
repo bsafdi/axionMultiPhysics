@@ -49,7 +49,13 @@ def _vec3(fn, vdim):
 
 
 def default_lu_3d() -> str:
-    """The distributed STRUMPACK when the build has it, else the shared-memory one, else Eigen."""
+    """The distributed STRUMPACK when the build has it, else the shared-memory one, else Eigen.
+
+    Eigen's direct solver runs on rank 0 alone: it uses 64-bit indices above 46 340 unknowns and is limited by that
+    rank's memory and time (the 3D system of 112 725 unknowns was not factorized in 2 h, one core of a shared AMD EPYC
+    7401 node, with at least 10.9 GB resident after 22 min); a 3D Stokes system of the sizes of a refinement study needs
+    STRUMPACK.
+    """
     for b in ("strumpack-mpi", "strumpack"):
         if _f.lu_backend_available(b):
             return b
@@ -59,7 +65,7 @@ def default_lu_3d() -> str:
 def solve_stokes_3d(mesh, nu, force=None, bcs=(), *, form="stress", solver="direct", lu=None, nullspace="auto",
                     order=2, rtol=1e-10, direct_tol=1e-10, grad_div=0.0, pressure_order=-1,
                     allow_unstable_pair=False, min_refine_steps=0, solve=True, lu_threads=1,
-                    slip_corner_angle_deg=30.0, lu_krylov_fallback=True, lu_matching=False):
+                    slip_corner_angle_deg=30.0, lu_krylov_fallback=True, lu_matching=False, lu_retry="auto"):
     """Solve 3D Taylor–Hood Stokes (collective). form "stress" (2 nu eps:eps) or "laplacian" (nu grad:grad), variable
     nu in both; grad_div gamma (viscosity units). Never raises on non-convergence (diagnostics["converged"]).
 
@@ -69,12 +75,21 @@ def solve_stokes_3d(mesh, nu, force=None, bcs=(), *, form="stress", solver="dire
     ["lu_krylov_iterations"] the count and ["solver"] reads "direct+gmres:<backend>". Pass False for a strictly
     direct solve (the gate then decides). The 2D and axisymmetric solvers have no such fallback.
 
-    lu_matching (default False): STRUMPACK's MC64 matching/scaling. On 3D Taylor-Hood saddle points the matching
-    permutes the structure and leaves a plain-solve residual of 0.1 to 18 on the largest levels (measured at N = 32);
-    without it the plain residual is round-off (5e-16) and the factorization is faster. When the matching-free
-    factorization fails or misses the gate, the solve is repeated with the matching
-    (diagnostics["lu_matching_retry"] True, ["lu_matching"] says which one produced the result). True: the 2D
-    configuration (matching only)."""
+    lu_matching (default False): STRUMPACK's MC64 matching/scaling in the first configuration. On 3D Taylor-Hood
+    saddle points the matching permutes the structure and leaves a plain-solve residual of 0.1 to 18 on the largest
+    levels (measured at N = 32); without it the plain residual is round-off (5e-16) and the factorization is faster.
+    When the matching-free factorization fails or its relative residual over all rows misses direct_tol, the chain's
+    next configuration solves again: STRUMPACK with the matching, then Eigen's LU up to 5e4 unknowns.
+    diagnostics["lu_attempts"] records every attempt, ["lu_stage"] and ["lu_backend"] the configuration that produced
+    the result (["lu_matching"] whether it used the matching); ["lu_matching_retry"] (the result is not the first
+    configuration's) and ["lu_matching_retry_reason"] (the first one's reason) are aliases kept for one release. True:
+    the 2D chain (the matching first). lu_retry="off" keeps the first configuration alone (here STRUMPACK without
+    the matching): it does not reproduce an older run whose matching retry fired, the default chain does.
+
+    lu_retry="auto" (default): a direct solve whose solution misses its accuracy gate is solved again with the next
+    configuration of a recorded chain (docs/physics/fluids.md, "Linear solvers"); "off": the first configuration
+    (lu) alone."""
+    from . import _lu_retry
     bcs = [dict(b) for b in bcs]
     for b in bcs:
         for k in ("value", "normal"):
@@ -83,7 +98,8 @@ def solve_stokes_3d(mesh, nu, force=None, bcs=(), *, form="stress", solver="dire
     return _f.solve_stokes_3d(mesh, _vec3(nu, 1), _vec3(force, 3), bcs, form, solver, lu or default_lu_3d(),
                               nullspace, int(order), float(rtol), float(direct_tol), float(grad_div),
                               int(pressure_order), bool(allow_unstable_pair), int(min_refine_steps), bool(solve),
-                              int(lu_threads), float(slip_corner_angle_deg), bool(lu_krylov_fallback), bool(lu_matching))
+                              int(lu_threads), float(slip_corner_angle_deg), bool(lu_krylov_fallback), bool(lu_matching),
+                              lu_retry=_lu_retry(lu_retry))
 
 
 def assemble_stokes_3d(mesh, nu, bcs=(), *, form="stress", order=2, pressure_order=-1, allow_unstable_pair=False,

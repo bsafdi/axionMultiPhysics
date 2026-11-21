@@ -24,7 +24,7 @@ build-backend = "scikit_build_core.build"
 name = "axionmultiphysics"
 # Keep in step with CMakeLists.txt project(VERSION) and axmp::kVersion in
 # cpp/include/axionmultiphysics/core.hpp; tests/test_packaging.py checks that.
-version = "0.1.0"
+version = "0.2.0"
 description = "Finite-element simulation for axion dark-matter detectors: lumped-element detectors from the field solve to the scan reach, with beta modules for cavity haloscopes, SRF heterodyne cavities, dc SQUID readout, incompressible flow and electrochemistry"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -95,7 +95,7 @@ cmake.build-type = "Release"
 ninja.make-fallback = true
 sdist.exclude = [
   "/third_party/src", "/third_party/build*", "/third_party/install*",
-  "/build*", "/runs", "/docs/references/*.pdf", "/.venv",
+  "/build*", "/runs", "/docs/references/*.pdf", "/.venv", "/dev",
 ]
 
 [tool.scikit-build.cmake.define]
@@ -148,5 +148,6 @@ repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} --exclud
 testpaths = ["tests"]
 markers = [
   "fast: pure-Python checks that need no build and run in seconds on a login node (`pytest -m fast`)",
+  "px_transport: needs the axmp-transport program ($AXMP_TRANSPORT); skipped when the variable is not set",
 ]
 filterwarnings = ["error::DeprecationWarning:axionmultiphysics.*"]

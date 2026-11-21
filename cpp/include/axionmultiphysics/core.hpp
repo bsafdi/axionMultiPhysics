@@ -10,7 +10,7 @@
 
 namespace axmp {
 
-inline constexpr const char* kVersion = "0.1.0";
+inline constexpr const char* kVersion = "0.2.0";
 
 // Default visibility for types thrown in libaxionmultiphysics and caught elsewhere.  The
 // Python module is built with -fvisibility=hidden, so it would otherwise get its
@@ -28,12 +28,18 @@ inline constexpr const char* kVersion = "0.1.0";
 // error concerns the input ("/regions/3/shape").
 class AXMP_EXPORT Error : public std::runtime_error {
  public:
-  Error(std::string what, std::string where = "", std::string hint = "")
+  // `code` is a stable machine-readable identifier and `details` the JSON text of an object with structured data; both
+  // are empty when absent and neither enters what(), message() or the composed text.
+  Error(std::string what, std::string where = "", std::string hint = "", std::string code = "",
+        std::string details = "")
       : std::runtime_error(compose(what, where, hint)),
-        what_(std::move(what)), where_(std::move(where)), hint_(std::move(hint)) {}
+        what_(std::move(what)), where_(std::move(where)), hint_(std::move(hint)),
+        code_(std::move(code)), details_(std::move(details)) {}
   const std::string& message() const { return what_; }
   const std::string& where() const { return where_; }
   const std::string& hint() const { return hint_; }
+  const std::string& code() const { return code_; }
+  const std::string& details() const { return details_; }
 
  private:
   static std::string compose(const std::string& w, const std::string& p, const std::string& h) {
@@ -42,7 +48,7 @@ class AXMP_EXPORT Error : public std::runtime_error {
     if (!h.empty()) s += " Hint: " + h;
     return s;
   }
-  std::string what_, where_, hint_;
+  std::string what_, where_, hint_, code_, details_;
 };
 
 // A linear solve or factorization that broke down (singular, indefinite, or a residual check that failed) deep in an
@@ -52,6 +58,13 @@ class AXMP_EXPORT SolverFailure : public Error {
  public:
   using Error::Error;
 };
+
+// The error `e` with `note` appended to its hint; everything else, the code and the details included, is kept. `note`
+// starts with a separator character, which is dropped when there is no hint to separate it from.
+inline Error with_hint_note(const Error& e, std::string note) {
+  if (e.hint().empty()) note.erase(0, 1);
+  return Error(e.message(), e.where(), e.hint() + note, e.code(), e.details());
+}
 
 #define AXMP_REQUIRE(cond, ...)                         \
   do {                                                 \

@@ -34,6 +34,7 @@ struct StepResult {
   double relative_residual = -1;
   int iterations = 0;
   int lu_refine = 0;
+  double lu_residual = -1;    // worst refined relative residual of the step's direct solves; -1 = none recorded
   double t = 0, dt = 0;
   int order = 0;
   bool has_estimate = false;
@@ -47,7 +48,17 @@ struct RunStats {
   double max_relative_residual = 0;
   long newton_iterations = 0;
   long solves = 0;
-  long lu_fallbacks = 0;       // direct solves that needed another configuration (visible; see navier_stokes.hpp)
+  double lu_residual_max = -1;       // worst per-step refined LU residual over the run; -1 = none
+  long lu_target_missed = 0;         // steps whose recorded residual exceeded the refinement target
+  double mass_lu_residual_max = -1;  // worst relative residual of a dual-norm mass solve over the run; -1 = none
+  // The step solves' LU counts (NavierStokesDiagnostics::lu_counts) and mass solves that took more than one attempt,
+  // summed over the steps of the run (the initial projection is not a step: its attempts are the core's
+  // projection_lu_attempts).
+  LUCounts lu_counts;
+  long mass_lu_escalated = 0;
+  // Aliases kept for one release: lu_counts.escalated, and the stage that produced the solution of the run's last
+  // escalated solve ("" if none).
+  long lu_fallbacks = 0;
   std::string lu_fallback_backend;
   std::string failure;
 };
@@ -74,9 +85,17 @@ class TransientNavierStokes {
 
   // nodal P2 interpolation of a vector coefficient (true-DOF vector)
   mfem::Vector interpolate(mfem::VectorCoefficient& f);
-  // state at t0: the nodal interpolant of u0, projected (Leray) unless project = false; returns false
-  // if the projection solve failed
+  // state at t0: the nodal interpolant of u0, projected (Leray) unless project = false; returns false if the
+  // projection failed its accuracy gate (core().diagnostics().projection_residual / projection_converged). A failed
+  // initialization leaves NO valid state, so advance(), step_trial() and run_adaptive() then throw axmp::Error until
+  // initialize() succeeds or set_history() supplies a state; a step's own non-convergence is still reported, not raised.
   bool initialize(double t0, mfem::VectorCoefficient& u0, bool project);
+  // true after a failed initialize(project = true) until the next successful initialize() or set_history()
+  bool initialization_failed() const { return init_failed_; }
+  // What the error raised after a failed initialize() advises: where the verdict is recorded, the attempts of the
+  // projection's solve ("<stage>: <outcome> (<reason>)" each) and the other pressure treatment (the pinned pressure
+  // after the mean-value multiplier, the multiplier after the pin), with what was measured of it.
+  std::string initialization_failure_hint() const;
   // replace the history (newest first) by given states (single-step hook); pressure zero
   void set_history(const std::vector<double>& times, const std::vector<mfem::Vector>& states);
 
@@ -112,6 +131,9 @@ class TransientNavierStokes {
   Level trial_;
   mfem::Vector est_;
   RunStats stats_;
+  bool init_failed_ = false;     // the last initialize(project = true) failed its gate
+  double init_residual_ = -1;    // its projection residual
+  std::string init_attempts_;    // its attempts, "<stage>: <outcome> (<reason>)" separated by "; "
   void refresh(double tf, double tg, double ttr);
   mfem::Vector milne_estimate(int order, double tn, const mfem::Vector& un, bool& ok) const;
   double reported_norm(const mfem::Vector& e) const;

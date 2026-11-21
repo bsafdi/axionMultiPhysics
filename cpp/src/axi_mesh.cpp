@@ -16,6 +16,8 @@
 #include <numeric>
 
 #include "axionmultiphysics/axi.hpp"
+#include "axionmultiphysics/mesh_quality.hpp"
+#include "bdr_face.hpp"
 #include "axionmultiphysics/morph.hpp"
 #include "axionmultiphysics/units.hpp"
 #include "axionmultiphysics/core.hpp"
@@ -183,6 +185,14 @@ MeshBundle build_mesh(const spec::Design& d, const MeshOptions& opt) {
   log(1, strcat("mesh: ", info.value("elements_2d", 0), " triangles in ", info.value("seconds", 0.0), " s"));
 
   mb.mesh = std::make_unique<mfem::Mesh>((base + ".msh").c_str(), 1, 1, true);
+  // a tangled curved element is refused whoever wrote the file (the mesher repairs or refuses one itself)
+  mesh_quality::require_untangled(
+      *mb.mesh,
+      [&](int a) {
+        const auto it = mb.region_of_attr.find(a);
+        return it == mb.region_of_attr.end() ? strcat("attribute ", a) : it->second;
+      },
+      base + ".msh");
   for (int i = 0; i < d.mesh.refinements; ++i) mb.mesh->UniformRefinement();
   mb.domain_radius = Rb;
   mb.domain_center_z = z0;
@@ -274,7 +284,7 @@ Space::Space(mfem::Mesh& m, int p) : mesh(m), order(p) {
     }
   }
   for (int be = 0; be < mesh.GetNBE(); ++be) {
-    face_bdr_attr[mesh.GetBdrElementFaceIndex(be)] = mesh.GetBdrAttribute(be);
+    face_bdr_attr[checked_bdr_face(mesh, be)] = mesh.GetBdrAttribute(be);
   }
   table(quad_rule());
 }

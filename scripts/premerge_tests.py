@@ -60,6 +60,8 @@ NO_SOLVE_3D = {
     "tests/test_axi_background_exterior.py": "axisymmetric; uses fullwave3d_background's grid helpers only",
     "tests/test_multiport_fem_spec.py": "validates the two-port frame's specification, not solved",
     "tests/test_mpi_output_parser.py": "parses faked launcher output; Model3D is a stub, nothing is solved",
+    "tests/test_model_guard.py": "a model document refused by Model3D and run_3d before anything is built",
+    "tests/test_parse_design_sites.py": "reads the C++ source for the call sites of parse_design (Model3D among them)",
 }
 
 

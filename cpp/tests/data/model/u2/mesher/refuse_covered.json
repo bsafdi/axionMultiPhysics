@@ -1,0 +1,58 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "a",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      0.04
+     ],
+     "z": [
+      0,
+      0.01
+     ]
+    }
+   }
+  },
+  {
+   "name": "b",
+   "attr": 2,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      0.04
+     ],
+     "z": [
+      0,
+      0.01
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "top": {
+   "of": [
+    "b"
+   ],
+   "where": {
+    "y": [
+     0.01
+    ]
+   }
+  }
+ },
+ "size": 0.00125,
+ "surface_size": 0.00125,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

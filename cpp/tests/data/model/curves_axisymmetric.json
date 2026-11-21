@@ -1,0 +1,25 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "curves_axisymmetric",
+  "description": "axisymmetric model whose curves are markers: a segment, an arc and a closed polyline, with no material and no thickness",
+  "symmetry": "axisymmetric",
+  "parameters": {"R": 0.05, "H": 0.1},
+  "regions": [
+    {"name": "body", "shape": {"rect": {"r": [0, "R"], "z": [0, "H"]}}},
+    {"name": "core", "shape": {"rect": {"r": [0, "R/2"], "z": ["H/4", "3*H/4"]}}, "surface_size": 0.002}
+  ],
+  "curves": [
+    {"name": "mid", "path": {"segment": [[0, "H/2"], ["R", "H/2"]]}, "mesh_size": 0.003},
+    {"name": "cut", "path": {"arc": {"center": [0, "H/2"], "radius": "R/2", "angles": [0, 1.2]}}, "surface_size": 0.001},
+    {"name": "loop", "path": {"polyline": {"points": [[0.01, 0.02], [0.03, 0.02], [0.03, 0.04]], "closed": true}}, "notes": "a closed marker"}
+  ],
+  "boundaries": {
+    "wall": {"of": "body", "where": {"r": "R"}},
+    "section": {"curve": "mid"}
+  },
+  "physics": {
+    "heat": {"type": "heat.transfer",
+             "boundary_conditions": {"wall": {"kind": "temperature", "T_K": 300.0}, "remaining": {"kind": "insulation"}}}
+  },
+  "outputs": {"Q_mid": {"kind": "flux", "of": "heat", "on": "section"}}
+}

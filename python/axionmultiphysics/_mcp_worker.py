@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 import axionmultiphysics as axmp
+from axionmultiphysics._error_payload import error_payload
 
 # Fractions of a single solve reached when the C++ engine logs these messages.  Progress is
 # clamped to be monotone, so an unrecognised line just repeats the last fraction with a new message.
@@ -329,13 +330,7 @@ def main() -> int:
         progress(1.0, "done")
         rc = 0
     except Exception as e:  # noqa: BLE001
-        msg = str(e)
-        out = {"ok": False, "error": msg}
-        m = re.search(r"\[at ([^\]]*)\]", msg)
-        if m:
-            out["where"] = m.group(1)
-        if "Hint:" in msg:
-            out["hint"] = msg.split("Hint:", 1)[1].strip()
+        out = error_payload(e)
         rc = 1
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out))

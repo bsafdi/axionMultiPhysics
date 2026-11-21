@@ -57,7 +57,7 @@ def test_there_are_cases_for_both_tracks():
 def test_case_definition_is_complete(track, path):
     c = json.loads(path.read_text())
     assert c["id"] == path.stem
-    assert set(c) <= {"id", "capability", "title", "physics", "levels", "run", "reference", "acceptance"}
+    assert set(c) <= {"id", "capability", "title", "physics", "notes", "levels", "run", "reference", "acceptance"}
     assert c["title"] and c["capability"]
     assert set(c["levels"]) <= LEVELS and c["levels"]
     r = c["run"]["runner"]

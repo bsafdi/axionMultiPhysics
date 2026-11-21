@@ -1,0 +1,132 @@
+{
+ "schema": "axionmultiphysics.design/1",
+ "name": "g0_thermal_axi",
+ "description": "G0 gate: a heated core with a tabulated conductivity k(T), a ring of constant conductivity that carries a second load given as a total power, and an outer sink ring held at 4 K.",
+ "materials": {
+  "g10": {
+   "kind": "linear",
+   "thermal": {
+    "k_W_mK": [
+     [
+      4,
+      10.0
+     ],
+     [
+      34,
+      34.0
+     ]
+    ],
+    "notes": "two-point table"
+   }
+  },
+  "cu": {
+   "kind": "linear",
+   "thermal": {
+    "k_W_mK": 600.0
+   }
+  },
+  "pack": {
+   "kind": "vacuum"
+  }
+ },
+ "regions": [
+  {
+   "name": "core",
+   "shape": {
+    "rect": {
+     "r": [
+      0.0,
+      0.4
+     ],
+     "z": [
+      -0.5,
+      0.5
+     ]
+    }
+   },
+   "material": "g10",
+   "mesh_size": 0.05
+  },
+  {
+   "name": "ring",
+   "shape": {
+    "rect": {
+     "r": [
+      0.4,
+      0.5
+     ],
+     "z": [
+      -0.5,
+      0.5
+     ]
+    }
+   },
+   "material": "cu",
+   "mesh_size": 0.05
+  },
+  {
+   "name": "sink",
+   "shape": {
+    "rect": {
+     "r": [
+      0.5,
+      0.55
+     ],
+     "z": [
+      -0.5,
+      0.5
+     ]
+    }
+   },
+   "material": "cu",
+   "mesh_size": 0.05
+  },
+  {
+   "name": "coil",
+   "shape": {
+    "rect": {
+     "r": [
+      1.5,
+      1.55
+     ],
+     "z": [
+      -0.05,
+      0.05
+     ]
+    }
+   },
+   "material": "pack"
+  }
+ ],
+ "windings": [
+  {
+   "region": "coil",
+   "type": "azimuthal",
+   "ampere_turns": 1.0
+  }
+ ],
+ "thermal": {
+  "fixed": [
+   {
+    "region": "sink",
+    "T_K": 4.0
+   }
+  ],
+  "loads": [
+   {
+    "region": "core",
+    "W_m3": 5000.0
+   },
+   {
+    "region": "ring",
+    "W": 10.0
+   }
+  ],
+  "notes": "k(T) by Picard iteration"
+ },
+ "mesh": {
+  "order": 2,
+  "size": 0.3,
+  "domain_radius": 6.0
+ }
+}

@@ -170,11 +170,15 @@ struct StokesOptions {
   // direct path: GMRES preconditioned by the LU when the refinement stagnates above its target (3D saddle points
   // where STRUMPACK's static pivoting gives a poor factorization); off by default, on in the 3D API
   bool lu_krylov_fallback = false;
-  // direct path: MC64 matching/scaling in STRUMPACK (default true, the 2D behaviour). On 3D Taylor-Hood
-  // saddle points the matching permutes the structure and leaves a plain-solve residual of 0.1 .. 18 (measured at N = 32);
-  // false (the 3D API's default) factors without it (residual 5e-16, faster). If that factorization fails, or its
-  // solve misses the gate, the solve is repeated with the matching (diagnostics lu_matching_retry).
+  // direct path: MC64 matching/scaling in STRUMPACK's first stage (default true, the 2D behaviour). On 3D
+  // Taylor-Hood saddle points the matching permutes the structure and leaves a plain-solve residual of 0.1 .. 18
+  // (measured at N = 32); false (the 3D API's default) factors without it (residual 5e-16, faster). If that
+  // factorization fails, or its solve misses direct_tol, the chain's next stage (with the matching) solves again.
   bool lu_matching = true;
+  // direct path: the stages every sparse LU of the solver walks through (sparse_lu.hpp, SparseLU); empty: the default
+  // chain of `lu` and its first matching (default_chain). The Navier-Stokes and Boussinesq solvers read it too, for
+  // their step, projection and mass solves. One stage: no retry.
+  std::vector<LUStage> lu_chain;
   // direct path: OpenMP threads of the sparse LU (factorization and solves). 1 (default) is deterministic: threaded
   // STRUMPACK changes the last digits and the refinement count from run to run; 0 = all threads.
   int lu_threads = 1;
@@ -243,11 +247,19 @@ struct StokesDiagnostics {
   double minres_preconditioned = -1;              // MINRES: MFEM's final preconditioned norm
   double pressure_point_value = 0;  // p_h(x0) after the solve (pressure point)
   double assemble_seconds = 0, setup_seconds = 0, solve_seconds = 0;
+  // The direct solve: lu describes the stage that produced the solution (lu.backend is that stage's backend; `solver`
+  // stays the configured one). lu.matching is that stage's MC64 job for a STRUMPACK stage and the configured
+  // lu_matching for an Eigen stage (MC64 is a STRUMPACK option).
   LUStats lu;
+  std::string lu_stage;              // the stage that produced the solution of the direct solve (LUStage::name())
+  std::vector<LUAttempt> lu_attempts;  // that solve's attempts, one per stage tried
+  // Aliases kept for one release, derived from the attempts: the solution is not the first stage's
+  // (lu_matching_retry), the first stage's reason then (else ""), and its plain-solve residual and GMRES iterations
+  // then (else -1 and 0).
   std::string lu_matching_retry_reason;
-  double lu_first_attempt_residual_before = -1;  // the matching-free attempt's plain-solve residual, kept when it is retried
-  int lu_first_attempt_krylov_iterations = 0;    // ... and its GMRES iterations
-  bool lu_matching_retry = false;  // the matching-free factorization failed or missed the gate; solved with the matching
+  double lu_first_attempt_residual_before = -1;
+  int lu_first_attempt_krylov_iterations = 0;
+  bool lu_matching_retry = false;
   int ranks = 1, threads = 1;
 };
 
@@ -280,6 +292,11 @@ class StokesSolver {
   const StokesDiagnostics& solve();
   const StokesDiagnostics& diagnostics() const { return diag_; }
   const StokesOptions& options() const { return opt_; }
+  // The chain of the direct solve's sparse LU: StokesOptions::lu_chain when given, else default_chain of `lu` with the
+  // first matching of lu_matching, whose capped Eigen retry stage is then capped by the mesh dimension instead
+  // (kLUEigenRetryMaxN3D on a 3D mesh, kLUEigenRetryMaxN otherwise): the cap bounds the time of a 3D factorization,
+  // whatever the first matching is.
+  std::vector<LUStage> lu_chain() const;
 
   // Solution fields. Throw axmp::Error unless the last solve converged. Pressure: zero mean (r-weighted, i.e. the 3D
   // mean, in axisymmetry) for an enclosed flow

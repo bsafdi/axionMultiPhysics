@@ -18,7 +18,9 @@ live in `benchmarks/chem/` and use the same runner.
 
 A case definition has these fields:
 
-- `id`, `capability` (the group the case belongs to, see below), `title`, `physics`;
+- `id`, `capability` (the group the case belongs to, see below), `title`, `physics`, and optionally `notes`: what a
+  reader of the case has to know and the acceptance items do not say (a derivation, a measured number behind a
+  tolerance, a limitation of the case);
 - `levels`: which kinds of evidence the case provides (`mms`, `analytic`, `conservation`, `cross_code`,
   `literature`);
 - `run.runner`: `module` and `function` of the runner (a function `fn(params, workdir, quick)` returning

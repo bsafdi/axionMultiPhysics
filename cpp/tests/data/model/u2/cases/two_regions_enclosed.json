@@ -1,0 +1,78 @@
+{
+  "name": "two_regions_enclosed",
+  "test": "tests/test_fluids_model_bridge.py::test_two_regions_one_fluid_enclosed",
+  "description": "(i) Stokes, Laplacian form, in both regions of split_rect: no-slip on hot and cold, the lid 4 U x (L - x) / L^2 on the top and no-slip on the bottom (both are the remaining attributes, so the lid is a function of position); compared with the same mesh given one element attribute (fluids.Mesh.from_arrays of the bridge mesh's arrays and nodes)",
+  "build": "mpi",
+  "mesh": "the mesher's unstructured mesh of the document (gmsh, bounded planar mode, algorithm and options of axmp-mesher), mesh.size = H/8, region a H/16, geometry order 2 (the default: straight edges, with nodes); one process",
+  "instance": null,
+  "solver": {
+    "solver": "direct",
+    "lu": "the build's default (fluids.default_lu())",
+    "lu_threads": 1,
+    "lu_retry": "auto",
+    "direct_tol": 1e-10,
+    "form": "laplacian"
+  },
+  "data": {"nu": 1e-06, "U": 0.01, "L": 0.04, "H": 0.01},
+  "tolerance": {
+    "u_one_attribute": {
+      "what": "max |u - u_one| / U at the seven sample points (vertices, edge midpoints, centroid) of every element",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 0.0,
+        "AMD EPYC 7401 24-Core Processor / mpi": 0.0,
+        "AMD EPYC 7452 32-Core Processor / mpi": 0.0
+      },
+      "asserted": 1e-12
+    },
+    "p_one_attribute": {
+      "what": "max |p - p_one| / max |p| at the seven sample points (vertices, edge midpoints, centroid) of every element (zero-mean pressures)",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 0.0,
+        "AMD EPYC 7401 24-Core Processor / mpi": 0.0,
+        "AMD EPYC 7452 32-Core Processor / mpi": 0.0
+      },
+      "asserted": 1e-12
+    }
+  },
+  "recorded": {},
+  "unrecorded_platforms": [
+    "the lr7 nodes of feature rocky8 (n0150 to n0153), a second processor model of the lr7 partition",
+    "any other partition the gate is pointed at"
+  ],
+  "document": {
+    "schema": "axionmultiphysics.design/1",
+    "name": "split_rect",
+    "description": "a rectangle L x H split at x = L/2 into the regions a and b; a marker across a at x = L/4, written bottom to top; a third region c, disabled; top and bottom left unnamed",
+    "symmetry": "planar",
+    "parameters": {"L": 0.04, "H": 0.01, "k": 0.6, "cp": 4180.0, "rho": 998.0},
+    "materials": {"slab": {"density": "rho", "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+    "regions": [
+      {"name": "a", "shape": {"rect": {"x": [0, "L/2"], "y": [0, "H"]}}, "material": "slab", "mesh_size": "H/16"},
+      {"name": "b", "shape": {"rect": {"x": ["L/2", "L"], "y": [0, "H"]}}, "material": "slab"},
+      {"name": "c", "shape": {"rect": {"x": ["L", "1.5*L"], "y": [0, "H"]}}, "material": "slab", "enabled": false}
+    ],
+    "curves": [{"name": "mk_line", "path": {"segment": [["L/4", 0], ["L/4", "H"]]}}],
+    "domains": {"left": ["a"], "slab_all": ["a", "b", "c"]},
+    "boundaries": {
+      "hot": {"of": "left", "where": {"x": 0}},
+      "cold": {"of": "b", "where": {"x": "L"}},
+      "interface": {"between": ["left", "b"]},
+      "mk": {"curve": "mk_line"}
+    },
+    "physics": {
+      "heat": {
+        "type": "heat.transfer",
+        "domains": ["slab_all"],
+        "boundary_conditions": {
+          "hot": {"kind": "temperature", "T_K": 310.0},
+          "cold": {"kind": "temperature", "T_K": 290.0},
+          "remaining": {"kind": "insulation"}
+        }
+      }
+    },
+    "outputs": {"Q_mk": {"kind": "flux", "of": "heat", "on": "mk"}},
+    "mesh": {"size": "H/8"}
+  }
+}

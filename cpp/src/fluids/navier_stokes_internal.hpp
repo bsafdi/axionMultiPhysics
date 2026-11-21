@@ -4,7 +4,10 @@
 
 #include <mfem.hpp>
 
+#include <algorithm>
+#include <cmath>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
@@ -75,6 +78,16 @@ struct NavierStokesSolver::Impl {
   std::unique_ptr<mfem::HypreParMatrix> Mu, Mp, Mu_one, Mu_zero, Mp_one;
   DistCsr Mu_csr, Mp_csr;
   std::unique_ptr<SparseLU> Mu_lu, Mp_lu;
+  // worst relative residual of the dual-norm mass solves (Mu_lu, Mp_lu, Ma_lu) since the last reset; -1: none taken.
+  // The gate is kDualMassResidualMax (sparse_lu.hpp); solve() reads it. mass_escalated: the mass solves since the last
+  // reset that took more than one attempt of the chain.
+  mutable double mass_res_max = -1;
+  mutable long mass_escalated = 0;
+  void note_mass_solve(const SparseLU& lu) const {
+    const double r = lu.stats().rel_residual;
+    mass_res_max = std::max(mass_res_max, std::isfinite(r) ? r : std::numeric_limits<double>::infinity());
+    if (lu.attempts().size() > 1) ++mass_escalated;
+  }
   std::unique_ptr<mfem::Coefficient> one, rweight;
   int qm = 6;
   // the current state (true DOFs; internal pressure, not normalized)
@@ -90,9 +103,6 @@ struct NavierStokesSolver::Impl {
   DistCsr Ma_csr;
   std::unique_ptr<SparseLU> Ma_lu;
   mfem::SparseMatrix* Kuu_sp = nullptr;
-  // transient steps (transient_ns.hpp): direct solves repeated on another LU configuration (cumulative) and the last one
-  long lu_fallbacks_solve = 0;
-  std::string lu_fallback_name;
   // time term: residual += zero_ess(tr_c Mt u - tr_hist); Jacobian += tr_c Mtz (Mt = Mu, Mtz = Mu_zero)
   double tr_c = 0.0;
   mfem::Vector tr_hist;
@@ -141,13 +151,17 @@ struct NavierStokesSolver::Impl {
   }
   double dual(const mfem::Vector& Ru, const mfem::Vector& Rp) const {
     std::vector<double> bu(Ru.GetData(), Ru.GetData() + nu_loc), bp(Rp.GetData(), Rp.GetData() + np_loc);
-    std::vector<double> yu = Mu_lu->solve(bu), yp = Mp_lu->solve(bp);
+    std::vector<double> yu = Mu_lu->solve(bu);
+    note_mass_solve(*Mu_lu);
+    std::vector<double> yp = Mp_lu->solve(bp);
+    note_mass_solve(*Mp_lu);
     double loc = 0, glob = 0;
     for (int i = 0; i < nu_loc; ++i) loc += bu[i] * yu[i];
     for (int i = 0; i < np_loc; ++i) loc += bp[i] * yp[i];
     if (M) {
       std::vector<double> ba(Rp.GetData() + np_loc, Rp.GetData() + np_loc + na);
       std::vector<double> ya = Ma_lu->solve(ba);
+      note_mass_solve(*Ma_lu);
       for (int i = 0; i < na; ++i) loc += ba[i] * ya[i];
     }
     MPI_Allreduce(&loc, &glob, 1, MPI_DOUBLE, MPI_SUM, comm);

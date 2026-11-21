@@ -1,0 +1,79 @@
+{
+  "name": "two_layer",
+  "test": "tests/test_fluids_model_bridge.py::test_two_regions_one_fluid_two_layers",
+  "description": "(iii) the channel split along the flow at y = h = H/2, viscosity nu_lower below and nu_upper = 4 nu_lower above (a Python callable of position), the two-layer inflow profile as a callable on inlet, do_nothing on outlet, no-slip on walls, Laplacian form: the two-layer Poiseuille flow (quadratic in each layer, u and nu du/dy continuous at y = h) and p = G (L - x), exact in P2/P1 since the interface is a mesh line",
+  "build": "mpi",
+  "mesh": "the mesher's unstructured mesh of the document (gmsh, bounded planar mode, algorithm and options of axmp-mesher), mesh.size = H/8, geometry order 2 (the default: straight edges, with nodes); one process",
+  "instance": null,
+  "solver": {
+    "solver": "direct",
+    "lu": "the build's default (fluids.default_lu())",
+    "lu_threads": 1,
+    "lu_retry": "auto",
+    "direct_tol": 1e-10,
+    "form": "laplacian"
+  },
+  "data": {"L": 0.04, "H": 0.01, "h": 0.005, "nu_lower": 1e-06, "nu_upper": 4e-06, "G": 0.002},
+  "tolerance": {
+    "u": {
+      "what": "max |u - u_2layer| / max u_2layer at the seven sample points (vertices, edge midpoints, centroid) of every element",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 2.0637244380725217e-14,
+        "AMD EPYC 7401 24-Core Processor / mpi": 2.0634444348165093e-14,
+        "AMD EPYC 7452 32-Core Processor / mpi": 2.0634444348165093e-14
+      },
+      "asserted": 1e-12
+    },
+    "p": {
+      "what": "max |p - G (L - x)| / (G L) at the seven sample points (vertices, edge midpoints, centroid) of every element",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 9.825582188149882e-15,
+        "AMD EPYC 7401 24-Core Processor / mpi": 9.994988777600742e-15,
+        "AMD EPYC 7452 32-Core Processor / mpi": 9.994988777600742e-15
+      },
+      "asserted": 1e-12
+    }
+  },
+  "recorded": {},
+  "unrecorded_platforms": [
+    "the lr7 nodes of feature rocky8 (n0150 to n0153), a second processor model of the lr7 partition",
+    "any other partition the gate is pointed at"
+  ],
+  "document": {
+    "schema": "axionmultiphysics.design/1",
+    "name": "two_layer",
+    "description": "a channel L x H split along the flow at y = H/2 into the layers 'lower' and 'upper', whose viscosities differ by the factor 4; inlet at x = 0 and outlet at x = L across both layers, walls at y = 0 and y = H; 'mid' is the interface, interior to the flow. The inflow written here is a placeholder: the bridge test gives the two-layer profile as a callable",
+    "symmetry": "planar",
+    "parameters": {"L": 0.04, "H": 0.01, "rho": 1000.0, "mu_lo": 0.001, "mu_hi": 0.004},
+    "materials": {
+      "thin": {"density": "rho", "fluid": {"mu_Pa_s": "mu_lo"}},
+      "thick": {"density": "rho", "fluid": {"mu_Pa_s": "mu_hi"}}
+    },
+    "regions": [
+      {"name": "lower", "shape": {"rect": {"x": [0, "L"], "y": [0, "H/2"]}}, "material": "thin"},
+      {"name": "upper", "shape": {"rect": {"x": [0, "L"], "y": ["H/2", "H"]}}, "material": "thick"}
+    ],
+    "domains": {"channel": ["lower", "upper"]},
+    "boundaries": {
+      "inlet": {"of": "channel", "where": {"x": 0}},
+      "outlet": {"of": "channel", "where": {"x": "L"}},
+      "walls": {"of": "channel", "except": ["inlet", "outlet"]},
+      "mid": {"between": ["lower", "upper"]}
+    },
+    "physics": {
+      "flow": {
+        "type": "fluid.incompressible",
+        "domains": ["channel"],
+        "options": {"equation": "stokes", "viscous_form": "laplacian"},
+        "boundary_conditions": {
+          "inlet": {"kind": "inlet", "velocity_m_s": [0.01, 0]},
+          "outlet": {"kind": "outlet", "pressure_Pa": 0},
+          "walls": {"kind": "wall"}
+        }
+      }
+    },
+    "mesh": {"size": "H/8"}
+  }
+}

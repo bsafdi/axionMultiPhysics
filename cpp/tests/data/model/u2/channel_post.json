@@ -1,0 +1,27 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "channel_post",
+  "description": "a channel L x H with a disk region 'post' of radius R inside it; the instance lives in the channel only, so the post is not in its mesh and 'cylinder' is a boundary of it",
+  "symmetry": "planar",
+  "parameters": {"L": 0.04, "H": 0.01, "R": 0.002, "k": 0.6, "cp": 4180.0, "rho": 998.0},
+  "materials": {"slab": {"density": "rho", "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+  "regions": [
+    {"name": "channel", "shape": {"rect": {"x": [0, "L"], "y": [0, "H"]}}, "material": "slab"},
+    {"name": "post", "shape": {"disk": {"center": ["L/4", "H/2"], "radius": "R"}}, "material": "slab"}
+  ],
+  "domains": {"fluid": ["channel"]},
+  "boundaries": {
+    "inlet": {"of": "channel", "where": {"x": 0}},
+    "outlet": {"of": "channel", "where": {"x": "L"}},
+    "cylinder": {"between": ["channel", "post"]},
+    "walls": {"of": "channel", "except": ["inlet", "outlet", "cylinder"]}
+  },
+  "physics": {
+    "heat": {"type": "heat.transfer", "domains": ["fluid"],
+             "boundary_conditions": {"inlet": {"kind": "temperature", "T_K": 300.0},
+                                     "outlet": {"kind": "temperature", "T_K": 290.0},
+                                     "walls": {"kind": "insulation"},
+                                     "cylinder": {"kind": "insulation"}}}
+  },
+  "mesh": {"size": "H/8"}
+}

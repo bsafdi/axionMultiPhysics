@@ -1,0 +1,232 @@
+{
+  "boundaries": {
+    "cold": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "cavity",
+        "where": {
+          "x": "Lc"
+        }
+      },
+      "used_by": [
+        "heat"
+      ]
+    },
+    "hot": {
+      "resolution": "deferred",
+      "selector": {
+        "of": "cavity",
+        "where": {
+          "x": 0
+        }
+      },
+      "used_by": [
+        "heat"
+      ]
+    }
+  },
+  "couplings": [
+    {
+      "data": {},
+      "from": "flow",
+      "term": "advection",
+      "to": "heat"
+    },
+    {
+      "data": {
+        "T_ref_K": "0.5*(T_hot+T_cold)",
+        "gravity_m_s2": [
+          0,
+          -9.81
+        ]
+      },
+      "from": "heat",
+      "term": "buoyancy",
+      "to": "flow"
+    }
+  ],
+  "description": "differentially heated square air cavity, Boussinesq natural convection, Ra = 1.0e5, Pr = 0.70",
+  "materials": {
+    "air": {
+      "density": 1.2,
+      "fluid": {
+        "beta_1_K": 0.0034,
+        "mu_Pa_s": 1.8e-05
+      },
+      "thermal": {
+        "cp_J_kgK": 1005,
+        "k_W_mK": 0.026
+      }
+    }
+  },
+  "mesh": {
+    "geometry_order": 2,
+    "geometry_order_origin": "default",
+    "size": 0.0014375
+  },
+  "name": "heated_cavity",
+  "outputs": [
+    "Q_hot",
+    "Nu",
+    "Q_cold",
+    "u_max"
+  ],
+  "parameters": {
+    "Lc": 0.046,
+    "T_cold": 293.15,
+    "T_hot": 303.15,
+    "beta": 0.0034,
+    "cp": 1005,
+    "k": 0.026,
+    "mu": 1.8e-05,
+    "rho": 1.2
+  },
+  "physics": {
+    "flow": {
+      "conditions": {
+        "remaining": {
+          "data": {},
+          "engine_form": "dirichlet 0",
+          "kind": "wall"
+        }
+      },
+      "domains": [
+        "cavity"
+      ],
+      "options": {
+        "convection": {
+          "origin": "default",
+          "value": "standard"
+        },
+        "equation": {
+          "origin": "written",
+          "value": "navier_stokes"
+        },
+        "order": {
+          "origin": "default",
+          "value": 2
+        },
+        "viscous_form": {
+          "origin": "default",
+          "value": "stress"
+        }
+      },
+      "status": "beta",
+      "type": "fluid.incompressible"
+    },
+    "heat": {
+      "conditions": {
+        "cold": {
+          "data": {
+            "T_K": "T_cold"
+          },
+          "engine_form": "dirichlet",
+          "kind": "temperature"
+        },
+        "hot": {
+          "data": {
+            "T_K": "T_hot"
+          },
+          "engine_form": "dirichlet",
+          "kind": "temperature"
+        },
+        "remaining": {
+          "data": {},
+          "engine_form": "natural: k dT/dn = 0",
+          "kind": "insulation"
+        }
+      },
+      "domains": [
+        "cavity"
+      ],
+      "options": {
+        "advective_form": {
+          "origin": "default",
+          "value": "convective"
+        },
+        "order": {
+          "origin": "default",
+          "value": 2
+        },
+        "stabilization": {
+          "origin": "default",
+          "value": "none"
+        }
+      },
+      "status": "beta",
+      "type": "heat.transfer"
+    }
+  },
+  "regions": [
+    {
+      "material": "air",
+      "name": "cavity"
+    }
+  ],
+  "remaining": {
+    "used_by": [
+      "flow",
+      "heat"
+    ]
+  },
+  "routes": [
+    {
+      "implemented": false,
+      "needs": {
+        "engine_3d": false,
+        "fluids": true,
+        "max_ranks": 1,
+        "mesher": true,
+        "mpi": true
+      },
+      "physics": [
+        "flow",
+        "heat"
+      ],
+      "route": "boussinesq_planar",
+      "step": "steady"
+    }
+  ],
+  "schema": "axionmultiphysics.explain/1",
+  "status": "beta",
+  "study": [
+    {
+      "continuation": {
+        "scale": "buoyancy",
+        "values": [
+          0.01,
+          0.1,
+          1.0
+        ]
+      },
+      "coupling": {
+        "strategy": "monolithic",
+        "strategy_origin": "written"
+      },
+      "id": "steady",
+      "origin": "written",
+      "physics": [
+        "flow",
+        "heat"
+      ],
+      "solvers": {
+        "flow": {
+          "line_search": {
+            "origin": "default",
+            "value": true
+          },
+          "newton_maxit": {
+            "origin": "default",
+            "value": 30
+          },
+          "newton_rtol": {
+            "origin": "default",
+            "value": 1e-12
+          }
+        }
+      },
+      "type": "stationary"
+    }
+  ],
+  "symmetry": "planar"
+}

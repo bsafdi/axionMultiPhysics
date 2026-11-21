@@ -1,6 +1,7 @@
 // 2D full-wave model on an imported mesh (planar or axisymmetric). Beta.
 // Formulation and conventions: axionmultiphysics/fw2d.hpp, docs/physics/fw2d.md and docs/comsol_import.md.
 #include "axionmultiphysics/fw2d.hpp"
+#include "bdr_face.hpp"
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
@@ -274,7 +275,7 @@ struct Fw2DModel::Impl {
   };
   Side side(int be) const {
     Side s;
-    const int fn = mesh->GetBdrElementFaceIndex(be);
+    const int fn = checked_bdr_face(*mesh, be);
     s.ft = mesh->GetFaceElementTransformations(fn);
     const int e1 = s.ft->Elem1No, e2 = s.ft->Elem2No;
     s.use2 = (e1 < 0 || is_pec_mat(emat[e1])) && e2 >= 0;
@@ -402,6 +403,19 @@ void Fw2DModel::run(const SolveOptions& o) {
   AXMP_REQUIRE(mesh.Dimension() == 2 && mesh.SpaceDimension() == 2,
               strcat("mesh.file '", d_.mesh.file, "' is not a 2D mesh in the plane (dimension ", mesh.Dimension(),
                      ", space dimension ", mesh.SpaceDimension(), ")"), "/mesh/file");
+  {
+    mesh_quality::UntangledOptions untangled;
+    untangled.where = "/mesh/file";
+    untangled.coords_2d = P.axi ? "(r, z)" : "(x, y)";
+    untangled.imported = true;
+    mesh_quality::require_untangled(
+        mesh,
+        [&](int a) {  // region k owns the attribute 2 + k
+          const int k = a - 2;
+          return k >= 0 && k < static_cast<int>(d_.regions.size()) ? d_.regions[k].name : strcat("attribute ", a);
+        },
+        d_.mesh.file, untangled);
+  }
   json info;
   {
     std::ifstream f(d_.mesh.info_file);
@@ -512,14 +526,14 @@ void Fw2DModel::run(const SolveOptions& o) {
     const int a = mesh.GetBdrAttribute(be);
     if (P.groups.count(a)) continue;
     int e1, e2;
-    mesh.GetFaceElements(mesh.GetBdrElementFaceIndex(be), &e1, &e2);
+    mesh.GetFaceElements(checked_bdr_face(mesh, be), &e1, &e2);
     AXMP_REQUIRE(e2 >= 0, strcat("exterior boundary attribute ", a, " has no boundary group in mesh.info_file"),
                 "/mesh/info_file", "Every exterior boundary needs a type (pec, pmc, axis, port, impedance, scattering).");
   }
   // every exterior edge needs a boundary element (otherwise it would silently be a PMC wall)
   {
     std::set<int> bfaces;
-    for (int be = 0; be < mesh.GetNBE(); ++be) bfaces.insert(mesh.GetBdrElementFaceIndex(be));
+    for (int be = 0; be < mesh.GetNBE(); ++be) bfaces.insert(checked_bdr_face(mesh, be));
     int missing = 0;
     double where[2] = {0, 0};
     for (int f = 0; f < mesh.GetNumFaces(); ++f) {
@@ -545,7 +559,7 @@ void Fw2DModel::run(const SolveOptions& o) {
     if (it == P.groups.end()) continue;
     const auto& g = it->second;
     int e1, e2;
-    const int fidx = mesh.GetBdrElementFaceIndex(be);
+    const int fidx = checked_bdr_face(mesh, be);
     mesh.GetFaceElements(fidx, &e1, &e2);
     const bool c1 = is_pec_mat(P.emat[e1]), c2 = e2 >= 0 && is_pec_mat(P.emat[e2]);
     const bool interior = e2 >= 0 && !c1 && !c2;   // field on both sides

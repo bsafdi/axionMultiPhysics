@@ -1,0 +1,42 @@
+{
+  "about": "Every call site of axmp::spec::parse_design under cpp/src, cpp/apps and cpp/python (the scope of the entry-point table of design note 3.2), as file: function with the number of calls in that function, and the C++ test files that call it (outside the table). tests/test_parse_design_sites.py compares this file with the source. A site that appears or disappears changes this file and the table of 3.2 in the same change. Roles: served (the function tests is_model_document before it parses: a model document takes the model path); em_only (the function calls require_em_document, which names the operation, before it parses); unserved (the function refuses a model document with route.not_implemented before it parses: solving, which takes one in a later version); behind_entry (a library function whose entry points refuse a model document, or send it to the model path, before calling it; the guard of parse_design is its backstop); backstop (a library function with no entry point of its own that names an operation; the guard of parse_design refuses a model document there, with details.operation null); em_internal (its document is an electromagnetic design already parsed, never the user's); synthetic (it parses a one-region document that it builds itself, never the user's); test (a private entry point for the tests).",
+  "scope": ["cpp/src", "cpp/apps", "cpp/python"],
+  "sites": [
+    {"file": "cpp/apps/axmp.cpp", "function": "axmp validate", "count": 1, "role": "served"},
+    {"file": "cpp/apps/axmp.cpp", "function": "axmp resolve", "count": 1, "role": "served"},
+    {"file": "cpp/apps/axmp.cpp", "function": "axmp solve", "count": 4, "role": "unserved"},
+    {"file": "cpp/apps/axmp.cpp", "function": "axmp sensitivities", "count": 1, "role": "em_only"},
+    {"file": "cpp/src/model_explain.cpp", "function": "patch_document", "count": 1, "role": "served"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.validate", "count": 1, "role": "served"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.resolve", "count": 1, "role": "served"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.conductor_jc", "count": 1, "role": "synthetic"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.surface_resistance", "count": 1, "role": "synthetic"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.requirement", "count": 1, "role": "synthetic"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core._parse_design_for_tests", "count": 1, "role": "test"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.Model3D.__init__", "count": 1, "role": "em_only"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.XsecModel.__init__", "count": 1, "role": "em_only"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.Fw2DModel.__init__", "count": 1, "role": "em_only"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.Model.__init__", "count": 1, "role": "em_only"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core._material_densities", "count": 1, "role": "em_only"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.mesher_input_3d", "count": 1, "role": "em_only"},
+    {"file": "cpp/src/adjoint.cpp", "function": "perturbed", "count": 1, "role": "em_internal"},
+    {"file": "cpp/src/model.cpp", "function": "run_design", "count": 1, "role": "backstop"},
+    {"file": "cpp/src/model3d.cpp", "function": "Model3D::load", "count": 1, "role": "backstop"},
+    {"file": "cpp/src/model3d.cpp", "function": "mesh_any", "count": 1, "role": "behind_entry"},
+    {"file": "cpp/src/model3d.cpp", "function": "run_any", "count": 1, "role": "behind_entry"},
+    {"file": "cpp/src/model3d_nompi.cpp", "function": "mesh_any", "count": 1, "role": "behind_entry"},
+    {"file": "cpp/src/model3d_nompi.cpp", "function": "run_any", "count": 1, "role": "behind_entry"}
+  ],
+  "entry_points_without_a_site": [
+    {"file": "cpp/apps/axmp.cpp", "function": "axmp mesh", "role": "served", "calls": "mesh_any"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.mesh", "role": "served", "calls": "mesh_any"},
+    {"file": "cpp/python/bindings.cpp", "function": "_core.run_3d", "role": "unserved", "calls": "run_any"}
+  ],
+  "tests": [
+    "cpp/tests/test_breakdown_mesh_check.cpp",
+    "cpp/tests/test_model_mech_accessors.cpp",
+    "cpp/tests/test_model_switch.cpp",
+    "cpp/tests/test_spec_model.cpp",
+    "cpp/tests/test_spec_model_materials.cpp"
+  ]
+}

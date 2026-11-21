@@ -1,0 +1,194 @@
+{
+ "format": "axionmultiphysics.g0/1",
+ "tier_a": {
+  "designs": [
+   {
+    "id": "examples_cavity_pillbox",
+    "path": "examples/cavity_pillbox.json"
+   },
+   {
+    "id": "examples_comsol_toroid_comsol_toroid_lossless",
+    "path": "examples/comsol_toroid/comsol_toroid_lossless.json"
+   },
+   {
+    "id": "examples_comsol_toroid_comsol_toroid_lossy",
+    "path": "examples/comsol_toroid/comsol_toroid_lossy.json"
+   },
+   {
+    "id": "examples_hts_shield",
+    "path": "examples/hts_shield.json"
+   },
+   {
+    "id": "examples_long_solenoid_coax",
+    "path": "examples/long_solenoid_coax.json"
+   },
+   {
+    "id": "examples_pickup_capacitance",
+    "path": "examples/pickup_capacitance.json"
+   },
+   {
+    "id": "benchmarks_designs_curved_probe_shell",
+    "path": "benchmarks/designs/curved_probe_shell.json"
+   },
+   {
+    "id": "benchmarks_designs_solenoid_exterior",
+    "path": "benchmarks/designs/solenoid_exterior.json"
+   },
+   {
+    "id": "benchmarks_designs_stage1_twoport",
+    "path": "benchmarks/designs/stage1_twoport.json"
+   },
+   {
+    "id": "template_core",
+    "template": "core"
+   },
+   {
+    "id": "template_solenoid",
+    "template": "solenoid"
+   },
+   {
+    "id": "template_toroid",
+    "template": "toroid"
+   },
+   {
+    "id": "g0_designs_circuits_curves_scan",
+    "path": "tests/g0/designs/circuits_curves_scan.json"
+   },
+   {
+    "id": "g0_designs_mechanics_axi",
+    "path": "tests/g0/designs/mechanics_axi.json"
+   },
+   {
+    "id": "g0_designs_ring3d",
+    "path": "tests/g0/designs/ring3d.json"
+   },
+   {
+    "id": "g0_designs_ring3d_curved",
+    "path": "tests/g0/designs/ring3d_curved.json"
+   },
+   {
+    "id": "g0_designs_stage1_twoport_curved",
+    "path": "tests/g0/designs/stage1_twoport_curved.json"
+   },
+   {
+    "id": "g0_designs_thermal_axi",
+    "path": "tests/g0/designs/thermal_axi.json"
+   }
+  ]
+ },
+ "tier_b": [
+  {
+   "id": "template_toroid",
+   "template": "toroid",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "template_solenoid",
+   "template": "solenoid",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "template_core",
+   "template": "core",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "example_cavity_pillbox",
+   "design": "examples/cavity_pillbox.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "example_pickup_capacitance",
+   "design": "examples/pickup_capacitance.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "example_long_solenoid_coax",
+   "design": "examples/long_solenoid_coax.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "example_hts_shield",
+   "design": "examples/hts_shield.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "mesh_3d_stage1_twoport",
+   "design": "benchmarks/designs/stage1_twoport.json",
+   "op": "mesh",
+   "args": [],
+   "requires_engine_3d": true
+  },
+  {
+   "id": "mesh_3d_stage1_twoport_curved",
+   "design": "tests/g0/designs/stage1_twoport_curved.json",
+   "op": "mesh",
+   "args": [],
+   "requires_engine_3d": true
+  },
+  {
+   "id": "design_circuits_curves_scan",
+   "design": "tests/g0/designs/circuits_curves_scan.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "design_mechanics_axi",
+   "design": "tests/g0/designs/mechanics_axi.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "design_thermal_axi",
+   "design": "tests/g0/designs/thermal_axi.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ]
+  },
+  {
+   "id": "solve_3d_ring",
+   "design": "tests/g0/designs/ring3d.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ],
+   "requires_engine_3d": true
+  },
+  {
+   "id": "solve_3d_ring_curved",
+   "design": "tests/g0/designs/ring3d_curved.json",
+   "op": "solve",
+   "args": [
+    "--scene"
+   ],
+   "requires_engine_3d": true
+  }
+ ],
+ "allowed_new_files": []
+}

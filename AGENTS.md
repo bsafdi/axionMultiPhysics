@@ -87,6 +87,16 @@ AXMP_MPI=1 python -m pytest -q tests             # adds the tests that start sev
   `sbatch` command line.
 - `.github/workflows/ci.yml` lists what runs on each pull request (sequential Linux and macOS builds, an MPI build
   with the 3D, fluids and chemistry tests) and what runs weekly.
+- **The compatibility gate G0** (`tests/g0/`, [docs/developer/g0.md](docs/developer/g0.md)) records what an existing
+  design observes (messages, exit statuses, mesher inputs, meshes, results) and compares every build with the record.
+  Its byte-level tier is pinned to one platform, one node type of the development cluster, where every merge runs it;
+  the hosted runners are compared at the text and physics tiers. A change that makes it fail is wrong unless the change
+  of behaviour is intended: fix the change, not the record.
+- **A G0 baseline changes only through a separate commit** that says what behaviour changed and why, where it was
+  recorded, and holds the files as `tests/g0/g0.py` wrote them (the reference platform is recorded in a batch job on a
+  node of the pinned type; a hosted platform by a `record` dispatch of `.github/workflows/g0.yml`). Nothing under
+  `tests/g0/baseline/` or `tests/g0/spread/`, nor `tests/g0/tolerances.json` or `tests/g0/pending.json`, is edited by
+  hand.
 
 #### Quick subset and full suite
 
@@ -162,6 +172,16 @@ dates, no people, no branch names.
   link it, and the wheels do not redistribute it (the `mesh` extra installs gmsh's own wheel).
 - three.js (MIT) is vendored unmodified in `viewer/vendor/`; its checksums are in `viewer/vendor/README.md` and
   checked by `tests/test_viewer.py`.
+- The process rule for particle transport and event generation:
+  `libaxionmultiphysics`, `_core` and `axmp` link only permissively licensed code. Geant4, whose builds always
+  contain LGPL-3 CLHEP, is used only by `axmp-transport`. Pythia (GPL) is used only by the generator process, which
+  links and imports nothing of axionMultiPhysics. Geant4 and Pythia never run in one process. All of them exchange
+  files. The package never imports `pythia8mc`, `pythia8` or a Geant4 binding in its own process. The wheels contain
+  no Geant4, CLHEP or Pythia code. No GPL or LGPL code is copied into the repository. `tests/test_process_rule.py`
+  enforces it.
+- `axmp-transport` and any other Geant4 application of ours are written from Geant4's API documentation. Geant4's
+  example files carry the Geant4 Software License header, so none is copied, even in part.
+- No container image that contains Geant4 is published without a licence review; `docker/` holds recipes only.
 - A new dependency needs a compatible licence, a pinned version, a checksum in `third_party/SHA256SUMS.txt` and a
   line in the install docs.
 

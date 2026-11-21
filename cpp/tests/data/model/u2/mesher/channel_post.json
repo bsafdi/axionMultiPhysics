@@ -1,0 +1,87 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "channel",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      0.04
+     ],
+     "z": [
+      0,
+      0.01
+     ]
+    }
+   }
+  },
+  {
+   "name": "post",
+   "attr": 2,
+   "shape": {
+    "disk": {
+     "center": [
+      0.01,
+      0.005
+     ],
+     "radius": 0.002
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "inlet": {
+   "of": [
+    "channel"
+   ],
+   "where": {
+    "x": [
+     0
+    ]
+   }
+  },
+  "outlet": {
+   "of": [
+    "channel"
+   ],
+   "where": {
+    "x": [
+     0.04
+    ]
+   }
+  },
+  "wall": {
+   "between": [
+    [
+     "channel"
+    ],
+    "exterior"
+   ],
+   "except": [
+    "inlet",
+    "outlet"
+   ]
+  },
+  "cylinder": {
+   "between": [
+    [
+     "channel"
+    ],
+    [
+     "post"
+    ]
+   ]
+  }
+ },
+ "size": 0.001,
+ "surface_size": 0.001,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

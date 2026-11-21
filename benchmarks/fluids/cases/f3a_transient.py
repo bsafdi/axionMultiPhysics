@@ -96,27 +96,60 @@ class Rec:
         self.ident = core_identity()
         self.runs, self.ser, self.acc, self.notes = [], {}, Acc(), []
         self.failed = []
+        self._starts = []  # (solver, projection_residual, failure or None) of every start(); entry() takes its solver's
         self.t0 = time.time()
 
     def levels(self, seq, n=2):
         seq = list(seq)
         return seq[:n] if self.quick else seq
 
+    def start(self, solver, u0):
+        """solver.initialize(u0, 0, project=True) with its verdict read and kept for THIS solver: entry() records the
+        projection residual with the level and, when the projection missed its accuracy gate, records the level as not
+        converged and says why, so the acceptance check judges it. A failed initialization leaves the integrator without
+        a valid state and makes it refuse to step; the level is then re-initialized from the unprojected interpolant
+        only so that it can be completed and reported as failed. Its numbers are not to be trusted, and result() fails
+        the case even if entry() is never reached for that solver."""
+        ok = bool(solver.initialize(u0, 0.0, True))
+        res = float(solver.diagnostics.get("projection_residual", -1.0))
+        bad = None
+        if not ok:
+            bad = f"the initial Leray projection missed its accuracy gate (projection_residual {res:.3e})"
+            self.notes.append(bad)
+            solver.initialize(u0, 0.0, False)
+        self._starts.append((solver, res, bad))
+        return ok
+
     def entry(self, label, ts, form, axi, *, dt=None, dt_max_ratio=None, mesh=None, seconds=0.0, options=None,
               stats=None):
         d = ts.diagnostics
         st = stats if stats is not None else ts.stats
-        ok = bool(st["all_converged"])
+        proj, bad = None, None
+        for k, (who, res, why) in enumerate(self._starts):
+            if who is ts:
+                proj, bad = res, why
+                del self._starts[k]
+                break
+        ok = bool(st["all_converged"]) and bad is None
         if not ok:
             self.failed.append(label)
         e = {"level": label,
              "mesh": dict(mesh or {}),
              "solver": {"converged": ok, "relative_residual": float(st["max_relative_residual"]),
                         "iterations": int(st["newton_iterations"]), "solves": int(st["solves"]),
-                        "failure": st.get("failure") or None, "strategy": d.get("strategy"),
+                        "failure": st.get("failure") or bad or None, "strategy": d.get("strategy"),
+                        # the margins of the accuracy gates: the initial projection's saddle residual (None: this level
+                        # was not started with a projection) and the worst refined residual of a direct solve and of a
+                        # dual-norm mass solve over the level (-1: none recorded)
+                        "projection_residual": proj, "lu_residual_max": float(st.get("lu_residual_max", -1.0)),
+                        "mass_lu_residual_max": float(st.get("mass_lu_residual_max", -1.0)),
                         "convection": d.get("convection"), "viscous_form": form,
                         "geometry": "axisymmetric" if axi else "planar", "kind": d.get("solver"),
-                        "lu_backend": d.get("lu_backend"), "lu_fallbacks": int(st.get("lu_fallbacks", 0)),
+                        # the sparse LU chain over the level's step solves: the solves that needed another stage,
+                        # the attempts of all of them, the solves no stage accepted; then the aliases of one release
+                        "lu_backend": d.get("lu_backend"), "lu_escalated": int(st.get("lu_escalated", 0)),
+                        "lu_attempts": int(st.get("lu_attempts_total", 0)), "lu_failed": int(st.get("lu_failed", 0)),
+                        "lu_fallbacks": int(st.get("lu_fallbacks", 0)),
                         "lu_fallback_backend": st.get("lu_fallback_backend") or None, "nullspace": d.get("nullspace"),
                         "nullspace_detected": bool(d.get("nullspace_detected")), "flux_defect": d.get("flux_defect"),
                         "quad_orders": _jsonable(d.get("quad_orders")), "ranks": d.get("ranks"),
@@ -138,12 +171,19 @@ class Rec:
 
     def result(self):
         me = self.ident
-        fb = [(r["level"], r["solver"]["lu_fallbacks"], r["solver"]["lu_fallback_backend"]) for r in self.runs
-              if r["solver"].get("lu_fallbacks")]
-        if fb:
-            self.notes.append(f"SOLVER FALLBACK: {sum(x[1] for x in fb)} direct solve(s) in {len(fb)} run(s) were repeated "
-                              f"after the first LU returned a residual above 1e-6 (last backend {fb[-1][2]}): " +
-                              ", ".join(f"{x[0]}:{x[1]}" for x in fb[:8]) + (" ..." if len(fb) > 8 else ""))
+        # solves, not stage transitions: a solve that needed three stages is one solve with three attempts
+        esc = [(r["level"], r["solver"]["lu_escalated"], r["solver"]["lu_attempts"], r["solver"]["lu_fallback_backend"])
+               for r in self.runs if r["solver"].get("lu_escalated")]
+        if esc:
+            self.notes.append(
+                f"SOLVER RETRIES: {sum(x[1] for x in esc)} solve(s) needed another stage "
+                f"({sum(x[2] for x in esc)} attempts) of the sparse LU chain in {len(esc)} run(s), after a stage missed "
+                f"the step's accuracy gate or failed (each attempt is recorded with its reason; the last escalated "
+                f"solve was accepted by {esc[-1][3]}): "
+                + ", ".join(f"{x[0]}:{x[1]}" for x in esc[:8]) + (" ..." if len(esc) > 8 else ""))
+        orphans = [why for _, _, why in self._starts if why]
+        if orphans:  # a failed projection whose level never reached entry(): no run carries it, so the case must not pass
+            raise RuntimeError(f"{len(orphans)} level(s) with a failed initial projection were never recorded: {orphans[0]}")
         if self.failed:
             self.notes.append(f"{len(self.failed)} integration(s) missed the gate (recorded): "
                               + ", ".join(self.failed[:12]) + (" ..." if len(self.failed) > 12 else ""))
@@ -239,7 +279,7 @@ def temporal_mms(params, workdir, quick):
                 for N in Ns:
                     t0 = time.time()
                     tg = FC.time_grid(spec, T_end, N)
-                    ts.initialize(u0_fn(fld, axi), 0.0, True)
+                    R.start(ts, u0_fn(fld, axi))
                     ts.reset_stats()
                     emax = {"u": 0.0}
                     key = "uL2w" if axi else "uL2"
@@ -273,7 +313,7 @@ def temporal_mms(params, workdir, quick):
                         R.ser[f"{prefix}_uL2_T"]["error"][-1]
                     tight = new_solver(mesh, fld, form, scheme, order, force, bcs,
                                        newton_rtol=float(sens["newton_rtol_tight"]))
-                    tight.initialize(u0_fn(fld, axi), 0.0, True)
+                    R.start(tight, u0_fn(fld, axi))
                     tight.reset_stats()
                     ok, times = integrate(tight, FC.time_grid(spec, T_end, N))
                     eT = FC.errors(Evaluator(tight.snapshot(), axi), fld, times[-1])
@@ -359,7 +399,7 @@ def error_control(params, workdir, quick):
     for rtol in S["rtols"]:
         t0 = time.time()
         tsw = mk()
-        tsw.initialize(u0_fn(fld, False), 0.0, True)
+        R.start(tsw, u0_fn(fld, False))
         tsw.reset_stats()
         res = tsw.adapt(float(P["T"]), float(rtol), float(S["S_u"]), float(S["h0"]))
         e = FC.errors(Evaluator(tsw.snapshot(), False), fld, res["times"][-1])
@@ -376,7 +416,7 @@ def error_control(params, workdir, quick):
     R.acc.q["rtol_sweep_dt_max_ratio"] = max(ratios)
     J = P["rejection_run"]
     tsr = mk()
-    tsr.initialize(u0_fn(fld, False), 0.0, True)
+    R.start(tsr, u0_fn(fld, False))
     tsr.reset_stats()
     res = tsr.adapt(float(P["T"]), float(J["rtol"]), float(S["S_u"]), float(J["h0"]))
     R.acc.q["rejected_steps_from_large_h0"] = res["rejected"]
@@ -405,7 +445,7 @@ def initial_projection(params, workdir, quick):
             force = check_fn(fld.f(form), False)
             ts = new_solver(mesh, fld, form, tm["scheme"], int(tm["order"]), force, bcs,
                             newton_rtol=float(P["newton_rtol"]))
-            ts.initialize(u0_fn(fld, False), 0.0, True)
+            R.start(ts, u0_fn(fld, False))
             ts.reset_stats()
             snap0 = ts.snapshot()
             ev0 = Evaluator(snap0, False)
@@ -451,7 +491,7 @@ def taylor_green(params, workdir, quick):
             for NN, label in runs:
                 t0 = time.time()
                 ts = new_solver(mesh, fld, form, scheme, order, None, bcs, newton_rtol=float(P["newton_rtol"]))
-                ts.initialize(u0_fn(fld, False), 0.0, True)
+                R.start(ts, u0_fn(fld, False))
                 ts.reset_stats()
                 ok, times = integrate(ts, np.linspace(0.0, T_end, NN + 1))
                 snap = ts.snapshot()
@@ -532,7 +572,7 @@ def womersley(params, quick, geom, kind):
                     ts, mesh, dattrs = _wom_setup(R, fld, geom, form, "newton", int(S["order"]), V, Tr, rn)
                     if NN == N and form == P["forms"][0]:
                         verify(mesh, V, Tr, V_coarser=prev)
-                    ts.initialize(u0_fn(fld, axi), 0.0, True)
+                    R.start(ts, u0_fn(fld, axi))
                     ts.reset_stats()
                     ok, times = integrate(ts, np.linspace(0.0, T_end, NN + 1))
                     snap = ts.snapshot()
@@ -567,7 +607,7 @@ def womersley(params, quick, geom, kind):
             for N in Ns:
                 t0 = time.time()
                 ts, mesh, dattrs = _wom_setup(R, fld, geom, form, scheme, order, V, Tr, rn)
-                ts.initialize(u0_fn(fld, axi), 0.0, True)
+                R.start(ts, u0_fn(fld, axi))
                 ts.reset_stats()
                 emax = {"u": 0.0}
 
@@ -590,7 +630,7 @@ def womersley(params, quick, geom, kind):
         N = Ns[-1]
         t0 = time.time()
         ts, mesh, dattrs = _wom_setup(R, fld, geom, form, "newton", 2, V1, T1, rn)
-        ts.initialize(u0_fn(fld, axi), 0.0, True)
+        R.start(ts, u0_fn(fld, axi))
         ts.reset_stats()
         ok, times = integrate(ts, np.linspace(0.0, T_end, N + 1))
         e1 = FC.errors(Evaluator(ts.snapshot(), axi), fld, times[-1])[uk]
@@ -629,7 +669,7 @@ def energy_budget(params, workdir, quick):
                 t0 = time.time()
                 tg = FC.time_grid(P["grids"][grid], T_end, N)
                 ts = new_solver(mesh, fld, form, scheme, order, force, bcs, newton_rtol=float(P["newton_rtol"]))
-                ts.initialize(u0_fn(fld, axi), 0.0, True)
+                R.start(ts, u0_fn(fld, axi))
                 ts.reset_stats()
                 evs = [Evaluator(ts.snapshot(), axi)]
                 ok, times = integrate(ts, tg, lambda n, t, s: evs.append(Evaluator(s.snapshot(), axi)))
@@ -660,7 +700,7 @@ def xcode_cavity(params, workdir, quick):
             for tt in P["times"]:
                 t0 = time.time()
                 ts = new_solver(mesh, fld, form, scheme, 2, None, bcs, newton_rtol=float(P["newton_rtol"]))
-                ts.initialize(u0_fn(fld, False), 0.0, True)
+                R.start(ts, u0_fn(fld, False))
                 ts.reset_stats()
                 nst = int(round(tt / dt))
                 ok, times = integrate(ts, [dt * i for i in range(nst + 1)])

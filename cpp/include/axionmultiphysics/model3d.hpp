@@ -28,6 +28,10 @@
 
 namespace axmp {
 
+namespace fieldmap {
+class Source;
+}
+
 class Model3D {
  public:
   explicit Model3D(spec::Design d);
@@ -49,6 +53,9 @@ class Model3D {
   // scenes and sampling without solving again (e.g. after an MPI run of `axmp solve --save`).
   void save(const std::string& dir) const;
   static std::unique_ptr<Model3D> load(const std::string& dir);
+  // The static field element by element, for field maps (axionmultiphysics/fieldmap.hpp; cpp/src/fieldmap3d.cpp).
+  // The model must outlive the returned source.
+  std::unique_ptr<fieldmap::Source> field_source() const;
 
   struct Impl;
 

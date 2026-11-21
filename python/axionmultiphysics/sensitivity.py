@@ -118,10 +118,11 @@ def optimize(design, objective: str = "cost", params: dict[str, tuple[float, flo
     Returns a dict with the optimum (parameters, all requested quantities, field caps), the history
     of every iterate and the optimized design document under ``design``.
     """
+    from .design import Design, _require_em_document
+
+    _require_em_document(design, "optimize")
     import numpy as np
     from scipy.optimize import minimize
-
-    from .design import Design
 
     base = Design(design)
     given = params if params is not None else bounds

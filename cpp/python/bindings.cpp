@@ -3,6 +3,7 @@
 // them to dicts.  Field samples are returned as NumPy arrays.
 #include <nanobind/nanobind.h>
 #include <nanobind/ndarray.h>
+#include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/unique_ptr.h>
 #include <nanobind/stl/vector.h>
@@ -12,16 +13,24 @@
 #include "axionmultiphysics/core.hpp"
 #include "axionmultiphysics/device.hpp"
 #include "axionmultiphysics/model.hpp"
+#include "axionmultiphysics/mesher_input_3d.hpp"
 #include "axionmultiphysics/model3d.hpp"
+#include "axionmultiphysics/model_commands.hpp"
+#include "axionmultiphysics/model_validate.hpp"
+#include "../src/model_errors.hpp"
+#include "axionmultiphysics/model_explain.hpp"
+#include "axionmultiphysics/physics_registry.hpp"
 #include "axionmultiphysics/render.hpp"
 #include "axionmultiphysics/scan.hpp"
 #include "axionmultiphysics/spec.hpp"
+#include "axionmultiphysics/spec_model.hpp"
 #include "axionmultiphysics/sym_solver.hpp"
 #include "axionmultiphysics/torsion.hpp"
 #include "axionmultiphysics/templates.hpp"
 #include "axionmultiphysics/xsec.hpp"
 #include "axionmultiphysics/fw2d.hpp"
 #include "axionmultiphysics/build_provenance.hpp"
+#include "../src/error_json.hpp"
 
 #if __has_include("axionmultiphysics/build_git.hpp")
 #include "axionmultiphysics/build_git.hpp"   // generated on every build by cmake/axmp_gitinfo.cmake
@@ -39,6 +48,8 @@ using json = nlohmann::json;
 
 // chemistry bindings (beta; cpp/src/chem/python/bindings_chem.cpp)
 void axmp_bind_chem(nb::module_& m);
+// field maps (bindings_fieldmap.cpp)
+void axmp_bind_fieldmap(nb::module_& m);
 
 namespace {
 json parse(const std::string& s, const char* what) {
@@ -179,11 +190,68 @@ void register_python(nb::module_& core);
 }  // namespace axmp::fluids
 #endif
 
+namespace {
+// What to do about a field of order 1 on an instance mesh with nodes (added to the library's message in the ValueError).
+const char* const kP1Remedy =
+    ". Mesh the model with geometry order 1 (\"mesh\": {\"geometry_order\": 1}) for a P1 field, or use a field of order 2.";
+}  // namespace
+
 NB_MODULE(_core, m) {
   m.doc() = "axionMultiPhysics C++ core (see the axionmultiphysics package for the documented API)";
 
   static nb::exception<axmp::Error> exc(m, "AxionMultiPhysicsError");
-  (void)exc;
+
+  exc.attr("__doc__") =
+      "The error that the axionMultiPhysics core raises. Attributes: code (a machine-readable identifier, or the empty "
+      "string), where (the JSON pointer or location of the cause, or the empty string), hint (what to do about it, or "
+      "the empty string) and details (a dict of structured facts, or None). The message holds the text, the "
+      "location and the hint.";
+
+  // Every axmp::Error (SolverFailure included) arrives as AxionMultiPhysicsError with the attributes code, where, hint
+  // and details; package code that raises the class from Python gets the same names from the class-level defaults.
+  // Registered after `exc`, so it is consulted first.  It raises nothing but that class.
+  exc.attr("code") = "";
+  exc.attr("where") = "";
+  exc.attr("hint") = "";
+  exc.attr("details") = nb::none();
+  nb::register_exception_translator(
+      [](const std::exception_ptr& p, void* payload) {
+        try {
+          std::rethrow_exception(p);
+        } catch (const axmp::Error& e) {
+          nb::object cls = nb::borrow(static_cast<PyObject*>(payload));
+          nb::object inst = cls(e.what());
+          inst.attr("code") = e.code();
+          inst.attr("where") = e.where();
+          inst.attr("hint") = e.hint();
+          // parsed by the function the command line uses, then handed to Python as the text of that object: the
+          // attribute is a dict exactly when the command line prints a "details" key
+          nb::object details = nb::none();
+          const json parsed = axmp::error_details(e);
+          if (!parsed.is_null()) {
+            try {
+              nb::object d = nb::module_::import_("json").attr("loads")(parsed.dump());
+              if (nb::isinstance<nb::dict>(d)) details = d;
+            } catch (nb::python_error&) {
+              PyErr_Clear();
+            }
+          }
+          inst.attr("details") = details;
+          PyErr_SetObject(cls.ptr(), inst.ptr());
+        }
+      },
+      exc.ptr());
+
+  m.def(
+      "_error_for_tests",
+      [](const std::string& what, const std::string& where, const std::string& hint, const std::string& code,
+         const std::string& details, bool solver_failure) {
+        if (solver_failure) throw axmp::SolverFailure(what, where, hint, code, details);
+        throw axmp::Error(what, where, hint, code, details);
+      },
+      nb::arg("what"), nb::arg("where") = "", nb::arg("hint") = "", nb::arg("code") = "", nb::arg("details") = "",
+      nb::arg("solver_failure") = false,
+      "Private: raises an error with the given fields; for the tests of the exception translator.");
 
   // $AXMP_DEVICE ("cpu", or a GPU for hypre in a build configured with -DAXMP_GPU); MFEM itself stays on the CPU.
   axmp::configure_device();
@@ -281,24 +349,260 @@ NB_MODULE(_core, m) {
     return axmp::axi::torsion_auto_choice(axmp::json::parse(in)).dump();
   });
 
-  m.def("validate", [](const std::string& doc) {
-    auto d = axmp::spec::parse_design(parse(doc, "design"));
+  // A model document (one with "physics") takes the model path: the report of every finding (raising the first error, or
+  // with `strict` the first unavailable finding, unless `all_errors`).  An electromagnetic design ignores both flags.
+  m.def("validate", [](const std::string& doc, bool strict, bool all_errors) {
+    const json j = parse(doc, "design");
+    if (axmp::spec::is_model_document(j)) {
+      axmp::model::ValidateOptions probe;
+      probe.probe_mesher = true;
+      const axmp::model::ValidationReport report = axmp::model::validate_model(j, probe);
+      if (!all_errors && !report.errors.empty()) throw report.errors.front();
+      if (!all_errors && strict && !report.unavailable.empty()) throw report.unavailable.front();
+      return axmp::model::report_json(report, strict).dump();
+    }
+    auto d = axmp::spec::parse_design(j);
     json out = {{"ok", true}, {"name", d.name}, {"parameters", d.parameters}};
     return out.dump();
-  });
+  }, nb::arg("design"), nb::arg("strict") = false, nb::arg("all_errors") = false);
   m.def("resolve", [](const std::string& doc) {
-    return axmp::spec::resolved_geometry(axmp::spec::parse_design(parse(doc, "design"))).dump();
+    const json j = parse(doc, "design");
+    if (axmp::spec::is_model_document(j))
+      return axmp::spec::resolved_model_geometry(axmp::spec::parse_model(j)).dump();
+    return axmp::spec::resolved_geometry(axmp::spec::parse_design(j)).dump();
   });
+  // The refusals of a model document by an operation on electromagnetic designs (named `operation`) and by one that
+  // takes a model document in a later version; both return for a document without "physics".
+  m.def("_require_em_document", [](const std::string& doc, const std::string& operation) {
+    axmp::spec::require_em_document(parse(doc, "design"), operation);
+  });
+  m.def("_refuse_unserved_model_document", [](const std::string& doc, const std::string& operation) {
+    axmp::spec::refuse_unserved_model_document(parse(doc, "design"), operation);
+  });
+  // The density (kg/m3) of every material of an electromagnetic design as the parser resolves it: the design's own, the
+  // built-in defaults (iron, copper, nb), 0 for a material that has none. Read only.
+  m.def("_material_densities", [](const std::string& doc) {
+    const json j = parse(doc, "design");
+    axmp::spec::require_em_document(j, "export_gdml");
+    const auto d = axmp::spec::parse_design(j);
+    json out = json::object();
+    for (const auto& [name, mat] : d.materials) out[name] = mat.density;
+    return out.dump();
+  });
+  // A key repeated in one object of a JSON text: json.duplicate_key at the pointer of the second occurrence.
+  m.def("scan_duplicate_keys", [](const std::string& text, const std::string& origin) {
+    axmp::spec::scan_duplicate_keys(text, origin);
+  }, nb::arg("text"), nb::arg("origin"));
+  // For the tests: the electromagnetic parser with no entry point before it (the guard's backstop answers).
+  m.def("_parse_design_for_tests", [](const std::string& doc) {
+    auto d = axmp::spec::parse_design(parse(doc, "design"));
+    return json{{"ok", true}, {"name", d.name}}.dump();
+  });
+  // The input of axmp-mesher for a 3D design, as the 3D engine writes it (mesh3d_in.json), as JSON text. No engine run,
+  // no MPI: it exists in every build. `output` and `info` are paths in the current directory.
+  m.def("mesher_input_3d", [](const std::string& doc) {
+    const json j = parse(doc, "design");
+    axmp::SolveOptions o;
+    o.workdir = ".";
+    nb::gil_scoped_release release;
+    axmp::spec::require_em_document(j, "export_gdml");
+    const auto d = axmp::spec::parse_design(j);
+    AXMP_REQUIRE(d.symmetry == "3d", "the design is not a 3D design", "/symmetry", "Use symmetry \"3d\".");
+    return axmp::mesher_input_3d(d, o, nullptr, nullptr).dump();
+  }, nb::arg("design"));
   m.def("mesh", [](const std::string& doc, const std::string& workdir, int verbose, const std::string& mesher) {
     axmp::SolveOptions o;
     o.workdir = workdir;
     o.verbose = verbose;
     o.mesher = mesher;
+    const json j = parse(doc, "design");
     axmp::log_level() = verbose;
     nb::gil_scoped_release release;
-    return axmp::mesh_any(parse(doc, "design"), o).dump();
+    if (axmp::spec::is_model_document(j)) {
+      axmp::model::CommandOptions co;
+      co.workdir = workdir;
+      co.mesher = mesher;
+      co.verbose = verbose;
+      return axmp::model::mesh_command(j, co).dump();
+    }
+    return axmp::mesh_any(j, o).dump();
   }, nb::arg("design"), nb::arg("workdir"), nb::arg("verbose") = 1, nb::arg("mesher") = "");
+  // `axmp boundaries` of a model document: the report as JSON text (raising the first error unless all_errors).
+  m.def("boundaries", [](const std::string& doc, bool mesh, const std::string& workdir, const std::string& mesher, bool all_errors) {
+    const json j = parse(doc, "design");
+    axmp::model::CommandOptions co;
+    co.workdir = workdir;
+    co.mesher = mesher;
+    co.mesh = mesh;
+    axmp::model::BoundariesResult r;
+    {
+      nb::gil_scoped_release release;
+      r = axmp::model::boundaries_report(j, co);
+    }
+    if (r.error && !all_errors) throw *r.error;
+    return r.report.dump();
+  }, nb::arg("design"), nb::arg("mesh") = false, nb::arg("workdir") = "", nb::arg("mesher") = "", nb::arg("all_errors") = false);
+  // The meshed model of a model document (axmp.mesh) and its instance meshes.
+  nb::class_<axmp::model::InstanceMesh>(m, "InstanceMesh")
+      .def("maps", [](const axmp::model::InstanceMesh& im) {
+        json out = {{"regions", im.regions}, {"geometry_order", im.geometry_order}, {"has_nodes", im.mesh && im.mesh->GetNodes() != nullptr},
+                    {"attributes", im.attributes}, {"remaining_attributes", im.remaining_attributes},
+                    {"axis_attributes", im.axis_attributes}, {"region_attribute", im.region_attribute}};
+        json master = json::object();
+        for (const auto& [a, mnum] : im.master_attribute) master[std::to_string(a)] = mnum;
+        out["master_attribute"] = master;
+        return out.dump();
+      })
+      .def("vertices", [](const axmp::model::InstanceMesh& im) {
+        const int n = im.mesh->GetNV();
+        std::vector<double> v(size_t(n) * 2);
+        for (int i = 0; i < n; ++i) v[2 * i] = im.mesh->GetVertex(i)[0], v[2 * i + 1] = im.mesh->GetVertex(i)[1];
+        auto* data = new std::vector<double>(std::move(v));
+        nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<double>*>(p); });
+        return nb::ndarray<nb::numpy, double>(data->data(), {size_t(n), size_t(2)}, owner);
+      })
+      .def("elements", [](const axmp::model::InstanceMesh& im) {
+        const int n = im.mesh->GetNE();
+        std::vector<int64_t> v(size_t(n) * 3);
+        mfem::Array<int> ev;
+        for (int e = 0; e < n; ++e) {
+          im.mesh->GetElementVertices(e, ev);
+          if (ev.Size() != 3) throw axmp::Error("the instance mesh has an element that is not a triangle", "", "Please report it.", "internal.mesh_export");
+          for (int k = 0; k < 3; ++k) v[3 * e + k] = ev[k];
+        }
+        auto* data = new std::vector<int64_t>(std::move(v));
+        nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<int64_t>*>(p); });
+        return nb::ndarray<nb::numpy, int64_t>(data->data(), {size_t(n), size_t(3)}, owner);
+      })
+      .def("element_attributes", [](const axmp::model::InstanceMesh& im) {
+        const int n = im.mesh->GetNE();
+        auto* data = new std::vector<int64_t>(n);
+        for (int e = 0; e < n; ++e) (*data)[e] = im.mesh->GetAttribute(e);
+        nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<int64_t>*>(p); });
+        return nb::ndarray<nb::numpy, int64_t>(data->data(), {size_t(n)}, owner);
+      })
+      .def("boundary", [](const axmp::model::InstanceMesh& im) {
+        const int n = im.mesh->GetNBE();
+        std::vector<int64_t> v(size_t(n) * 2);
+        mfem::Array<int> bv;
+        for (int b = 0; b < n; ++b) {
+          im.mesh->GetBdrElementVertices(b, bv);
+          v[2 * b] = bv[0], v[2 * b + 1] = bv[1];
+        }
+        auto* data = new std::vector<int64_t>(std::move(v));
+        nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<int64_t>*>(p); });
+        return nb::ndarray<nb::numpy, int64_t>(data->data(), {size_t(n), size_t(2)}, owner);
+      })
+      .def("boundary_attributes", [](const axmp::model::InstanceMesh& im) {
+        const int n = im.mesh->GetNBE();
+        auto* data = new std::vector<int64_t>(n);
+        for (int b = 0; b < n; ++b) (*data)[b] = im.mesh->GetBdrAttribute(b);
+        nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<int64_t>*>(p); });
+        return nb::ndarray<nb::numpy, int64_t>(data->data(), {size_t(n)}, owner);
+      })
+      .def("section", [](const axmp::model::InstanceMesh& im, const std::string& name) {
+        const axmp::model::FaceSet fs = im.section(name);
+        return json{{"name", fs.name}, {"faces", fs.faces}, {"sign", fs.sign}, {"length_m", fs.length_m}}.dump();
+      })
+      // by name (a boundary or a section) or by instance attribute (attribute >= 0 and an empty name): the Python wrapper
+      // checks that exactly one is given
+      .def("face_points", [](const axmp::model::InstanceMesh& im, const std::string& name, int attribute, int order) {
+        const axmp::model::FacePoints fp = name.empty() ? im.face_points(attribute, order) : im.face_points(name, order);
+        const size_t mm = fp.face.size();
+        const size_t q = mm ? fp.weight.size() / mm : 0;
+        const auto num = [](const std::vector<double>& v, std::initializer_list<size_t> shape) {
+          auto* data = new std::vector<double>(v);
+          nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<double>*>(p); });
+          return nb::ndarray<nb::numpy, double>(data->data(), shape, owner);
+        };
+        const auto idx = [](const std::vector<int>& v) {
+          auto* data = new std::vector<int64_t>(v.begin(), v.end());
+          nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<int64_t>*>(p); });
+          return nb::ndarray<nb::numpy, int64_t>(data->data(), {v.size()}, owner);
+        };
+        nb::dict d;
+        d["faces"] = idx(fp.face);
+        d["elements"] = idx(fp.element);
+        d["ref"] = num(fp.ref, {mm, q, size_t(2)});
+        d["weights"] = num(fp.weight, {mm, q});
+        d["normals"] = num(fp.normal, {mm, q, size_t(2)});
+        d["points"] = num(fp.x, {mm, q, size_t(2)});
+        return d;
+      }, nb::arg("name"), nb::arg("attribute"), nb::arg("order"))
+      // The arrays of chem::MeshInput for the field order (chem_mesh_input): the instance mesh's vertices, triangles,
+      // element attributes, boundary segments and attributes, and the P2 edge nodes that are off their chord midpoint.  An
+      // order other than 1 or 2, and order 1 on a mesh with nodes, are a ValueError (a misuse of the API; the library's
+      // text of the second is kept, without its hint).
+      .def("chem_mesh_input", [](const axmp::model::InstanceMesh& im, int order) {
+        axmp::chem::MeshInput mi;
+        try {
+          mi = axmp::model::chem_mesh_input(im, order);
+        } catch (const axmp::Error& e) {
+          if (std::string(e.code()) == axmp::model::codes::mesh_export && order == 1) throw std::invalid_argument(e.message() + kP1Remedy);
+          throw;
+        }
+        const auto real = [](const std::vector<double>& v, std::initializer_list<size_t> shape) {
+          auto* data = new std::vector<double>(v);
+          nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<double>*>(p); });
+          return nb::ndarray<nb::numpy, double>(data->data(), shape, owner);
+        };
+        const auto ints = [](const std::vector<int>& v, std::initializer_list<size_t> shape) {
+          auto* data = new std::vector<int64_t>(v.begin(), v.end());
+          nb::capsule owner(data, [](void* p) noexcept { delete static_cast<std::vector<int64_t>*>(p); });
+          return nb::ndarray<nb::numpy, int64_t>(data->data(), shape, owner);
+        };
+        nb::dict d;
+        d["vertices"] = real(mi.vertices, {mi.vertices.size() / 2, size_t(2)});
+        d["triangles"] = ints(mi.triangles, {mi.triangles.size() / 3, size_t(3)});
+        d["element_attributes"] = ints(mi.element_attr, {mi.element_attr.size()});
+        d["boundary"] = ints(mi.boundary, {mi.boundary.size() / 2, size_t(2)});
+        d["boundary_attributes"] = ints(mi.boundary_attr, {mi.boundary_attr.size()});
+        d["edge_node_vertices"] = ints(mi.edge_node_vertices, {mi.edge_node_vertices.size() / 2, size_t(2)});
+        d["edge_node_xy"] = real(mi.edge_node_xy, {mi.edge_node_xy.size() / 2, size_t(2)});
+        return d;
+      }, nb::arg("order"))
+      // The text with which a field of order 1 on this instance mesh is refused ("" when it is not: no nodes).
+      .def("p1_refusal", [](const axmp::model::InstanceMesh& im) {
+        try {
+          (void)axmp::model::chem_mesh_input(im, 1);
+        } catch (const axmp::Error& e) {
+          return e.message() + kP1Remedy;
+        }
+        return std::string();
+      });
+  // The error of im.fluids_mesh() in a build without the fluids module (the Python wrapper calls it there).
+  m.def("_requires_fluids", []() { throw axmp::model::msg::requires_fluids(); });
+  nb::class_<axmp::model::MeshedBundle>(m, "MeshedModel")
+      .def_prop_ro("symmetry", [](const axmp::model::MeshedBundle& b) { return b.symmetry; })
+      .def_prop_ro("geometry_order", [](const axmp::model::MeshedBundle& b) { return b.model.geometry_order; })
+      .def_prop_ro("mesh_file", [](const axmp::model::MeshedBundle& b) { return b.model.mesh_file; })
+      .def_prop_ro("info_file", [](const axmp::model::MeshedBundle& b) { return b.model.info_file; })
+      .def("regions_json", [](const axmp::model::MeshedBundle& b) { return b.regions.dump(); })
+      .def("boundaries_json", [](const axmp::model::MeshedBundle& b) { return b.boundaries.dump(); })
+      .def("instance", [](const axmp::model::MeshedBundle& b, const std::vector<std::string>& names, bool all) {
+        return b.instance(names, all);
+      }, nb::arg("names"), nb::arg("all"));
+  m.def("mesh_model", [](const std::string& doc, const std::string& workdir, const std::string& mesher) {
+    const json j = parse(doc, "design");
+    axmp::model::CommandOptions co;
+    co.workdir = workdir;
+    co.mesher = mesher;
+    nb::gil_scoped_release release;
+    return std::shared_ptr<axmp::model::MeshedBundle>(axmp::model::mesh_bundle(j, co));
+  }, nb::arg("design"), nb::arg("workdir") = "", nb::arg("mesher") = "");
+  // explain and patch of model documents (beta): the listing as text or JSON text; the patched document as JSON text
+  m.def("explain", [](const std::string& doc, bool as_json) {
+    return axmp::model::explain_model(parse(doc, "design"), as_json);
+  }, nb::arg("doc_text"), nb::arg("as_json") = false);
+  m.def("patch", [](const std::string& doc, const std::string& ops) {
+    return axmp::model::patch_document(parse(doc, "design"), parse(ops, "patch operations")).dump();
+  }, nb::arg("doc_text"), nb::arg("ops_text"));
   m.def("schema", []() { return axmp::spec::design_schema().dump(); });
+  // the physics catalogue of model documents (beta), as the JSON text axmp physics --json prints
+  m.def("physics", [](bool routes, const std::string& type) { return axmp::model::catalogue_json(routes, type).dump(); },
+        nb::arg("routes") = false, nb::arg("type") = "");
+  // the codes of the model document's findings (beta), as the JSON text of a list sorted by code
+  m.def("error_codes", []() { return axmp::model::error_codes().dump(); });
   m.def("conductors", []() {
     // Built-in critical surfaces with a few Jc values of each (A/m^2) for orientation.
     json out = json::object();
@@ -385,9 +689,11 @@ NB_MODULE(_core, m) {
     o.workdir = workdir;
     o.order = order;
     o.verbose = verbose;
+    const json j = parse(doc, "design");
+    axmp::spec::refuse_unserved_model_document(j, "run_3d");
     axmp::log_level() = verbose;
     nb::gil_scoped_release release;
-    return axmp::run_any(parse(doc, "design"), o).dump();
+    return axmp::run_any(j, o).dump();
   }, nb::arg("design"), nb::arg("workdir"), nb::arg("order") = 0, nb::arg("verbose") = 1);
 
   // ------------------------------------------------------------ signal / scan
@@ -616,7 +922,9 @@ NB_MODULE(_core, m) {
   nb::class_<axmp::Model3D>(m, "Model3D")
       .def("__init__",
            [](axmp::Model3D* self, const std::string& doc) {
-             new (self) axmp::Model3D(axmp::spec::parse_design(parse(doc, "design")));
+             const json j = parse(doc, "design");
+             axmp::spec::require_em_document(j, "Model3D");
+             new (self) axmp::Model3D(axmp::spec::parse_design(j));
            })
       .def(
           "run",
@@ -669,7 +977,9 @@ NB_MODULE(_core, m) {
   nb::class_<axmp::XsecModel>(m, "XsecModel")
       .def("__init__",
            [](axmp::XsecModel* self, const std::string& doc) {
-             new (self) axmp::XsecModel(axmp::spec::parse_design(parse(doc, "design")));
+             const json j = parse(doc, "design");
+             axmp::spec::require_em_document(j, "XsecModel");
+             new (self) axmp::XsecModel(axmp::spec::parse_design(j));
            })
       .def(
           "run",
@@ -703,7 +1013,9 @@ NB_MODULE(_core, m) {
   nb::class_<axmp::Fw2DModel>(m, "Fw2DModel")
       .def("__init__",
            [](axmp::Fw2DModel* self, const std::string& doc) {
-             new (self) axmp::Fw2DModel(axmp::spec::parse_design(parse(doc, "design")));
+             const json j = parse(doc, "design");
+             axmp::spec::require_em_document(j, "Fw2DModel");
+             new (self) axmp::Fw2DModel(axmp::spec::parse_design(j));
            })
       .def(
           "run",
@@ -727,7 +1039,9 @@ NB_MODULE(_core, m) {
   nb::class_<axmp::AxiModel>(m, "Model")
       .def("__init__",
            [](axmp::AxiModel* self, const std::string& doc) {
-             new (self) axmp::AxiModel(axmp::spec::parse_design(parse(doc, "design")));
+             const json j = parse(doc, "design");
+             axmp::spec::require_em_document(j, "Model");
+             new (self) axmp::AxiModel(axmp::spec::parse_design(j));
            })
       .def(
           "run",
@@ -887,6 +1201,9 @@ NB_MODULE(_core, m) {
         d["region_attr"] = to_numpy(reg);
         return d;
       });
+
+  // field maps for particle transport (beta; axionmultiphysics.fieldmap)
+  axmp_bind_fieldmap(m);
 
   // chemistry track: submodule _core.chem
   axmp_bind_chem(m);

@@ -1280,6 +1280,22 @@ DistCsr StokesSolver::monolithic(bool with_nullspace, std::vector<double>* rhs_l
   return D;
 }
 
+std::vector<LUStage> StokesSolver::lu_chain() const {
+  if (!opt_.lu_chain.empty()) return opt_.lu_chain;
+  std::vector<LUStage> chain =
+      default_chain(opt_.lu, opt_.lu_matching ? MatchingJob::MaxDiagonalProductScaling : MatchingJob::None);
+  const bool is_3d = mesh_.Dimension() == 3;
+  const long cap = is_3d ? kLUEigenRetryMaxN3D : kLUEigenRetryMaxN;
+  for (LUStage& st : chain)
+    if (st.max_n > 0) st.max_n = cap;
+  // A 3D system that starts with the matching keeps the retry measured on 3D saddle points, the stage without it: the
+  // job 2 retry of the 2D list is measured on 2D systems only.
+  if (is_3d && opt_.lu != LUBackend::EigenLU && opt_.lu_matching && chain.size() == 3 &&
+      chain[1].matching == MatchingJob::MaxSmallestDiagonal)
+    chain[1].matching = MatchingJob::None;
+  return chain;
+}
+
 void StokesSolver::solve_direct() {
   Impl& I = *impl_;
   std::vector<double> b;
@@ -1292,58 +1308,49 @@ void StokesSolver::solve_direct() {
   // bordered rows)
   std::vector<char> gate_rows(D.local_rows, 1);
   for (int i = 0; i < I.offsets[1]; ++i) gate_rows[i] = I.ess_mask[i] ? 0 : 1;
-  // One attempt = factorize + solve with or without MC64 matching. Returns the solution; `st` its LU statistics.
-  double tfac = 0;
-  auto attempt = [&](bool matching, LUStats& st, std::vector<double>& xo) {
-    SparseLU lu(opt_.lu);
-    lu.set_matching(matching);
-    // up to 10 refinement steps (the target is unchanged): STRUMPACK's static pivoting can leave a plain-solve
-    // residual of 1e-3 on traction problems at ~1.5e5 unknowns, which then needs 3+ steps (measured at N = 128)
-    lu.set_refinement(10 + opt_.min_refine_steps, std::min(1e-12, 1e-2 * opt_.direct_tol));
-    lu.set_min_refinement(opt_.min_refine_steps);
-    lu.set_throw_on_miss(false);   // the Stokes gate (rel_residual <= direct_tol) decides `converged`
-    lu.set_threads(opt_.lu_threads);
-    lu.set_refine_to_stagnation(true);  // best attainable accuracy (cheap: a few extra triangular solves)
-    lu.set_krylov_fallback(opt_.lu_krylov_fallback);  // 3D (sparse_lu.hpp)
-    if (opt_.lu_krylov_fallback) lu.set_residual_rows(gate_rows);
-    lu.set_kernel_probe(z, 1e-14);
-    lu.factorize(D);
-    tfac = MPI_Wtime();
-    xo = lu.solve(b);
-    st = lu.stats();
-  };
-  std::vector<double> x;
-  LUStats lst;
-  bool matching = opt_.lu_matching;
-  if (matching) {
-    attempt(true, lst, x);
-  } else {
-    // matching-free first; if that factorization fails (e.g. a zero pivot on the saddle point's zero block) or
-    // its solve misses the gate, again with the matching (the 2D configuration)
-    bool failed = false;
-    std::string why;
-    try {
-      attempt(false, lst, x);
-      failed = !std::isfinite(lst.rel_residual) || lst.rel_residual > opt_.direct_tol;
-      if (failed) why = strcat("matching-free solve missed the gate (residual ", lst.rel_residual, ")");
-    } catch (const Error& e) {
-      failed = true;
-      why = std::string("matching-free factorization failed: ") + e.what();
-    }
-    if (failed) {
-      diag_.lu_matching_retry = true;
-      diag_.lu_matching_retry_reason = why.substr(0, 300);
-      diag_.lu_first_attempt_residual_before = lst.rel_residual_before;   // diagnostics only: copied before the retry overwrites lst
-      diag_.lu_first_attempt_krylov_iterations = lst.krylov_iterations;
-      matching = true;
-      attempt(true, lst, x);
-    }
-  }
-  const double t1 = tfac;
+  // The row blocks of the recorded backward error and of the kernel probe: velocity and pressure rows; the Dirichlet
+  // rows are left out (-1); the pinned pressure row and the bordered rows (flow-rate constraints, the mean-value
+  // multiplier; on the last rank) are constraint rows (-2).
+  const long gpin = opt_.nullspace == Nullspace::PinPressure ? diag_.pinned_dof : -1;
+  std::vector<int> blocks(D.local_rows, -2);
+  for (int i = 0; i < I.offsets[1]; ++i) blocks[i] = I.ess_mask[i] ? -1 : 0;
+  for (int i = I.offsets[1]; i < I.offsets[2]; ++i) blocks[i] = D.row_begin + i == gpin ? -2 : 1;
+  // The chain of the options (default: the default chain of `lu` with the first matching of lu_matching). A stage is
+  // accepted on the relative residual over all rows of this matrix at direct_tol; the Stokes gate below is another
+  // measure (the masked rows of the assembled operator), applied to the solution the chain returns.
+  SparseLU lu(lu_chain());
+  LUAcceptance acceptance;
+  acceptance.kind = LUAcceptance::Kind::RelResidual;
+  acceptance.bound = opt_.direct_tol;
+  lu.set_acceptance(acceptance);
+  lu.set_row_blocks(std::move(blocks));
+  // up to 10 refinement steps (the target is unchanged): STRUMPACK's static pivoting can leave a plain-solve
+  // residual of 1e-3 on traction problems at ~1.5e5 unknowns, which then needs 3+ steps (measured at N = 128)
+  lu.set_refinement(10 + opt_.min_refine_steps, std::min(1e-12, 1e-2 * opt_.direct_tol));
+  lu.set_min_refinement(opt_.min_refine_steps);
+  lu.set_throw_on_miss(false);   // the Stokes gate (rel_residual <= direct_tol) decides `converged`
+  lu.set_threads(opt_.lu_threads);
+  lu.set_refine_to_stagnation(true);  // best attainable accuracy (cheap: a few extra triangular solves)
+  lu.set_krylov_fallback(opt_.lu_krylov_fallback);  // 3D (sparse_lu.hpp)
+  if (opt_.lu_krylov_fallback) lu.set_residual_rows(gate_rows);
+  lu.set_kernel_probe(z, 1e-14);
+  lu.factorize(D);
+  const double t1 = MPI_Wtime();
+  std::vector<double> x = lu.solve(b);
   diag_.setup_seconds = t1 - t0;
   diag_.solve_seconds = MPI_Wtime() - t1;
-  diag_.lu = lst;
-  diag_.lu.matching = matching;
+  diag_.lu = lu.stats();
+  // MC64 matching is a STRUMPACK option: for an Eigen stage the record keeps the configured lu_matching
+  const int ks = lu.solution_stage();
+  if (ks >= 0 && lu.chain()[ks].backend == LUBackend::EigenLU) diag_.lu.matching = opt_.lu_matching;
+  diag_.lu_attempts = lu.attempts();
+  diag_.lu_stage = lu.stats().stage;
+  // the aliases of the former matching retry: the solution is not the first stage's
+  const std::vector<LUAttempt>& at = diag_.lu_attempts;
+  diag_.lu_matching_retry = lu.solution_stage() > 0;
+  diag_.lu_matching_retry_reason = diag_.lu_matching_retry && !at.empty() ? at.front().reason.substr(0, 300) : "";
+  diag_.lu_first_attempt_residual_before = diag_.lu_matching_retry ? at.front().rel_residual_before : -1;
+  diag_.lu_first_attempt_krylov_iterations = diag_.lu_matching_retry ? at.front().krylov_iterations : 0;
   // a solve the GMRES fallback finished is not a plain direct solve; the label says so
   if (diag_.lu.krylov_fallback) diag_.solver = std::string("direct+gmres:") + to_string(opt_.lu);
   std::copy(x.begin(), x.begin() + I.offsets[2], I.x->GetData());

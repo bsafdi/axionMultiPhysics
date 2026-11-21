@@ -176,7 +176,8 @@ NewtonResult newton_solve(const Problem& P, double t, double c0, const Vec& w, V
   }
 }
 
-Vec consistent_derivative(const Problem& P, double t, const Vec& y) {
+namespace {
+Vec consistent_derivative_unchecked(const Problem& P, double t, const Vec& y) {
   Vec F = P.rhs(t, y);
   if (P.identity_mass()) return F;
   Eigen::JacobiSVD<Mat> svd(P.mass, Eigen::ComputeFullU | Eigen::ComputeFullV);
@@ -193,6 +194,15 @@ Vec consistent_derivative(const Problem& P, double t, const Vec& y) {
   Vec b(P.n + (P.n - r));
   b << F, -W.transpose() * Ft;
   return A.colPivHouseholderQr().solve(b);
+}
+}  // namespace
+
+Vec consistent_derivative(const Problem& P, double t, const Vec& y) {
+  Vec yp = consistent_derivative_unchecked(P, t, y);
+  if (!all_finite(yp))
+    throw ConsistentDerivativeError("consistent_derivative: the derivative at t = " + std::to_string(t) +
+                                    " is not finite (f is not finite there, or the differentiated constraints are singular)");
+  return yp;
 }
 
 // ---------------------------------------------------------------------------------------------------------- BDF
@@ -551,7 +561,9 @@ double initial_step(const Problem& P, double t0, const Vec& y0, const Vec& yp0, 
   Vec yp1;
   try {
     yp1 = consistent_derivative(P, t0 + h0, y1);
-  } catch (...) {
+  } catch (const ConsistentDerivativeError&) {
+    // no consistent derivative at the trial point: start smaller.  Exceptions from the problem's callbacks (a Python
+    // exception, KeyboardInterrupt, a logic error) are not numerical failures and propagate.
     return h0 * 1e-2;
   }
   const double d2 = wrms(yp1 - yp0, y0, y0, rtol, atol) / h0;

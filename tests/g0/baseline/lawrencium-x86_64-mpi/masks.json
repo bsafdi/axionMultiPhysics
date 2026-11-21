@@ -1,0 +1,949 @@
+{
+ "platform": "lawrencium-x86_64-mpi",
+ "tier_a": [],
+ "tier_b": [
+  {
+   "entry": "template_toroid",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/pickup/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/pickup/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/pickup/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/static/toroidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_toroid",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/pickup/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/timing/electrostatics_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_solenoid",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/pickup/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/timing/electrostatics_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "template_core",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/fullwave/eigenmodes/TE/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/fullwave/eigenmodes/TM/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/fullwave/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_cavity_pillbox",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/electrostatics/solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/electrostatics/solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/electrostatics/solver/solve_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/timing/electrostatics_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_pickup_capacitance",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/pickup/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/timing/electrostatics_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_long_solenoid_coax",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/hts/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/pickup/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/timing/electrostatics_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/gap_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/capacitance_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "example_hts_shield",
+   "file": "scene.json",
+   "pointer": "/summary/pickup/port_capacitance/port_region_solver/setup_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "mesh_3d_stage1_twoport",
+   "file": "mesh3d_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "mesh_3d_stage1_twoport_curved",
+   "file": "mesh3d_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/pickup/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/pickup/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/pickup/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_circuits_curves_scan",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/mechanics/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/timing/mechanics_thermal_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_mechanics_axi",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "mesh_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/mesh/info/mesher/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/factorization_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/static/poloidal/solver/symbolic_seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/thermal/solver/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/timing/mechanics_thermal_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "design_thermal_axi",
+   "file": "results.json",
+   "pointer": "/timing/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "mesh3d_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/solver/solves/*/clean_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/solver/solves/*/setup_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/solver/solves/*/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/timing/mesh_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/timing/pickup_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/timing/setup_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/timing/static_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring",
+   "file": "results.json",
+   "pointer": "/timing/total_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "mesh3d_info.json",
+   "pointer": "/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/mesh/info/seconds",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/solver/solves/*/clean_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/solver/solves/*/setup_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/solver/solves/*/solve_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/timing/mesh_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/timing/pickup_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/timing/post_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/timing/setup_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/timing/static_s",
+   "reason": "timing or run identity"
+  },
+  {
+   "entry": "solve_3d_ring_curved",
+   "file": "results.json",
+   "pointer": "/timing/total_s",
+   "reason": "timing or run identity"
+  }
+ ],
+ "tier_c_by_name": []
+}

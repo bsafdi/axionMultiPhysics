@@ -1,0 +1,123 @@
+{
+ "schema": "axionmultiphysics.design/1",
+ "name": "g0_mechanics_axi",
+ "description": "G0 gate: a thick-walled cylinder (a polygon) under internal pressure, cooled down, with its ends fixed axially, next to a powered winding that carries its own Lorentz load.",
+ "parameters": {
+  "a": 0.1,
+  "b": 0.3,
+  "h": 1.0,
+  "p": 1000000.0
+ },
+ "materials": {
+  "steel": {
+   "kind": "linear",
+   "density": 7900.0,
+   "mechanical": {
+    "E_Pa": 200000000000.0,
+    "nu": 0.3,
+    "alpha": 0.0029,
+    "notes": "illustrative values"
+   }
+  },
+  "pack": {
+   "kind": "vacuum",
+   "mechanical": {
+    "E_Pa": 80000000000.0,
+    "nu": 0.3,
+    "alpha": 0.003
+   }
+  }
+ },
+ "regions": [
+  {
+   "name": "bore",
+   "shape": {
+    "rect": {
+     "r": [
+      0.0,
+      "a"
+     ],
+     "z": [
+      "-h/2",
+      "h/2"
+     ]
+    }
+   },
+   "material": "vacuum"
+  },
+  {
+   "name": "cyl",
+   "shape": {
+    "polygon": {
+     "points": [
+      [
+       "a",
+       "-h/2"
+      ],
+      [
+       "b",
+       "-h/2"
+      ],
+      [
+       "b",
+       "h/2"
+      ],
+      [
+       "a",
+       "h/2"
+      ]
+     ]
+    }
+   },
+   "material": "steel",
+   "mesh_size": 0.05
+  },
+  {
+   "name": "coil",
+   "shape": {
+    "rect": {
+     "r": [
+      0.5,
+      0.55
+     ],
+     "z": [
+      -0.2,
+      0.2
+     ]
+    }
+   },
+   "material": "pack",
+   "mesh_size": 0.025
+  }
+ ],
+ "windings": [
+  {
+   "name": "magnet",
+   "region": "coil",
+   "type": "azimuthal",
+   "ampere_turns": 100000.0
+  }
+ ],
+ "mechanics": {
+  "supports": [
+   {
+    "region": "cyl",
+    "fix": "z"
+   }
+  ],
+  "pressures": [
+   {
+    "on": "cyl",
+    "from": "bore",
+    "p_Pa": "p"
+   }
+  ],
+  "cooldown": true,
+  "notes": "pressure, cooldown and the winding's Lorentz force"
+ },
+ "mesh": {
+  "order": 2,
+  "size": 0.3,
+  "domain_radius": 6.0
+ }
+}

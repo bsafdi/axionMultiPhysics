@@ -216,6 +216,8 @@ struct GlsProblem::Impl {
   std::vector<double> lift;  // [nv*2] Dirichlet data, 0 elsewhere
   std::vector<double> cvec;  // int N_a
   Eigen::SimplicialLLT<Eigen::SparseMatrix<double>> Mu_llt, Mp_llt;
+  Eigen::SparseMatrix<double> Mu_mat, Mp_mat;  // the factored matrices, kept for the residual of every dual-norm solve
+  mutable double mass_res_max = -1;            // worst relative residual ||M x - b|| / ||b|| of a dual-norm solve
   std::vector<int> free_vertices;  // vertices with free velocity (for the scalar mass block)
   std::vector<int> vfree_index;    // vertex -> index in free_vertices or -1
   std::vector<double> u, p;
@@ -443,7 +445,15 @@ struct GlsProblem::Impl {
   }
 
   // ---- dual norm (consistent P1 mass matrices): R_u over free vertices (both components), R_p over all vertices
+  // Each solve's residual is formed with the assembled matrix and its worst value kept: the verdict of solve() is
+  // not reported on a dual norm whose solves were never looked at.
   double dual(const std::vector<double>& Ru, const std::vector<double>& Rp_eff) const {
+    auto note = [this](const Eigen::SparseMatrix<double>& M, const Eigen::VectorXd& x, const Eigen::VectorXd& b) {
+      const double bn = b.norm();
+      if (!(bn > 0)) return;  // a zero right-hand side has the exact solution zero
+      const double res = (M * x - b).norm() / bn;
+      mass_res_max = std::isfinite(res) ? std::max(mass_res_max, res) : std::numeric_limits<double>::infinity();
+    };
     double s = 0;
     const int nf = static_cast<int>(free_vertices.size());
     if (nf > 0) {
@@ -451,12 +461,14 @@ struct GlsProblem::Impl {
       for (int c = 0; c < 2; ++c) {
         for (int k = 0; k < nf; ++k) b(k) = Ru[2 * free_vertices[k] + c];
         Eigen::VectorXd x = Mu_llt.solve(b);
+        note(Mu_mat, x, b);
         s += b.dot(x);
       }
     }
     Eigen::VectorXd b(nv);
     for (int a = 0; a < nv; ++a) b(a) = Rp_eff[a];
     Eigen::VectorXd x = Mp_llt.solve(b);
+    note(Mp_mat, x, b);
     s += b.dot(x);
     return std::sqrt(std::max(s, 0.0));
   }
@@ -582,12 +594,27 @@ GlsProblem::GlsProblem(GlsData data, GlsOptions opt) : impl_(new Impl), opt_(std
   }
   Eigen::SparseMatrix<double> Mp(I.nv, I.nv);
   Mp.setFromTriplets(tp.begin(), tp.end());
+  // The dual norm of every GLS verdict is a solve with these two Cholesky factors: a failed factorization gives a
+  // meaningless norm (not a NaN), so it is refused here, naming the matrix.
+  auto check_llt = [](const auto& llt, const char* which) {
+    AXMP_REQUIRE(llt.info() == Eigen::Success,
+                axmp::strcat("GLS: the Cholesky factorization of the ", which, " mass matrix failed (Eigen status ",
+                             llt.info() == Eigen::NumericalIssue ? "NumericalIssue" : "other than Success",
+                             "): the dual norm of the convergence verdict cannot be formed"),
+                "triangles",
+                "The consistent P1 mass matrix is singular when a vertex belongs to no triangle or a triangle is "
+                "degenerate or duplicated (an all-zero row). Remove unused vertices and check the triangulation.");
+  };
   I.Mp_llt.compute(Mp);
+  check_llt(I.Mp_llt, "pressure (all vertices)");
+  I.Mp_mat = Mp;
   const int nf = static_cast<int>(I.free_vertices.size());
   if (nf > 0) {
     Eigen::SparseMatrix<double> Mu(nf, nf);
     Mu.setFromTriplets(tu.begin(), tu.end());
     I.Mu_llt.compute(Mu);
+    check_llt(I.Mu_llt, "velocity (free vertices)");
+    I.Mu_mat = Mu;
   }
   I.u = I.lift;
   I.p.assign(I.nv, 0.0);
@@ -721,7 +748,12 @@ const GlsDiagnostics& GlsProblem::solve() {
   diag_.iterations = 0;
   diag_.line_search_min_step_accepts = 0;
   diag_.failure.clear();
-  diag_.lu_backend = to_string(opt_.lu);
+  I.mass_res_max = -1;
+  diag_.lu_backend = to_string(opt_.lu);  // until a step solve names the stage that solved
+  diag_.lu_counts = LUCounts();
+  diag_.lu = LUStats();
+  diag_.lu_attempts.clear();
+  diag_.lu_stage.clear();
   std::vector<double> scales = nl.viscosity_scales;
   if (scales.empty()) scales.push_back(1.0);
   diag_.viscosity_scales = scales;
@@ -744,6 +776,7 @@ const GlsDiagnostics& GlsProblem::solve() {
   };
 
   double last_lu_res = -1, last_lu_before = -1;  // LU accuracy of the most recent linear solve (per-step record)
+  int last_lu_attempts = 0;                       // ... and its attempts
   // one linear solve with the Jacobian of mode/scale at the current state; returns du, dp, dlam of -R
   auto lin_solve = [&](double s, GlsMode mode, std::vector<double>& du, std::vector<double>& dp, double& dlam,
                        int& refine) -> bool {
@@ -757,37 +790,57 @@ const GlsDiagnostics& GlsProblem::solve() {
       cp += I.cvec[a] * p[a];
     }
     b[nfu + nv] = -cp;
+    // On the chain, accepted on the relative residual at max(newton_rtol, kFinalSolveResidualMax): a threshold of its
+    // own (the solve had no gate on its LU before), recorded in every attempt. Row blocks: the free velocity rows, the
+    // pressure rows, and the mean-value multiplier's bordered row as a constraint row (-2).
+    SparseLU lu(chain_or_default(opt_.lu_chain, opt_.lu, MatchingJob::MaxDiagonalProductScaling));
+    LUAcceptance acceptance;
+    acceptance.kind = LUAcceptance::Kind::RelResidual;
+    acceptance.bound = std::max(nl.newton_rtol, kFinalSolveResidualMax);
+    lu.set_acceptance(acceptance);
+    std::vector<int> blocks(n, 0);
+    for (int a = 0; a < nv; ++a) blocks[nfu + a] = 1;
+    blocks[nfu + nv] = -2;
+    lu.set_row_blocks(std::move(blocks));
+    lu.set_refinement(10, std::min(1e-12, 1e-2 * nl.newton_rtol));
+    lu.set_throw_on_miss(false);
+    lu.set_threads(opt_.lu_threads);
+    lu.set_refine_to_stagnation(true);
+    std::vector<double> x;
+    bool solved = true;
     try {
       DistCsr D = DistCsr::from_serial(CsrMatrix::from_eigen(A), MPI_COMM_SELF);
-      SparseLU lu(opt_.lu);
-      lu.set_refinement(10, std::min(1e-12, 1e-2 * nl.newton_rtol));
-      lu.set_throw_on_miss(false);
-      lu.set_threads(opt_.lu_threads);
-      lu.set_refine_to_stagnation(true);
       lu.factorize(D);
-      std::vector<double> x = lu.solve(b);
-      const LUStats& st = lu.stats();
-      last_lu_res = st.rel_residual;
-      last_lu_before = st.rel_residual_before;
-      diag_.lu_residual = st.rel_residual;
-      diag_.lu_residual_before = st.rel_residual_before;
-      diag_.lu_refine_steps = st.refine_steps;
-      refine = st.refine_steps;
-      du.assign(2 * nv, 0.0);
-      dp.assign(nv, 0.0);
-      for (int k = 0; k < 2 * nv; ++k)
-        if (I.fu[k] >= 0) du[k] = x[I.fu[k]];
-      for (int a = 0; a < nv; ++a) dp[a] = x[nfu + a];
-      dlam = x[nfu + nv];
-      for (double v : x)
-        if (!std::isfinite(v)) {
-          diag_.failure = "linear solve returned a non-finite solution";
-          return false;
-        }
-    } catch (const std::exception& e) {
+      x = lu.solve(b);
+    } catch (const std::exception& e) {  // no stage produced a solution: the text lists every attempt
       diag_.failure = std::string("linear solve failed: ") + e.what();
-      return false;
+      solved = false;
     }
+    lu_count_solve(diag_.lu_counts, lu.attempts());
+    last_lu_attempts = static_cast<int>(lu.attempts().size());
+    diag_.lu = lu.stats();
+    diag_.lu_attempts = lu.attempts();
+    diag_.lu_stage = solved ? lu.stats().stage : std::string();
+    if (!solved) return false;
+    const LUStats& st = lu.stats();
+    diag_.lu_backend = st.backend;
+    last_lu_res = st.rel_residual;
+    last_lu_before = st.rel_residual_before;
+    diag_.lu_residual = st.rel_residual;
+    diag_.lu_residual_before = st.rel_residual_before;
+    diag_.lu_refine_steps = st.refine_steps;
+    refine = st.refine_steps;
+    du.assign(2 * nv, 0.0);
+    dp.assign(nv, 0.0);
+    for (int k = 0; k < 2 * nv; ++k)
+      if (I.fu[k] >= 0) du[k] = x[I.fu[k]];
+    for (int a = 0; a < nv; ++a) dp[a] = x[nfu + a];
+    dlam = x[nfu + nv];
+    for (double v : x)
+      if (!std::isfinite(v)) {
+        diag_.failure = "linear solve returned a non-finite solution";
+        return false;
+      }
     return true;
   };
 
@@ -801,6 +854,8 @@ const GlsDiagnostics& GlsProblem::solve() {
     h.lu_refine = refine;
     h.lu_residual = last_lu_res;
     h.lu_residual_before = last_lu_before;
+    h.lu_attempts = last_lu_attempts;
+    h.lu_stage = diag_.lu_stage;
     diag_.history.push_back(h);
   };
   auto fail = [&](const std::string& why) {
@@ -911,6 +966,15 @@ const GlsDiagnostics& GlsProblem::solve() {
     diag_.relative_residual = r;
     diag_.converged = ok && std::isfinite(r) && r <= nl.newton_rtol;
     if (!diag_.converged && diag_.failure.empty()) diag_.failure = "not converged";
+  }
+  // the dual-norm mass solves: the verdict above is expressed in that norm, so it is not reported on an unchecked one
+  diag_.mass_lu_residual_max = I.mass_res_max;
+  if (!(I.mass_res_max <= kDualMassResidualMax)) {
+    diag_.converged = false;
+    if (diag_.failure.empty() || diag_.failure == "not converged")
+      diag_.failure = axmp::strcat("a dual-norm mass solve missed its accuracy target (worst relative residual ",
+                                  I.mass_res_max, " > ", kDualMassResidualMax,
+                                  "): every convergence verdict of this solver is expressed in that norm");
   }
   // fields: velocity as solved; pressure mean-free (c-weighted)
   double cp = 0, cs = 0;

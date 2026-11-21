@@ -6,7 +6,8 @@ Register it with any MCP client as a stdio server (command ``<venv>/bin/python``
 
 Designs live as JSON files in <workspace>/designs/<name>.json; solves write
 <workspace>/runs/<name>/{results.json, scene.json, <name>.html}.  Every tool
-returns JSON; errors carry 'where' and 'hint' so the agent can fix the input.
+returns JSON; errors carry 'where' and 'hint' so the agent can fix the input,
+and 'code' and 'details' when the error has them (the same four attributes as the exception).
 
 Solves, sweeps and optimizations run in a worker subprocess
 (``axionmultiphysics._mcp_worker``): they report MCP progress notifications while they
@@ -140,6 +141,8 @@ quoting numbers.  Sharp convex corners on superconductors give peak fields that 
 refinement (flagged; fields.superconductor_surface_regular_T excludes them): use fillets.
 """
 
+from ._error_payload import error_payload  # noqa: E402
+from .design import _require_em_document  # noqa: E402
 from ._mcp_modules import GUIDE as _MODULES_GUIDE  # noqa: E402
 
 GUIDE = GUIDE + _MODULES_GUIDE
@@ -149,15 +152,7 @@ server = MCPServer(name="axionmultiphysics", title="axionMultiPhysics detector d
 _NAME_RE = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9_.-]{0,79}$")   # no leading dot: no "..", no hidden files
 
 
-def _err(e: Exception) -> dict:
-    msg = str(e)
-    out = {"ok": False, "error": msg}
-    m = re.search(r"\[at ([^\]]*)\]", msg)
-    if m:
-        out["where"] = m.group(1)
-    if "Hint:" in msg:
-        out["hint"] = msg.split("Hint:", 1)[1].strip()
-    return out
+_err = error_payload
 
 
 def _path(name: str) -> Path:
@@ -416,6 +411,7 @@ def set_fullwave(name: str, f_min: float = 0.0, f_max: float = 0.0, points: int 
     section. Then call solve_design; results appear under 'fullwave'."""
     try:
         d = _load(name)
+        _require_em_document(d, "set_fullwave")
         if not frequencies and f_max <= 0 and modes <= 0:
             d.doc.pop("fullwave", None)
         else:
@@ -458,6 +454,7 @@ def set_hts(name: str, regions: list[str] | None = None, conductor: str = "rebco
     results appear under 'hts'."""
     try:
         d = _load(name)
+        _require_em_document(d, "set_hts")
         if not regions:
             d.doc.pop("hts", None)
         else:
@@ -509,7 +506,9 @@ def make_3d(name: str, save_as: str | None = None, slit_deg: float = 4.0, mesh: 
     try:
         from .convert import to_3d
 
-        d3 = to_3d(_load(name), slit_deg=slit_deg, mesh=mesh, pickup=pickup)
+        d = _load(name)
+        _require_em_document(d, "make_3d")
+        d3 = to_3d(d, slit_deg=slit_deg, mesh=mesh, pickup=pickup)
         out = save_as or f"{name}_3d"
         info = _save(out, d3)
         return {"ok": True, "saved_as": out, "regions": [r["name"] for r in d3.doc["regions"]],
@@ -572,6 +571,7 @@ async def optimize(name: str, free: dict[str, list[float]], ctx: Context, metric
     Runs in a worker subprocess: it reports progress per evaluation and cancel_job stops it."""
     try:
         base = _load(name)
+        _require_em_document(base, "optimize")
         out = await _run_job(ctx, "optimize", name,
                              {"design": base.doc, "free": free, "metric": metric, "benchmark": benchmark,
                               "max_evals": int(max_evals), "workdir": str(RUNS / f"{name}__opt")})
@@ -600,6 +600,7 @@ async def sensitivities(name: str, ctx: Context, parameters: list[str] | None = 
     Runs in a worker subprocess: it reports progress and can be stopped with cancel_job."""
     try:
         d = _load(name)
+        _require_em_document(d, "sensitivities")
         return await _run_job(ctx, "sensitivities", name,
                               {"design": d.doc, "workdir": str(RUNS / name), "parameters": parameters or [],
                                "quantities": quantities or [], "method": method, "step": float(step),
@@ -633,6 +634,7 @@ async def optimize_design(name: str, ctx: Context, objective: str = "cost",
     Runs in a worker subprocess: it reports progress per iteration and cancel_job stops it."""
     try:
         base = _load(name)
+        _require_em_document(base, "optimize_design")
         if not free:
             return {"ok": False, "error": "give free={'parameter': [low, high], ...}"}
         out = await _run_job(ctx, "optimize_adjoint", name,
@@ -669,6 +671,7 @@ async def optimize_global(name: str, free: dict[str, list[Any]], ctx: Context, o
     stops it)."""
     try:
         base = _load(name)
+        _require_em_document(base, "optimize_global")
         if not free:
             return {"ok": False, "error": "give free={'parameter': [low, high], ...}"}
         out = await _run_job(ctx, "optimize_global", name,

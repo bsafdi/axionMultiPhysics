@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <set>
 
 #include "axionmultiphysics/core.hpp"
@@ -811,7 +812,13 @@ double ScalarTransport::dual_norm(const mfem::Vector& R) const {
     fluids::CsrMatrix M = restrict_free(*mass_, free_map_, nfree_);
     mass_csr_ = fluids::DistCsr::from_serial(M);
     mass_csr_.sum_duplicates();
-    mass_lu_.reset(new fluids::SparseLU(lu_backend_));
+    // accepted on the gate of the dual-norm mass solves (the relative residual at fluids::kDualMassResidualMax)
+    mass_lu_.reset(new fluids::SparseLU(
+        fluids::chain_or_default(lu_chain_, lu_backend_, fluids::MatchingJob::MaxDiagonalProductScaling)));
+    fluids::LUAcceptance acceptance;
+    acceptance.kind = fluids::LUAcceptance::Kind::RelResidual;
+    acceptance.bound = fluids::kDualMassResidualMax;
+    mass_lu_->set_acceptance(acceptance);
     mass_lu_->set_refinement(10, 1e-15);
     mass_lu_->set_throw_on_miss(false);
     mass_lu_->set_refine_to_stagnation(true);
@@ -821,6 +828,11 @@ double ScalarTransport::dual_norm(const mfem::Vector& R) const {
   for (int i = 0; i < fes_->GetNDofs(); ++i)
     if (free_map_[i] >= 0) b[free_map_[i]] = R(i);
   const std::vector<double> y = mass_lu_->solve(b);
+  {
+    const double res = mass_lu_->stats().rel_residual;
+    mass_res_max_ = std::max(mass_res_max_, std::isfinite(res) ? res : std::numeric_limits<double>::infinity());
+    if (mass_lu_->attempts().size() > 1) ++mass_escalated_;
+  }
   double s = 0;
   for (int i = 0; i < nfree_; ++i) s += b[i] * y[i];
   return std::sqrt(std::max(s, 0.0));
@@ -830,6 +842,20 @@ SolveDiagnostics ScalarTransport::solve(mfem::Vector& T, const mfem::Vector* u, 
                                         int maxit) {
   AXMP_REQUIRE(finalized_, "solve before finalize()");
   SolveDiagnostics d;
+  reset_mass_lu_residual();
+  // every convergence verdict below is expressed in the dual norm: it is not reported on an unchecked norm
+  auto gate_mass = [this](SolveDiagnostics& dd) -> SolveDiagnostics {
+    dd.mass_lu_residual_max = mass_res_max_;
+    dd.mass_lu_escalated = mass_escalated_;
+    if (!(mass_res_max_ <= fluids::kDualMassResidualMax)) {
+      dd.converged = false;
+      if (dd.failure.empty() || dd.failure == "not converged")
+        dd.failure = axmp::strcat("a dual-norm mass solve missed its accuracy target (worst relative residual ",
+                                mass_res_max_, " > ", fluids::kDualMassResidualMax,
+                                "): every convergence verdict of this solver is expressed in that norm");
+    }
+    return dd;
+  };
   d.dofs = fes_->GetNDofs();
   lu_backend_ = lu;
   T = lift_;
@@ -839,12 +865,12 @@ SolveDiagnostics ScalarTransport::solve(mfem::Vector& T, const mfem::Vector* u, 
   d.free_dofs = nfree_;
   if (!(std::isfinite(d.residual_lift))) {
     d.failure = "the residual of the lift is not finite";
-    return d;
+    return gate_mass(d);
   }
   if (d.residual_lift == 0.0) {
     d.converged = true;
     d.relative_residual = 0.0;
-    return d;
+    return gate_mass(d);
   }
   double rel = 1.0;
   for (int it = 0; it < maxit && rel > rtol; ++it) {
@@ -855,11 +881,18 @@ SolveDiagnostics ScalarTransport::solve(mfem::Vector& T, const mfem::Vector* u, 
     std::vector<double> b(nfree_);
     for (int i = 0; i < d.dofs; ++i)
       if (free_map_[i] >= 0) b[free_map_[i]] = -R(i);
-    fluids::SparseLU slu(lu);
+    // On the chain, accepted on the relative residual at max(1e-2 rtol, kFinalSolveResidualMax): a threshold of its
+    // own (the solve had no gate on its LU before), recorded in every attempt.
+    fluids::SparseLU slu(fluids::chain_or_default(lu_chain_, lu, fluids::MatchingJob::MaxDiagonalProductScaling));
+    fluids::LUAcceptance acceptance;
+    acceptance.kind = fluids::LUAcceptance::Kind::RelResidual;
+    acceptance.bound = std::max(1e-2 * rtol, fluids::kFinalSolveResidualMax);
+    slu.set_acceptance(acceptance);
     slu.set_refinement(10, std::min(1e-13, 1e-2 * rtol));
     slu.set_throw_on_miss(false);
     slu.set_refine_to_stagnation(true);
     slu.set_threads(1);
+    bool solved = true;
     try {
       slu.factorize(D);
       const std::vector<double> x = slu.solve(b);
@@ -867,7 +900,14 @@ SolveDiagnostics ScalarTransport::solve(mfem::Vector& T, const mfem::Vector* u, 
         if (free_map_[i] >= 0) T(i) += x[free_map_[i]];
     } catch (const std::exception& ex) {
       d.failure = std::string("linear solve failed: ") + ex.what();
-      return d;
+      solved = false;
+    }
+    fluids::lu_count_solve(d.lu_counts, slu.attempts());
+    d.lu = slu.stats();
+    d.lu_attempts = slu.attempts();
+    if (!solved) {
+      d.lu.stage.clear();
+      return gate_mass(d);
     }
     d.lu_residual = slu.stats().rel_residual;
     residual_full(T, u, R);
@@ -877,7 +917,7 @@ SolveDiagnostics ScalarTransport::solve(mfem::Vector& T, const mfem::Vector* u, 
   d.relative_residual = rel;
   d.converged = std::isfinite(rel) && rel <= rtol;
   if (!d.converged && d.failure.empty()) d.failure = "not converged";
-  return d;
+  return gate_mass(d);
 }
 
 }  // namespace axmp::transport

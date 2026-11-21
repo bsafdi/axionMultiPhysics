@@ -495,6 +495,11 @@ How to read the table:
 - Physics is exported only with `--physics fullwave`, for 3D designs with a `port` pickup (section 4 lists
   what is and is not exported). Without it, selections carry the region roles. There is no MQS
   (Magnetic Fields, `mf`) export and no 2D-axisymmetric physics export.
+- The export is of electromagnetic designs. A model document (beta: a design with a top-level `physics` key),
+  given as a design, a design `.json` or the `design.json` of a run directory, is refused with
+  `model.em_only_operation` before anything is meshed or written; `axmp export-comsol` prints an error that has a
+  code (that refusal, or `model.section_needs_physics`) with the fields of the MCP error payload, in which `error` is
+  the whole message, and an error without a code as before (see the [command line](cli.md)).
 - The mesh export reads the gmsh MSH 2.2 files that axmp-mesher writes (`mesh.msh`, `mesh3d.msh`,
   ASCII or binary). It does not read MFEM `.mesh` files such as `fields/mesh_rank_*.mesh`. Use
   the `.msh` of the run directory instead. `mesh.refinements` (uniform refinement inside MFEM)

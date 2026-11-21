@@ -84,11 +84,20 @@ class CurrentDistribution:
     """Electrolyte potential with conductivity and electrode kinetics on a 2D triangle mesh (planar or axisymmetric
     meridian), Lagrange P1/P2; P2 on a mapped mesh is isoparametric (the mesh's edge-node rule).
 
-    quadrature: {"domain": degree, "boundary": degree}; default 2k + 4 for both (the rule of the verification cases)."""
+    quadrature: {"domain": degree, "boundary": degree}; default 2k + 4 for both (the rule of the verification cases).
+    curved: with order 2, use the mesh's P2 edge nodes (``mesh.edge_nodes()``); False takes straight edges. A mesh that
+    records geometry order 2 (``InstanceMesh.chem_mesh``) is never straightened: ``curved=False`` on one is a ValueError,
+    as is ``order=1``."""
 
     def __init__(self, mesh: TriMesh, order: int = 1, axisymmetric: bool = False, quadrature: Optional[dict] = None,
                  curved: bool = True):
         from .._core import chem as _c
+        if order == 1 and getattr(mesh, "geometry_order", 1) == 2:
+            raise ValueError(getattr(mesh, "p1_refusal", "") or "a field of order 1 on a mesh that records geometry order 2 "
+                             "is not offered: mesh the model with geometry order 1")
+        if order == 2 and not curved and getattr(mesh, "geometry_order", 1) == 2:
+            raise ValueError("curved=False would straighten a mesh that records geometry order 2 (it has nodes); use "
+                             "curved=True, or mesh the model with geometry order 1 (mesh.geometry_order)")
         self.mesh = mesh
         q = quadrature or {}
         dd = int(q.get("domain", 2 * order + 4))

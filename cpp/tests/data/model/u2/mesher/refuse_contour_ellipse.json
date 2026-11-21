@@ -1,0 +1,63 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "a",
+   "attr": 1,
+   "shape": {
+    "contour": {
+     "start": [
+      0,
+      0
+     ],
+     "segments": [
+      {
+       "line": [
+        1,
+        0
+       ]
+      },
+      {
+       "ellipse": {
+        "center": [
+         1,
+         0.5
+        ],
+        "axes": [
+         0.5,
+         0.5
+        ],
+        "t": [
+         -1.5707963267948966,
+         1.5707963267948966
+        ]
+       }
+      },
+      {
+       "line": [
+        0,
+        1
+       ]
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "wall": {
+   "of": [
+    "a"
+   ]
+  }
+ },
+ "size": 0.05,
+ "surface_size": 0.05,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

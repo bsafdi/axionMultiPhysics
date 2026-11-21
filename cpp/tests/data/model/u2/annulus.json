@@ -1,0 +1,22 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "annulus",
+  "description": "the ring R1 < r < R2 about the origin, meshed at geometry order 2; inner selected by the box of the inner circle, outer as the rest of the ring's boundary",
+  "symmetry": "planar",
+  "parameters": {"R1": 0.002, "R2": 0.005, "k": 0.6, "cp": 4180.0, "rho": 998.0},
+  "materials": {"slab": {"density": "rho", "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+  "regions": [
+    {"name": "ring", "material": "slab",
+     "shape": {"difference": [{"disk": {"center": [0, 0], "radius": "R2"}}, {"disk": {"center": [0, 0], "radius": "R1"}}]}}
+  ],
+  "boundaries": {
+    "inner": {"between": ["ring", "exterior"], "where": {"x": ["-R1", "R1"], "y": ["-R1", "R1"]}},
+    "outer": {"between": ["ring", "exterior"], "except": ["inner"]}
+  },
+  "physics": {
+    "heat": {"type": "heat.transfer",
+             "boundary_conditions": {"inner": {"kind": "temperature", "T_K": 310.0},
+                                     "outer": {"kind": "temperature", "T_K": 290.0}}}
+  },
+  "mesh": {"size": "R1/4", "geometry_order": 2}
+}

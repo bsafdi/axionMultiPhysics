@@ -9,7 +9,9 @@ unit tests that run in seconds on one rank (formulation: docs/physics/fluids.md)
       torque including the convective term converge (torque order ~4)
   U8  driver: history semantics (the true Stokes start equals solve_stokes), Picard-only = Newton, continuation and
       PTC reach the same state, pin = multiplier, the PTC release branch, a failed solve reported (not raised) with
-      its fields refused, and the refusals of unsupported options
+      its fields refused, the stop at the measured round-off floor of the residual (and its refusal far above the
+      floor, with a floor far above newton_rtol, or with residual_floor_factor = 0), and the refusals of unsupported
+      options
 """
 import math
 
@@ -250,6 +252,10 @@ def test_u8_refusals():
         ns(m, 1.0, bcs=cavity_bcs(), viscosity_scales=[2.0, 0.5])
     with pytest.raises(ValueError, match="continuation_re"):
         ns(m, 1.0, bcs=cavity_bcs(), re=100)
+    # a negative (or non-finite) factor for the stop at the round-off floor
+    for bad in (-1.0, float("nan"), float("inf")):
+        with pytest.raises(Exception, match="residual_floor_factor"):
+            ns(m, 1.0, bcs=cavity_bcs(), residual_floor_factor=bad)
 
 
 def test_u8_failed_solve_is_reported():
@@ -258,3 +264,92 @@ def test_u8_failed_solve_is_reported():
     d = sol.diagnostics
     assert not d["converged"] and d["failure"]
     assert len(sol.history) >= 2
+
+
+def test_u8_stop_at_round_off_floor():
+    """A gate just below the attainable round-off floor of the residual: the solve stops at the measured floor and
+    says so, the state it accepts is the one the solve that reaches 1e-12 finds, residual_floor_factor=0 leaves it
+    unconverged, and neither a stop far above the floor nor a floor far above the gate is accepted."""
+    m, bcs = rect(12, 12), cavity_bcs()
+    ref = ns(m, 1.0 / 300, bcs=bcs)
+    assert ref.diagnostics["converged"] and not ref.diagnostics["stopped_at_floor"]
+    # what this problem can attain: the whole budget with the rule switched off, which is also the check that
+    # residual_floor_factor=0 leaves such a solve unconverged
+    off = ns(m, 1.0 / 300, bcs=bcs, newton_rtol=1e-16, newton_maxit=40, residual_floor_factor=0.0)
+    assert not off.diagnostics["converged"] and not off.diagnostics["stopped_at_floor"]
+    assert off.diagnostics["failure"] and off.diagnostics["relative_residual"] < 1e-11
+    attainable = min(h["residual"] for h in off.history)
+    assert 0 < attainable < 1e-13
+    rtol = attainable / 2    # a gate just below what round-off allows on this mesh: a near miss, not an impossibility
+    sol = ns(m, 1.0 / 300, bcs=bcs, newton_rtol=rtol)
+    d = sol.diagnostics
+    assert d["converged"] and d["stopped_at_floor"] and not d["failure"]
+    assert 0 < d["residual_floor"] < 1e-9
+    assert d["relative_residual"] <= 4 * d["residual_floor"]
+    # an accepted stop keeps the residual within a decade of the tolerance that was asked for
+    assert d["relative_residual"] <= 10 * rtol
+    # the stop is taken on a step that no longer reduced the residual, never while the iteration still makes progress
+    assert len(sol.history) >= 2 and sol.history[-1]["residual"] >= sol.history[-2]["residual"]
+    # the accepted state is the solution: the velocity of both solves at the same points
+    q = np.array([[1 / 3, 1 / 3], [0.2, 0.6], [0.7, 0.1]])
+    el = np.arange(ref.n_elements, dtype=np.int32)
+    assert np.max(np.abs(ref.velocity(el, q)[0] - sol.velocity(el, q)[0])) < 1e-10
+    # with continuation stages the stop belongs to one stage: the two residuals it compares, and the floor it
+    # reports, come from the stage the solve ends in
+    cont = ns(m, 1.0 / 300, bcs=bcs, continuation_re=[150, 300], newton_rtol=rtol)
+    d = cont.diagnostics
+    assert d["converged"] and d["stopped_at_floor"] and d["relative_residual"] <= 4 * d["residual_floor"]
+    assert cont.history[-1]["stage"] == cont.history[-2]["stage"]
+    assert cont.history[-1]["residual"] >= cont.history[-2]["residual"]
+    # a gate a hundred times below what round-off allows is not a near miss: the iteration stagnates at the floor
+    # (the floor is measured and the residual is within the factor of it), and only the ceiling refuses the stop
+    deep = ns(m, 1.0 / 300, bcs=bcs, newton_rtol=attainable / 100)
+    d = deep.diagnostics
+    assert not d["converged"] and not d["stopped_at_floor"] and d["failure"]
+    assert d["residual_floor"] > 0 and d["relative_residual"] <= 4 * d["residual_floor"]
+    assert d["relative_residual"] > 10 * attainable / 100
+    high = ns(m, 1.0 / 300, bcs=bcs, newton_maxit=0)   # the Picard steps only: far above the floor
+    assert not high.diagnostics["converged"] and not high.diagnostics["stopped_at_floor"]
+    assert high.diagnostics["relative_residual"] > 1e-8
+    # a Picard iteration that STAGNATES far above the floor (Re = 2000) is not accepted either: with the gate just
+    # below that stagnation level the ceiling is satisfied, so only the magnitude test can refuse the stop
+    stall = ns(m, 1.0 / 2000, bcs=bcs, n_picard=10, newton_maxit=0, residual_floor_factor=0.0)
+    assert not stall.diagnostics["converged"] and stall.diagnostics["relative_residual"] > 1e-4
+    level = stall.diagnostics["relative_residual"]
+    again = ns(m, 1.0 / 2000, bcs=bcs, n_picard=10, newton_maxit=0, newton_rtol=level / 4)
+    d = again.diagnostics
+    assert not d["converged"] and not d["stopped_at_floor"] and d["failure"]
+    assert d["residual_floor"] > 0 and d["relative_residual"] <= 10 * level / 4
+    assert d["relative_residual"] > 1e6 * d["residual_floor"]
+    # a channel 1e6 long and 1 high in 4 x 8 cells: its floor stands a hundred times above newton_rtol, so a stop
+    # there would not bound the residual anywhere near the tolerance asked for, and the ceiling refuses it
+    ch = rect(4, 8, x1=1e6)
+    wall = [{"attribute": a, "kind": "dirichlet"} for a in (B, T)]
+    pull = [{"attribute": R, "kind": "traction", "value": (1e6, 0.0)}, {"attribute": L, "kind": "do_nothing"}]
+    thin = ns(ch, 1.0, force=(1.0, 0.0), bcs=wall + pull)
+    d = thin.diagnostics
+    assert not d["converged"] and not d["stopped_at_floor"] and d["failure"]
+    assert d["residual_floor"] > 1e-11 and d["relative_residual"] > 10 * 1e-12
+    # the iteration does stagnate there (a floor was measured) within the factor of the floor, so the stagnation and
+    # magnitude clauses are met and the refusal is the ceiling's
+    assert d["relative_residual"] <= 4 * d["residual_floor"]
+
+
+def test_u8_floor_stop_is_newton_strategy_only():
+    """strategy "picard" and "ptc" stop on newton_rtol alone: with a gate just below the attainable residual, where the
+    Newton strategy stops at the floor, they run out of budget, measure no floor and never set stopped_at_floor."""
+    m, bcs = rect(8, 8), cavity_bcs()
+    off = ns(m, 1.0 / 100, bcs=bcs, newton_rtol=1e-16, newton_maxit=40, residual_floor_factor=0.0)
+    attainable = min(h["residual"] for h in off.history)
+    assert not off.diagnostics["converged"] and 0 < attainable < 1e-13
+    rtol = attainable / 2
+    newton = ns(m, 1.0 / 100, bcs=bcs, newton_rtol=rtol)
+    assert newton.diagnostics["converged"] and newton.diagnostics["stopped_at_floor"]
+    for strategy in ("picard", "ptc"):
+        sol = ns(m, 1.0 / 100, bcs=bcs, newton_rtol=rtol, strategy=strategy, picard_maxit=60, ptc_maxit=60)
+        d = sol.diagnostics
+        assert not d["converged"] and not d["stopped_at_floor"] and d["failure"], strategy
+        assert d["residual_floor"] == -1, strategy
+        # it did reach the round-off level the Newton strategy stops at: the refusal is the strategy's, not a
+        # residual far from the floor
+        assert d["relative_residual"] <= 4 * newton.diagnostics["residual_floor"], (strategy, d["relative_residual"])

@@ -1,0 +1,69 @@
+{
+ "bounded": true,
+ "geometry": "planar",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "box",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      1
+     ],
+     "z": [
+      0,
+      1
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "a": {
+   "of": [
+    "box"
+   ],
+   "where": {
+    "x": [
+     0
+    ]
+   }
+  },
+  "b": {
+   "union": [
+    {
+     "ref": "a"
+    },
+    {
+     "of": [
+      "box"
+     ],
+     "where": {
+      "y": [
+       0
+      ]
+     }
+    }
+   ]
+  },
+  "a+b": {
+   "of": [
+    "box"
+   ],
+   "where": {
+    "x": [
+     1
+    ]
+   }
+  }
+ },
+ "size": 0.25,
+ "surface_size": 0.25,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

@@ -70,6 +70,9 @@ kinetics error is set by the tolerances, and the sum of the concentrations is co
 
 ## Conventions
 
+- A mesh can also come from a model document: `axmp.mesh(d).chem_mesh(order=2)` returns a `chem.TriMesh` with the
+  instance's boundary attributes and, on a curved mesh, its P2 edge nodes (a field of order 1 needs geometry order 1); see
+  [Meshes of model documents](model_meshes.md#handing-a-mesh-to-the-engines).
 - SI units throughout; anodic currents are positive; the overpotential is `eta = phi_s - phi - E_eq`. Axisymmetric
   meshes live in the meridian `(r, z)` and every integral carries `r` ("per radian"), while galvanostatic currents
   are 3D totals.

@@ -70,13 +70,45 @@ bool TransientNavierStokes::initialize(double t0, mfem::VectorCoefficient& u0, b
   L.p = ns_->state_p();
   hist_.clear();
   hist_.push_back(L);
+  init_failed_ = !ok;
+  init_residual_ = ns_->diagnostics().projection_residual;
+  init_attempts_.clear();
+  for (const LUAttempt& a : ns_->diagnostics().projection_lu_attempts) {
+    std::string why = a.reason.size() > 160 ? a.reason.substr(0, 157) + "..." : a.reason;
+    init_attempts_ += (init_attempts_.empty() ? "" : "; ") + a.stage + ": " + a.outcome + " (" + why + ")";
+  }
   return ok;
+}
+
+std::string TransientNavierStokes::initialization_failure_hint() const {
+  std::string h = strcat("Check initialize()'s return value; the projection's residual, verdict and attempts are in the "
+                         "diagnostics (projection_residual, projection_converged, projection_lu_attempts). The attempts "
+                         "of its solve, each stage of the sparse LU chain: ",
+                         init_attempts_.empty() ? std::string("none recorded") : init_attempts_, ". ");
+  // the other pressure treatment, with what was measured of it on scaled and stretched domains
+  if (ns_->diagnostics().linear.nullspace == "multiplier")
+    h += "It was solved with the mean-value multiplier. Where the multiplier was refused on scaled or stretched "
+         "domains, the pinned pressure passed with both backends: construct the solver with nullspace=\"pin\" in "
+         "Python (Nullspace::PinPressure in C++; lu=\"eigen\" with nullspace=\"auto\" implies it). The pin is not "
+         "accurate everywhere: with Eigen's LU on a 1e9 x 1e4 domain it was refused where the multiplier passed with "
+         "STRUMPACK.";
+  else if (ns_->diagnostics().linear.nullspace == "none")
+    h += "The flow has an open boundary, which fixes the pressure: there is no pressure treatment to change. "
+         "With lengths of 1e7 and more Eigen's LU loses accuracy: a length unit in which the domain is not that large "
+         "helps.";
+  else
+    h += "It was solved with the pinned pressure (nullspace=\"pin\"; lu=\"eigen\" with nullspace=\"auto\" implies "
+         "it). Where the pin was refused with Eigen's LU on a scaled domain (1e9 x 1e4), the mean-value multiplier passed with "
+         "STRUMPACK (nullspace=\"multiplier\", in a build with STRUMPACK). With lengths of 1e7 and more Eigen's LU "
+         "loses accuracy: a length unit in which the domain is not that large helps.";
+  return h;
 }
 
 void TransientNavierStokes::set_history(const std::vector<double>& times, const std::vector<mfem::Vector>& states) {
   AXMP_REQUIRE(!times.empty() && times.size() == states.size() && times.size() <= 3,
               "set_history needs 1 to 3 (time, state) pairs, newest first", "set_history");
   hist_.clear();
+  init_failed_ = false;  // the caller supplies a state
   for (size_t i = 0; i < times.size(); ++i) {
     Level L;
     L.t = times[i];
@@ -129,6 +161,10 @@ mfem::Vector TransientNavierStokes::milne_estimate(int order, double tn, const m
 }
 
 StepResult TransientNavierStokes::step_impl(double dt, int force_order, bool want_estimate) {
+  AXMP_REQUIRE(!init_failed_,
+              strcat("the initial Leray projection failed its accuracy gate (backward error ", init_residual_,
+                     "): the integrator has no valid state to step from"),
+              "initialize", initialization_failure_hint());
   AXMP_REQUIRE(!hist_.empty(), "the solver is not initialized", "initialize");
   AXMP_REQUIRE(dt > 0 && std::isfinite(dt), "the time step must be positive", "dt");
   const Level& prev = hist_.front();
@@ -176,14 +212,20 @@ StepResult TransientNavierStokes::step_impl(double dt, int force_order, bool wan
   r.relative_residual = d.relative_residual;
   r.iterations = d.iterations;
   r.lu_refine = d.linear.lu.refine_steps;
+  r.lu_residual = d.lu_residual_max;
   r.failure = d.failure;
   r.t = tn;
   r.dt = dt;
   r.order = order;
   stats_.solves += 1;
-  stats_.lu_fallbacks = d.lu_fallbacks;
+  stats_.lu_counts += d.lu_counts;
+  stats_.mass_lu_escalated += d.mass_lu_escalated;
+  stats_.lu_fallbacks += d.lu_fallbacks;
   if (!d.lu_fallback_backend.empty()) stats_.lu_fallback_backend = d.lu_fallback_backend;
   stats_.newton_iterations += d.iterations;
+  stats_.lu_residual_max = std::max(stats_.lu_residual_max, d.lu_residual_max);
+  stats_.lu_target_missed += d.lu_target_missed;
+  stats_.mass_lu_residual_max = std::max(stats_.mass_lu_residual_max, d.mass_lu_residual_max);
   stats_.max_relative_residual = std::max(stats_.max_relative_residual, d.relative_residual);
   if (!d.converged) {
     stats_.all_converged = false;

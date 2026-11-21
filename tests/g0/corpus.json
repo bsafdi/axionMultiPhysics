@@ -1,0 +1,6230 @@
+{
+ "documents": [
+  {
+   "id": "not_json_empty_file",
+   "why": "an empty file",
+   "text": ""
+  },
+  {
+   "id": "not_json_truncated",
+   "why": "JSON cut off in the middle of an object",
+   "text": "{\"mesh\": {\"order\": 2, \"size\": \"max(R, H)/30\", \"surface_size\": \"min(ts, g, tw)\"}, \"name\": \"toroid\", \"parameters\": {\"H\": 2.0, \"NI\": 1000000.0, \"R\": 2.0, \"f\": \"0.02*R\", \"g\": \"0.005*R\", \"ts\": \"0.005*R\", \""
+  },
+  {
+   "id": "not_json_trailing_comma",
+   "why": "a trailing comma",
+   "text": "{\"schema\": \"axionmultiphysics.design/1\",}"
+  },
+  {
+   "id": "not_json_text",
+   "why": "plain text",
+   "text": "this is not a design"
+  },
+  {
+   "id": "top_array",
+   "why": "the document is an array",
+   "doc": [
+    1,
+    2,
+    3
+   ]
+  },
+  {
+   "id": "top_number",
+   "why": "the document is a number",
+   "doc": 3
+  },
+  {
+   "id": "top_null",
+   "why": "the document is null",
+   "text": "null"
+  },
+  {
+   "id": "empty_object",
+   "why": "an empty object: nothing required is present",
+   "doc": {}
+  },
+  {
+   "id": "schema_wrong",
+   "why": "an unknown schema string",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/9",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "schema_not_string",
+   "why": "schema is a number",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": 1,
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "accepted_schema_missing",
+   "why": "NOT refused: a document without a schema key is accepted (the schema key is optional)",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "top_unknown_key",
+   "why": "an unknown top-level key",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "bogus": 1
+   }
+  },
+  {
+   "id": "top_unknown_key_typo",
+   "why": "a misspelled top-level key (regions)",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "region": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "mesh_unknown_key",
+   "why": "an unknown key in mesh",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)",
+     "bogus": 1
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mesh_order_zero",
+   "why": "mesh.order 0",
+   "doc": {
+    "mesh": {
+     "order": 0,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mesh_order_big",
+   "why": "mesh.order 9",
+   "doc": {
+    "mesh": {
+     "order": 9,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mesh_order_string",
+   "why": "mesh.order is a string",
+   "doc": {
+    "mesh": {
+     "order": "two",
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mesh_size_bad_expr",
+   "why": "mesh.size is a malformed expression",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, ",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mesh_not_object",
+   "why": "mesh is a list",
+   "doc": {
+    "mesh": [],
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "param_not_number",
+   "why": "a parameter that is a list",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": [
+      1
+     ],
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "param_undefined_ref",
+   "why": "an expression names an undefined parameter",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*Q",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "param_syntax",
+   "why": "an expression with unbalanced parentheses",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "(0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "param_unknown_function",
+   "why": "an expression calls an unknown function",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "frobnicate(R)",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "param_cycle",
+   "why": "two parameters defined by each other",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": "R",
+     "NI": 1000000.0,
+     "R": "H",
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "param_divide_by_zero",
+   "why": "a parameter that divides by zero",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "1/0",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "params_not_object",
+   "why": "parameters is a list",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": [],
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "region_unknown_key",
+   "why": "an unknown key in a region",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      },
+      "bogus": 1
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "region_unknown_material",
+   "why": "a region names a material that does not exist",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "unobtainium",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "region_duplicate_name",
+   "why": "two regions with one name",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "region_missing_shape",
+   "why": "a region without a shape",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding"
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "region_missing_name",
+   "why": "a region without a name",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "regions_empty",
+   "why": "an empty region list",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "regions_not_list",
+   "why": "regions is an object",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": {},
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "shape_unknown_kind",
+   "why": "a shape of an unknown kind",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "hexagon": {}
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "shape_frame_no_thickness",
+   "why": "a frame without thickness",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "shape_frame_unknown_key",
+   "why": "a frame with an unknown key",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ],
+        "bogus": 1
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "shape_inverted_r",
+   "why": "a frame whose r interval is reversed",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "R+tw",
+         "y*R-tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "shape_negative_r",
+   "why": "a frame at negative radius",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "-R",
+         "R"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "shape_r_one_value",
+   "why": "a frame whose r has one entry",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "R"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "winding_unknown_region",
+   "why": "a winding on a region that does not exist",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "nowhere",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "winding_bad_type",
+   "why": "a winding of an unknown type",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "spiral"
+     }
+    ]
+   }
+  },
+  {
+   "id": "winding_missing_ampere_turns",
+   "why": "a winding without ampere_turns",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "winding_unknown_key",
+   "why": "a winding with an unknown key",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal",
+      "bogus": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "windings_not_list",
+   "why": "windings is a string",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": "toroid"
+   }
+  },
+  {
+   "id": "pickup_unknown_conductor",
+   "why": "a pickup on an unknown conductor",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "nowhere",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pickup_bad_type",
+   "why": "a pickup of an unknown type",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "radial"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pickup_unknown_key",
+   "why": "a pickup with an unknown key",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal",
+     "bogus": 1
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "supercon_unknown_body",
+   "why": "a superconductor on an unknown body",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "nowhere",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "supercon_unknown_key",
+   "why": "a superconductor with an unknown key",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      },
+      "bogus": 1
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "symmetry_unknown",
+   "why": "an unknown symmetry",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "symmetry": "spherical"
+   }
+  },
+  {
+   "id": "materials_unknown_key",
+   "why": "a material block with an unknown key",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "bogus": 1
+     }
+    }
+   }
+  },
+  {
+   "id": "materials_negative_mu",
+   "why": "a material with negative relative permeability",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "linear",
+      "mu_r": -2
+     }
+    }
+   }
+  },
+  {
+   "id": "mesh_file_missing",
+   "why": "mesh.file names a file that does not exist",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)",
+     "file": "/nonexistent/mesh.msh"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ]
+   }
+  },
+  {
+   "id": "cost_unknown_key",
+   "why": "an unknown key in cost",
+   "doc": {
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "cost": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "accepted_duplicate_key",
+   "why": "NOT refused: a repeated key is accepted and the last value wins; kept so that its output is pinned",
+   "text": "{\n \"mesh\": {\n  \"order\": 2,\n  \"size\": \"max(R, H)/30\",\n  \"surface_size\": \"min(ts, g, tw)\"\n },\n \"name\": \"first\",\n \"name\": \"toroid\",\n \"parameters\": {\n  \"H\": 2.0,\n  \"NI\": 1000000.0,\n  \"R\": 2.0,\n  \"f\": \"0.02*R\",\n  \"g\": \"0.005*R\",\n  \"ts\": \"0.005*R\",\n  \"tw\": \"0.01*R\",\n  \"y\": \"exp(-0.5)\"\n },\n \"pickup\": {\n  \"conductor\": \"sheath\",\n  \"type\": \"azimuthal\"\n },\n \"regions\": [\n  {\n   \"material\": \"winding\",\n   \"name\": \"winding\",\n   \"shape\": {\n    \"frame\": {\n     \"r\": [\n      \"y*R-tw\",\n      \"R+tw\"\n     ],\n     \"thickness\": \"tw\",\n     \"z\": [\n      \"-H/2-tw\",\n      \"H/2+tw\"\n     ]\n    }\n   }\n  },\n  {\n   \"material\": \"nb\",\n   \"name\": \"sheath\",\n   \"shape\": {\n    \"frame\": {\n     \"fillet\": \"f\",\n     \"r\": [\n      \"y*R-tw-g-ts\",\n      \"R+tw+g+ts\"\n     ],\n     \"thickness\": \"ts\",\n     \"z\": [\n      \"-H/2-tw-g-ts\",\n      \"H/2+tw+g+ts\"\n     ]\n    }\n   }\n  }\n ],\n \"schema\": \"axionmultiphysics.design/1\",\n \"superconductors\": [\n  {\n   \"azimuthal\": {\n    \"net_current\": 0\n   },\n   \"azimuthal_slit\": true,\n   \"body\": \"sheath\",\n   \"poloidal\": {\n    \"net_current\": 0\n   }\n  }\n ],\n \"windings\": [\n  {\n   \"ampere_turns\": \"NI\",\n   \"name\": \"toroid\",\n   \"region\": \"winding\",\n   \"type\": \"poloidal\"\n  }\n ]\n}"
+  },
+  {
+   "id": "conductors_unknown_key",
+   "why": "an unknown key in a conductor definition",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "conductors": {
+     "nbti": {
+      "bogus": 1
+     }
+    }
+   }
+  },
+  {
+   "id": "curves_unknown_key",
+   "why": "an unknown key in a curve",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "curves": [
+     {
+      "name": "c",
+      "bogus": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "circuits_unknown_key",
+   "why": "an unknown key in a circuit",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "circuits": [
+     {
+      "name": "c",
+      "type": "current",
+      "current": 1,
+      "bogus": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "background_unknown_key",
+   "why": "an unknown key in background",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "background": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "fullwave_unknown_key",
+   "why": "an unknown key in fullwave",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "fullwave": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "cavity_unknown_key",
+   "why": "an unknown key in cavity",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "cavity": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "hts_unknown_key",
+   "why": "an unknown key in hts",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "hts": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "electrostatics_unknown_key",
+   "why": "an unknown key in electrostatics",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "electrostatics": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "benchmarks_unknown_key",
+   "why": "an unknown key in a benchmark",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "benchmarks": [
+     {
+      "name": "b",
+      "bogus": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "scan_unknown_key",
+   "why": "an unknown key in scan",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "scan": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "mechanics_unknown_key",
+   "why": "an unknown key in mechanics",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "mechanics": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "thermal_unknown_key",
+   "why": "an unknown key in thermal",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "thermal": {
+     "bogus": 1
+    }
+   }
+  },
+  {
+   "id": "material_unknown_key",
+   "why": "an unknown key in a material",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "bogus": 1
+     }
+    }
+   }
+  },
+  {
+   "id": "material_mechanical_unknown_key",
+   "why": "an unknown key in a material's mechanical block",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "mechanical": {
+       "E_Pa": 1000000000.0,
+       "nu": 0.3,
+       "bogus": 1
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_mechanical_E_not_positive",
+   "why": "a material's Young's modulus E_Pa that is not positive",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "mechanical": {
+       "E_Pa": -1.0,
+       "nu": 0.3
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_mechanical_nu_too_large",
+   "why": "a material's Poisson ratio nu = 0.5, which is incompressible",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "mechanical": {
+       "E_Pa": 1000000000.0,
+       "nu": 0.5
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_mechanical_nu_too_small",
+   "why": "a material's Poisson ratio nu = -1",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "mechanical": {
+       "E_Pa": 1000000000.0,
+       "nu": -1.0
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_mechanical_missing_nu",
+   "why": "a material's mechanical block without nu",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "mechanical": {
+       "E_Pa": 1000000000.0
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_thermal_unknown_key",
+   "why": "an unknown key in a material's thermal block",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "thermal": {
+       "k_W_mK": 1.0,
+       "bogus": 1
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_thermal_k_not_positive",
+   "why": "a material's thermal conductivity k_W_mK that is not positive",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "thermal": {
+       "k_W_mK": 0.0
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_thermal_table_one_row",
+   "why": "a k(T) table with a single row",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "thermal": {
+       "k_W_mK": [
+        [
+         4.0,
+         1.0
+        ]
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_thermal_table_not_increasing",
+   "why": "a k(T) table whose temperatures do not increase",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "thermal": {
+       "k_W_mK": [
+        [
+         10.0,
+         1.0
+        ],
+        [
+         4.0,
+         2.0
+        ]
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_thermal_table_k_not_positive",
+   "why": "a k(T) table with a non-positive conductivity",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "thermal": {
+       "k_W_mK": [
+        [
+         4.0,
+         1.0
+        ],
+        [
+         10.0,
+         -2.0
+        ]
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_thermal_table_bad_row",
+   "why": "a k(T) table row that is not a [T_K, k] pair",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "thermal": {
+       "k_W_mK": [
+        [
+         4.0,
+         1.0,
+         3.0
+        ],
+        [
+         10.0,
+         2.0
+        ]
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "id": "material_thermal_missing_k",
+   "why": "a material's thermal block without k_W_mK",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "thermal": {}
+     }
+    }
+   }
+  },
+  {
+   "id": "material_rf_unknown_key",
+   "why": "an unknown key in a material's rf block",
+   "doc": {
+    "description": "Toroidal magnet (ABRACADABRA / DMRadio-GUT topology). The static field B_phi fills the rectangular box y R < r < R, |z| < H/2, wound by a poloidal winding of thickness tw. A superconducting sheath of thickness ts encloses the winding with clearance g and carries the readout current around the central hole through a meridional slit (azimuthal pickup). For a long toroid the geometry factor is g = y^2 ln(1/y), largest at y = e^(-1/2).",
+    "mesh": {
+     "order": 2,
+     "size": "max(R, H)/30",
+     "surface_size": "min(ts, g, tw)"
+    },
+    "name": "toroid",
+    "parameters": {
+     "H": 2.0,
+     "NI": 1000000.0,
+     "R": 2.0,
+     "f": "0.02*R",
+     "g": "0.005*R",
+     "ts": "0.005*R",
+     "tw": "0.01*R",
+     "y": "exp(-0.5)"
+    },
+    "pickup": {
+     "conductor": "sheath",
+     "type": "azimuthal"
+    },
+    "regions": [
+     {
+      "material": "winding",
+      "name": "winding",
+      "shape": {
+       "frame": {
+        "r": [
+         "y*R-tw",
+         "R+tw"
+        ],
+        "thickness": "tw",
+        "z": [
+         "-H/2-tw",
+         "H/2+tw"
+        ]
+       }
+      }
+     },
+     {
+      "material": "nb",
+      "name": "sheath",
+      "shape": {
+       "frame": {
+        "fillet": "f",
+        "r": [
+         "y*R-tw-g-ts",
+         "R+tw+g+ts"
+        ],
+        "thickness": "ts",
+        "z": [
+         "-H/2-tw-g-ts",
+         "H/2+tw+g+ts"
+        ]
+       }
+      }
+     }
+    ],
+    "schema": "axionmultiphysics.design/1",
+    "superconductors": [
+     {
+      "azimuthal": {
+       "net_current": 0
+      },
+      "azimuthal_slit": true,
+      "body": "sheath",
+      "poloidal": {
+       "net_current": 0
+      }
+     }
+    ],
+    "windings": [
+     {
+      "ampere_turns": "NI",
+      "name": "toroid",
+      "region": "winding",
+      "type": "poloidal"
+     }
+    ],
+    "materials": {
+     "m": {
+      "kind": "conductor",
+      "rf": {
+       "model": "skin",
+       "rho_ohm_m": 1e-08,
+       "bogus": 1
+      }
+     }
+    }
+   }
+  }
+ ]
+}

@@ -218,6 +218,7 @@ def run_entry(level, sol, sec, h, info, family, refinement_level, opts):
          "solver": {"converged": bool(g("converged")), "relative_residual": float(g("relative_residual")),
                     "relative_residual_dual_scaled": float(g("relative_residual")),
                     "relative_residual_unscaled_euclid": _safe_euclid(sol),
+                    "residual_floor": g("residual_floor"), "stopped_at_floor": bool(g("stopped_at_floor")),
                     "mhd_row_scale": g("mhd_row_scale"), "mhd_phi_scale": g("mhd_phi_scale"),
                     "residual_lift": g("residual_lift"), "iterations": int(g("iterations", -1)),
                     "history": hist, "newton_steps": sum(1 for x in hist if x.get("kind") == "newton"),
@@ -249,6 +250,10 @@ class Run:
         self.runs, self.ser, self.acc, self.notes = [], {}, Acc(), []
         self.failed = []
         self.rtol = 1e-12
+        # record relative_residual_unscaled_euclid_max over the case's solves (a gate independent of the scaled dual
+        # norm the solver stops on) and relative_residual_unscaled_euclid_missing, the number of solves that gave no
+        # finite value for it, so that a solve cannot drop out of the maximum unnoticed
+        self.track_euclid = False
 
     def solve(self, level, mesh, info, h, mu, rho, force, bcs, mhd, family=None, refinement_level=None, **kw):
         opts = dict(form="laplacian", geometry="planar25d", vectorized=True, lu_threads=1,
@@ -258,6 +263,13 @@ class Run:
         sol = fluids.solve_navier_stokes(mesh, mu, rho, force, bcs, mhd=mhd, **opts)
         sec = time.time() - t0
         self.runs.append(run_entry(level, sol, sec, h, info, family, refinement_level, opts))
+        if self.track_euclid:
+            eu = self.runs[-1]["solver"].get("relative_residual_unscaled_euclid")
+            have = isinstance(eu, (int, float)) and math.isfinite(float(eu))
+            if have:
+                self.acc.max("relative_residual_unscaled_euclid_max", float(eu))
+            self.acc.q["relative_residual_unscaled_euclid_missing"] = (
+                self.acc.q.get("relative_residual_unscaled_euclid_missing", 0) + (0 if have else 1))
         ok = bool(sol.diagnostics["converged"])
         if not ok:
             self.failed.append(level)
@@ -519,6 +531,7 @@ A1_SERIES = {
 
 def hartmann(params, workdir, quick):
     R = Run(params, quick)
+    R.track_euclid = True
     strip = params["meshes"]["strip"]
     hs = strip["h_nominal"]
     ks = _levels(strip["k"], quick)
@@ -585,6 +598,12 @@ def hartmann(params, workdir, quick):
     if r["ok"]:
         R.acc.q["Ha0_patch_u_rel"] = r["norms"]["uL2"] / r["norms"]["u_magnitude"]
         R.acc.q["Ha0_patch_p_rel"] = r["norms"]["pL2"] / r["norms"]["p_magnitude"]
+    # the same patch test on the finest level of the Ha = 0 sweep: the Poiseuille solution is in the P2/P1 spaces,
+    # so these are round-off measures of the direct solve on the level whose residual stands at the round-off floor
+    f0 = finest.get("inplane_short_Ha0")
+    if f0:
+        R.acc.q["Ha0_patch_u_rel_finest"] = f0["norms"]["uL2"] / f0["norms"]["u_magnitude"]
+        R.acc.q["Ha0_patch_p_rel_finest"] = f0["norms"]["pL2"] / f0["norms"]["p_magnitude"]
     rel = []
     for Ha in (10.0, 100.0, 1000.0):
         f = finest.get(f"inplane_short_Ha{Ha:g}")

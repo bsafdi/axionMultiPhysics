@@ -1,0 +1,121 @@
+{
+  "name": "poiseuille_channel",
+  "test": "tests/test_fluids_model_bridge.py::test_poiseuille_both_forms",
+  "description": "axmp.mesh(channel) (the design note's 4.1 channel, L = 4H): the parabolic inflow 6 U y (H - y) / H^2 on inlet, do_nothing on outlet, no-slip on walls; with form laplacian plane Poiseuille flow is exact in P2/P1 (asserted); with form stress the outlet disturbance is not an exactness test: it is asserted to exceed 1e-3 U_mean within H of the outlet and to fall by at least 100 from x < L - H to x < L - 2H; its values are recorded",
+  "build": "mpi",
+  "mesh": "the mesher's unstructured mesh of the document (gmsh, bounded planar mode, algorithm and options of axmp-mesher), mesh.size = H/16, geometry order 2 (the default: straight edges, with nodes); one process",
+  "instance": null,
+  "solver": {
+    "solver": "direct",
+    "lu": "the build's default (fluids.default_lu())",
+    "lu_threads": 1,
+    "lu_retry": "auto",
+    "direct_tol": 1e-10
+  },
+  "data": {
+    "L": 0.04,
+    "H": 0.01,
+    "U_mean": 0.01,
+    "nu": 1.0038068523342016e-06,
+    "inlet": "inlet",
+    "outlet": "outlet",
+    "walls": "walls"
+  },
+  "end_modes": {
+    "symmetric": "velocity even about the centreline: sin 2k - 2k = 0, 2k = 7.4977 + 2.7687i, a factor exp(-7.50) = 5.5e-4 per channel height; excited by the stress form's outlet condition on every mesh; dominates between L - H and L - 2H",
+    "antisymmetric": "sin 2k + 2k = 0, 2k = 4.2124 + 2.2507i, a factor exp(-4.21) = 1.5e-2 per channel height; not excited by the continuous problem, excited at a small amplitude on an unstructured mesh; can dominate beyond about 2.5H, so the ratio between L - 2H and L - 3H is recorded only (every end mode gives at least exp(4.21) = 67 there)"
+  },
+  "tolerance": {
+    "u": {
+      "what": "max |u - u_P| / (1.5 U) at the seven sample points (vertices, edge midpoints, centroid) of every element, form laplacian",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.1698787962216577e-14,
+        "AMD EPYC 7401 24-Core Processor / mpi": 1.187351891126764e-14,
+        "AMD EPYC 7452 32-Core Processor / mpi": 1.187351891126764e-14
+      },
+      "asserted": 1e-12
+    },
+    "p": {
+      "what": "max |p - p_P| / (12 nu U L / H^2) at the seven sample points (vertices, edge midpoints, centroid) of every element, form laplacian",
+      "ceiling": 1e-08,
+      "measured": {
+        "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.7579596805331888e-14,
+        "AMD EPYC 7401 24-Core Processor / mpi": 1.6876412933118614e-14,
+        "AMD EPYC 7452 32-Core Processor / mpi": 1.6876412933118614e-14
+      },
+      "asserted": 1e-12
+    }
+  },
+  "recorded": {
+    "near_outlet": {
+      "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 0.2675626181296509,
+      "AMD EPYC 7401 24-Core Processor / mpi": 0.2675626181296516,
+      "AMD EPYC 7452 32-Core Processor / mpi": 0.2675626181296516
+    },
+    "below_L_minus_H": {
+      "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 0.0002558610236835151,
+      "AMD EPYC 7401 24-Core Processor / mpi": 0.0002558610236829949,
+      "AMD EPYC 7452 32-Core Processor / mpi": 0.0002558610236829949
+    },
+    "below_L_minus_2H": {
+      "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.7477798484936253e-07,
+      "AMD EPYC 7401 24-Core Processor / mpi": 1.747779837234059e-07,
+      "AMD EPYC 7452 32-Core Processor / mpi": 1.747779837234059e-07
+    },
+    "below_L_minus_3H": {
+      "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1.4049140185732046e-10,
+      "AMD EPYC 7401 24-Core Processor / mpi": 1.4049146978353586e-10,
+      "AMD EPYC 7452 32-Core Processor / mpi": 1.4049146978353586e-10
+    },
+    "ratio_H_2H": {
+      "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1463.9202065639806,
+      "AMD EPYC 7401 24-Core Processor / mpi": 1463.920215991887,
+      "AMD EPYC 7452 32-Core Processor / mpi": 1463.920215991887
+    },
+    "ratio_2H_3H": {
+      "Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz / mpi": 1244.0475540763887,
+      "AMD EPYC 7401 24-Core Processor / mpi": 1244.046944577471,
+      "AMD EPYC 7452 32-Core Processor / mpi": 1244.046944577471
+    }
+  },
+  "unrecorded_platforms": [
+    "the lr7 nodes of feature rocky8 (n0150 to n0153), a second processor model of the lr7 partition",
+    "any other partition the gate is pointed at"
+  ],
+  "document": {
+    "schema": "axionmultiphysics.design/1",
+    "name": "channel",
+    "description": "2D water channel, Re = rho U_mean H / mu = 100, parabolic inflow, pressure outlet",
+    "symmetry": "planar",
+    "parameters": {"L": 0.04, "H": 0.01, "U_mean": 0.01, "rho": 998.2, "mu": 0.001002},
+    "materials": {"water": {"density": "rho", "fluid": {"mu_Pa_s": "mu"}}},
+    "regions": [{"name": "channel", "shape": {"rect": {"x": [0, "L"], "y": [0, "H"]}}, "material": "water"}],
+    "boundaries": {
+      "inlet": {"of": "channel", "where": {"x": 0}},
+      "outlet": {"of": "channel", "where": {"x": "L"}},
+      "walls": {"of": "channel", "except": ["inlet", "outlet"]}
+    },
+    "physics": {
+      "flow": {
+        "type": "fluid.incompressible",
+        "options": {"equation": "navier_stokes", "viscous_form": "laplacian"},
+        "boundary_conditions": {
+          "inlet": {"kind": "inlet", "velocity_m_s": ["6*U_mean*y*(H-y)/H^2", 0]},
+          "outlet": {"kind": "outlet", "pressure_Pa": 0},
+          "walls": {"kind": "wall"}
+        }
+      }
+    },
+    "outputs": {
+      "Q_in": {"kind": "flux", "of": "volume", "on": "inlet"},
+      "Q_out": {"kind": "flux", "of": "volume", "on": "outlet"},
+      "p_in": {"kind": "average", "of": "p", "on": "inlet"},
+      "p_out": {"kind": "average", "of": "p", "on": "outlet"},
+      "dp": {"kind": "expression", "expr": "p_in - p_out"},
+      "tau_max": {"kind": "maximum", "of": "wall_shear_mag", "on": "walls"},
+      "F_walls": {"kind": "force", "on": "walls"}
+    },
+    "mesh": {"size": "H/16"}
+  }
+}

@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REC = ROOT / "benchmarks" / "records"
 OUT = ROOT / "docs" / "validation" / "mechanics_thermal.md"
 MU0 = 1.25663706212e-6
-STAMP = {"axionmultiphysics_version": axmp.__version__ if hasattr(axmp, "__version__") else "0.1.0",
+STAMP = {"axionmultiphysics_version": axmp.__version__ if hasattr(axmp, "__version__") else "0.2.0",
          "date": time.strftime("%Y-%m-%d %H:%M")}
 # AXMP_MT_QUICK=1 keeps only the coarsest mesh of every sweep: a smoke test of all code paths.
 QUICK = bool(os.environ.get("AXMP_MT_QUICK"))

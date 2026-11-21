@@ -1,0 +1,26 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "curves_planar",
+  "description": "planar model whose curves are markers: a segment, an arc and a polyline, with no material and no thickness",
+  "symmetry": "planar",
+  "parameters": {"W": 0.04, "H": 0.02, "R": 0.008},
+  "regions": [
+    {"name": "slab", "shape": {"rect": {"x": [0, "W"], "y": [0, "H"]}}, "mesh_size": 0.002},
+    {"name": "inclusion", "shape": {"rect": {"x": ["W/4", "W/2"], "y": ["H/4", "H/2"]}}, "enabled": true}
+  ],
+  "curves": [
+    {"name": "mid", "path": {"segment": [[0, "H/2"], ["W", "H/2"]]}, "mesh_size": 0.001},
+    {"name": "cut", "path": {"arc": {"center": ["W/2", "H/2"], "radius": "R", "angles": [0, 3.141592653589793]}},
+     "surface_size": 0.0005, "notes": "half circle"},
+    {"name": "zigzag", "path": {"polyline": {"points": [[0.005, 0.005], [0.015, 0.01], [0.025, 0.005]], "closed": false}}}
+  ],
+  "boundaries": {
+    "top": {"of": "slab", "where": {"y": "H"}},
+    "section": {"curve": "mid"}
+  },
+  "physics": {
+    "heat": {"type": "heat.transfer",
+             "boundary_conditions": {"top": {"kind": "temperature", "T_K": 300.0}, "remaining": {"kind": "insulation"}}}
+  },
+  "outputs": {"Q_mid": {"kind": "flux", "of": "heat", "on": "section"}}
+}

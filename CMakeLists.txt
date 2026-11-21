@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(axionMultiPhysics VERSION 0.1.0 LANGUAGES C CXX)
+project(axionMultiPhysics VERSION 0.2.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +11,14 @@ endif()
 option(AXMP_BUILD_PYTHON "Build the nanobind Python module" ON)
 option(AXMP_BUILD_MESHER "Build axmp-mesher (links the gmsh SDK; separate GPL program)" ON)
 option(AXMP_BUILD_TESTS "Build C++ unit tests" ON)
+option(AXMP_BUILD_TRANSPORT "Build axmp-transport (links Geant4; separate program)" OFF)
+if(SKBUILD)
+  # a wheel never contains Geant4 (nor the CLHEP inside it)
+  if("${AXMP_BUILD_TRANSPORT}")
+    message(STATUS "AXMP_BUILD_TRANSPORT is ignored in a wheel build: axmp-transport is built from source")
+  endif()
+  set(AXMP_BUILD_TRANSPORT OFF CACHE BOOL "Build axmp-transport (links Geant4; separate program)" FORCE)
+endif()
 
 # MPI drives the 3D engine (cpp/src/model3d*.cpp are the only files that use MPI
 # or hypre).  AUTO follows the MFEM build, so a serial MFEM automatically gives
@@ -190,14 +198,20 @@ endif()
 # ------------------------------------------------------------------ library
 file(GLOB AXMP_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/cpp/src/*.cpp)
 # Exactly one of the 3D engine (model3d.cpp, model3d_fullwave.cpp, model3d_fw_indicator.cpp, model3d_surface_losses.cpp,
-# model3d_electro.cpp, model3d_mech.cpp) and model3d_nompi.cpp (the stub).
+# model3d_electro.cpp, model3d_mech.cpp, and the 3D field-map source fieldmap3d.cpp) and model3d_nompi.cpp (the stub).
 if(AXMP_MPI)
   list(REMOVE_ITEM AXMP_SOURCES ${CMAKE_SOURCE_DIR}/cpp/src/model3d_nompi.cpp)
 else()
   list(REMOVE_ITEM AXMP_SOURCES ${CMAKE_SOURCE_DIR}/cpp/src/model3d.cpp ${CMAKE_SOURCE_DIR}/cpp/src/model3d_fullwave.cpp
                               ${CMAKE_SOURCE_DIR}/cpp/src/model3d_electro.cpp ${CMAKE_SOURCE_DIR}/cpp/src/model3d_mech.cpp
                               ${CMAKE_SOURCE_DIR}/cpp/src/model3d_fw_indicator.cpp
-                              ${CMAKE_SOURCE_DIR}/cpp/src/model3d_surface_losses.cpp)
+                              ${CMAKE_SOURCE_DIR}/cpp/src/model3d_surface_losses.cpp
+                              ${CMAKE_SOURCE_DIR}/cpp/src/fieldmap3d.cpp)
+endif()
+# The field-map format's scrambled-Halton points are specified bitwise: no fused multiply-add in that file (x86-64
+# without -march has none to fuse; arm64 compilers contract by default).
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+  set_source_files_properties(${CMAKE_SOURCE_DIR}/cpp/src/fieldmap.cpp PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
 endif()
 
 # chemistry module (beta): its own folder, sequential mfem::Mesh
@@ -223,6 +237,7 @@ add_custom_target(axmp_gitinfo ALL
 add_dependencies(axionmultiphysics axmp_gitinfo)
 target_include_directories(axionmultiphysics PRIVATE ${AXMP_GITINFO_DIR})
 target_link_libraries(axionmultiphysics PRIVATE ${CMAKE_DL_LIBS})   # dladdr: where the loaded library is (glibc < 2.34)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/AxmpFortranCheck.cmake")
 # optional: STRUMPACK (BSD) for large axisymmetric systems (scripts/build_strumpack.sh)
 option(AXMP_USE_STRUMPACK "Use STRUMPACK from AXMP_DEPS when it is installed" ON)
 # A distributed-memory STRUMPACK (MPI + ScaLAPACK, scripts/build_strumpack_mpi.sh) in its own prefix replaces the
@@ -262,6 +277,7 @@ if(AXMP_USE_STRUMPACK)
     endif()
     axmp_forget_strumpack_dir("${AXMP_STRUMPACK_PREFIX}")
     find_package(STRUMPACK CONFIG REQUIRED PATHS ${AXMP_STRUMPACK_PREFIX} NO_DEFAULT_PATH)
+    axmp_check_fortran_pair()
     # its headers (StrumpackConfig.h with STRUMPACK_USE_MPI) must shadow the serial ones in ${AXMP_DEPS}/include
     target_include_directories(axionmultiphysics BEFORE PUBLIC ${AXMP_STRUMPACK_PREFIX}/include)
     target_link_libraries(axionmultiphysics PUBLIC STRUMPACK::strumpack)
@@ -403,8 +419,10 @@ if(AXMP_BUILD_MESHER)
 
   if(AXMP_GMSH_LIB AND AXMP_GMSH_INCLUDE_DIR)
     message(STATUS "axmp-mesher: gmsh ${AXMP_GMSH_LIB} (headers ${AXMP_GMSH_INCLUDE_DIR})")
-    add_executable(axmp-mesher cpp/apps/axmp_mesher.cpp)
-    target_include_directories(axmp-mesher PRIVATE ${AXMP_GMSH_INCLUDE_DIR} ${AXMP_DEPS}/include)
+    # model_selection.cpp (standard library and nlohmann/json only) resolves the named boundaries of the bounded modes
+    add_executable(axmp-mesher cpp/apps/axmp_mesher.cpp cpp/src/model_selection.cpp)
+    target_include_directories(axmp-mesher PRIVATE ${AXMP_GMSH_INCLUDE_DIR} ${AXMP_DEPS}/include
+                                                   ${CMAKE_SOURCE_DIR}/cpp/include)
     target_link_libraries(axmp-mesher PRIVATE ${AXMP_GMSH_LIB})
     get_filename_component(_axmp_gmsh_libdir "${AXMP_GMSH_LIB}" DIRECTORY)
     if(SKBUILD)
@@ -425,9 +443,52 @@ if(AXMP_BUILD_MESHER)
   endif()
 endif()
 
+# ------------------------------------------------------------------ axmp-transport
+# A separate program that links Geant4 (and so the LGPL-3 CLHEP inside it) and nothing of this package: it exchanges
+# files with the rest. The library, the Python module and axmp never link it. Off by default and in wheels.
+if(AXMP_BUILD_TRANSPORT)
+  include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/AxmpGeant4Check.cmake")
+  find_package(Geant4 11.2 CONFIG REQUIRED)
+  axmp_check_geant4()
+  add_executable(axmp-transport
+    cpp/apps/axmp_transport/main.cpp
+    cpp/apps/axmp_transport/run.cpp
+    cpp/apps/axmp_transport/hello.cpp
+    cpp/apps/axmp_transport/job.cpp
+    cpp/apps/axmp_transport/datasets.cpp
+    cpp/apps/axmp_transport/fields.cpp
+    cpp/apps/axmp_transport/geometry.cpp
+    cpp/apps/axmp_transport/transport.cpp
+    cpp/apps/axmp_transport/npy.cpp
+    cpp/apps/axmp_transport/runtime.cpp)
+  # nlohmann/json is header-only, from the third-party prefix; its header directory is not Geant4's
+  target_include_directories(axmp-transport PRIVATE ${AXMP_DEPS}/include)
+  target_compile_definitions(axmp-transport PRIVATE AXMP_TRANSPORT_VERSION="${PROJECT_VERSION}")
+  target_link_libraries(axmp-transport PRIVATE ${Geant4_LIBRARIES})
+  # Geant4's own libraries only: not the third-party prefix of the field solvers
+  get_filename_component(_axmp_g4_libdir "${Geant4_DIR}/../.." ABSOLUTE)
+  set_target_properties(axmp-transport PROPERTIES BUILD_RPATH "${_axmp_g4_libdir}" INSTALL_RPATH "${_axmp_g4_libdir}")
+endif()
+
+# ------------------------------------------------------------------ axmp-x1
+# The standalone cross-check application: a plain Geant4 program that reads the exported GDML file. It needs a Geant4
+# built with its GDML reader (Geant4_DIR), links nothing of this package and is never part of the library. Off by
+# default and in wheels; it can also be configured on its own (see cpp/apps/axmp_x1/CMakeLists.txt).
+option(AXMP_BUILD_X1 "Build axmp-x1 (links Geant4 with GDML; separate cross-check program)" OFF)
+if(SKBUILD)
+  set(AXMP_BUILD_X1 OFF CACHE BOOL "Build axmp-x1 (links Geant4 with GDML; separate cross-check program)" FORCE)
+endif()
+if(AXMP_BUILD_X1)
+  add_subdirectory(cpp/apps/axmp_x1)
+endif()
+
 # ------------------------------------------------------------------ tests
 if(AXMP_BUILD_TESTS)
   enable_testing()
+  # A test may start threads of its own (the field-expression test evaluates one compiled expression on
+  # several at once).  Before glibc 2.34 they live in libpthread, which nothing else brings into a
+  # sequential build.
+  find_package(Threads REQUIRED)
   file(GLOB AXMP_TESTS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/cpp/tests/test_*.cpp)
   # chemistry unit tests live next to the chemistry sources
   file(GLOB AXMP_CHEM_TESTS CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/cpp/src/chem/tests/test_*.cpp)
@@ -438,13 +499,130 @@ if(AXMP_BUILD_TESTS)
       continue()  # the fluids module is built with MPI only
     endif()
     add_executable(${n} ${t})
-    target_link_libraries(${n} PRIVATE axionmultiphysics)
+    target_link_libraries(${n} PRIVATE axionmultiphysics Threads::Threads)
     if(n MATCHES "^test_fluids_")
       target_link_libraries(${n} PRIVATE axionmultiphysics_fluids)
     endif()
     add_test(NAME ${n} COMMAND ${n} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-    set_tests_properties(${n} PROPERTIES ENVIRONMENT "AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher")
+    # Four OpenMP threads unless a registration below sets its own count, so that a test does the same on every node.
+    # STRUMPACK calls BLAS from all of its OpenMP threads at once, and OpenBLAS takes the work buffer of each call from
+    # a table of fixed size (2 NUM_THREADS of its build by default, never fewer than 50; 96 in a cluster's OpenBLAS
+    # 0.3.24). When more threads than that hold one at the same time, the threads that overflow the table together
+    # get a null buffer and the process crashes: intermittently, on a node with 128 threads (test_fluids_sparse_lu and
+    # test_solvers did). The tests check results, which do not depend on the thread count; four threads keep the
+    # task parallelism of STRUMPACK in them and stay below the table of any OpenBLAS. The tests of thread handling set
+    # their own counts.
+    set_tests_properties(${n} PROPERTIES ENVIRONMENT
+                         "AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher;OMP_NUM_THREADS=4")
   endforeach()
+  # the two-rank cells of the matrix test's engine half: the same program on two ranks under the MPI launcher.  The
+  # environment is the test's own (one thread per rank; two ranks on a node with fewer free slots); the timeout ends
+  # a rank left waiting for the other after an error.
+  if(TEST test_fluids_model_matrix AND MPIEXEC_EXECUTABLE)
+    add_test(NAME test_fluids_model_matrix_2ranks
+             COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 2 ${MPIEXEC_PREFLAGS}
+                     $<TARGET_FILE:test_fluids_model_matrix> --ranks 2
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    set_tests_properties(test_fluids_model_matrix_2ranks PROPERTIES TIMEOUT 900 ENVIRONMENT
+                         "OMP_NUM_THREADS=1;OMPI_MCA_rmaps_base_oversubscribe=1;AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher")
+  endif()
+  # test_fluids_navier_stokes compares a multi-rank solve with a one-rank one and returns without a check on one rank,
+  # so the one-process registration above never runs that comparison: register the same binary on 4 ranks as well,
+  # through cmake/run_mpi_ctest.sh, which picks the launcher when the test runs (not when the build is configured) and
+  # skips the test (exit 77) where no launcher can start 4 ranks.
+  if(AXMP_MPI AND TARGET test_fluids_navier_stokes)
+    add_test(NAME test_fluids_navier_stokes_mpi4
+             COMMAND sh ${CMAKE_SOURCE_DIR}/cmake/run_mpi_ctest.sh 4 $<TARGET_FILE:test_fluids_navier_stokes>
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    set_tests_properties(test_fluids_navier_stokes_mpi4 PROPERTIES
+                         ENVIRONMENT "AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher" SKIP_RETURN_CODE 77)
+  endif()
+  # test_fluids_trust checks the measure of the initial projection, which is a sum over the ranks, on whatever number
+  # of ranks it is started on: it compares the measure with its one-rank value and requires the same number and
+  # verdict on every rank. Register it on 2 ranks as well.
+  if(AXMP_MPI AND TARGET test_fluids_trust)
+    add_test(NAME test_fluids_trust_mpi2
+             COMMAND sh ${CMAKE_SOURCE_DIR}/cmake/run_mpi_ctest.sh 2 $<TARGET_FILE:test_fluids_trust>
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    set_tests_properties(test_fluids_trust_mpi2 PROPERTIES
+                         ENVIRONMENT "AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher" SKIP_RETURN_CODE 77)
+  endif()
+  # test_fluids_sparse_lu on 2 ranks as well: an Eigen failure on rank 0 must be thrown on rank 1 too (a rank left
+  # waiting in a collective call hangs, and the TIMEOUT ends it), and the stats of rank 0's factorization reach every
+  # rank. The one-rank registration gets the same TIMEOUT.
+  if(AXMP_MPI AND TARGET test_fluids_sparse_lu)
+    add_test(NAME test_fluids_sparse_lu_mpi2
+             COMMAND sh ${CMAKE_SOURCE_DIR}/cmake/run_mpi_ctest.sh 2 $<TARGET_FILE:test_fluids_sparse_lu>
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    set_tests_properties(test_fluids_sparse_lu_mpi2 PROPERTIES TIMEOUT 300 SKIP_RETURN_CODE 77 ENVIRONMENT
+                         "OMP_NUM_THREADS=1;AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher")
+    set_tests_properties(test_fluids_sparse_lu PROPERTIES TIMEOUT 300)
+  endif()
+  # test_fluids_lu_chain on 2 ranks as well: the retry chain's accept/escalate decisions are rank 0's, so the attempt
+  # records must be the same on every rank, and a rank sent to another stage than rank 0 waits in a collective call
+  # (the TIMEOUT ends it). The one-rank registration gets the same TIMEOUT.
+  if(AXMP_MPI AND TARGET test_fluids_lu_chain)
+    add_test(NAME test_fluids_lu_chain_mpi2
+             COMMAND sh ${CMAKE_SOURCE_DIR}/cmake/run_mpi_ctest.sh 2 $<TARGET_FILE:test_fluids_lu_chain>
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    set_tests_properties(test_fluids_lu_chain_mpi2 PROPERTIES TIMEOUT 300 SKIP_RETURN_CODE 77 ENVIRONMENT
+                         "OMP_NUM_THREADS=1;AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher")
+    set_tests_properties(test_fluids_lu_chain PROPERTIES TIMEOUT 300)
+  endif()
+  # test_fluids_lu_callers on 2 ranks as well: the callers' records (the projection's, whose acceptance is a collective
+  # function of the stage's solution) must be the same on every rank, and a rank left on another stage waits in a
+  # collective call (the TIMEOUT ends it). The one-rank registration gets the same TIMEOUT.
+  if(AXMP_MPI AND TARGET test_fluids_lu_callers)
+    add_test(NAME test_fluids_lu_callers_mpi2
+             COMMAND sh ${CMAKE_SOURCE_DIR}/cmake/run_mpi_ctest.sh 2 $<TARGET_FILE:test_fluids_lu_callers>
+             WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+    set_tests_properties(test_fluids_lu_callers_mpi2 PROPERTIES TIMEOUT 300 SKIP_RETURN_CODE 77 ENVIRONMENT
+                         "OMP_NUM_THREADS=1;AXMP_MESHER=$<TARGET_FILE_DIR:axmp>/axmp-mesher")
+    set_tests_properties(test_fluids_lu_callers PROPERTIES TIMEOUT 300)
+  endif()
+  # the configure-time check of the Fortran compiler paired with the C++ compiler (cmake/AxmpFortranCheck.cmake): the
+  # function with mocked compiler ids and versions (one test per case), and that the MPI-STRUMPACK branch calls it
+  set(AXMP_FORTRAN_PAIR_CASES gnu13_vs_gnu8 gnu14_vs_gnu9 gnu13_vs_gnu12_larger_minor gnu10_vs_gnu9_numeric_major
+      gnu13_vs_gnu13 gnu13_vs_gnu14 gnu13_2_vs_gnu13_1_minor_older gnu9_vs_gnu10_numeric_major clang_vs_gnu8
+      gnu13_vs_flang gnu13_vs_intel_fortran gnu13_vs_nag_lower_major fortran_not_enabled)
+  foreach(c ${AXMP_FORTRAN_PAIR_CASES})
+    add_test(NAME cmake_fortran_pair_${c}
+             COMMAND ${CMAKE_COMMAND} -DSRC_DIR=${CMAKE_SOURCE_DIR} -DCASE=${c}
+                     -P ${CMAKE_SOURCE_DIR}/cmake/tests/fortran_pair_driver.cmake)
+  endforeach()
+  add_test(NAME cmake_fortran_pair_wired
+           COMMAND ${CMAKE_COMMAND} -DSRC_DIR=${CMAKE_SOURCE_DIR}
+                   -P ${CMAKE_SOURCE_DIR}/cmake/tests/fortran_pair_wired.cmake)
+  # the configure-time check of the Geant4 that axmp-transport is built against (cmake/AxmpGeant4Check.cmake): the
+  # function with mocked versions (one test per case), and find_package's version-range pitfall against a mocked
+  # Geant4 package (a configure of a two-line project). Neither needs Geant4; tests/test_transport_cmake.py checks
+  # that CMakeLists.txt calls the function.
+  set(AXMP_GEANT4_VERSION_CASES v11_4_3 v11_2_0 v11_3_2 v11_4_99 v11_5_0 v11_5 v11_10_0_numeric v11_40_0_numeric
+      v12_0_0 v11_1_3 v10_7_4 not_multithreaded multithreaded_undefined version_undefined)
+  foreach(c ${AXMP_GEANT4_VERSION_CASES})
+    add_test(NAME cmake_geant4_version_${c}
+             COMMAND ${CMAKE_COMMAND} -DSRC_DIR=${CMAKE_SOURCE_DIR} -DCASE=${c}
+                     -P ${CMAKE_SOURCE_DIR}/cmake/tests/geant4_version_driver.cmake)
+  endforeach()
+  foreach(c pitfall_11_5_0 control_11_4_3)
+    add_test(NAME cmake_geant4_range_${c}
+             COMMAND ${CMAKE_COMMAND} -DSRC_DIR=${CMAKE_SOURCE_DIR} -DCASE=${c}
+                     -DWORK_DIR=${CMAKE_BINARY_DIR}/cmake_tests/geant4_range_${c} "-DGENERATOR=${CMAKE_GENERATOR}"
+                     -DMAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}
+                     -P ${CMAKE_SOURCE_DIR}/cmake/tests/geant4_range_pitfall.cmake)
+  endforeach()
+  # the mesher's bounded-mode test skips (exit 77) where there is no axmp-mesher
+  if(TEST test_mesher_bounded)
+    set_tests_properties(test_mesher_bounded PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 600)
+  endif()
+  # the meshed-model test skips (exit 77) where there is no axmp-mesher
+  if(TEST test_model_mesh_mesher)
+    set_tests_properties(test_model_mesh_mesher PROPERTIES SKIP_RETURN_CODE 77)
+  endif()
+  # the model path on tangled curved meshes skips (exit 77) where there is no axmp-mesher
+  if(TEST test_model_mesh_tangled)
+    set_tests_properties(test_model_mesh_tangled PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 600)
+  endif()
   # one OpenMP thread when STRUMPACK loads: its timer vector then has one list
   if(TEST test_strumpack_threads)
     set_tests_properties(test_strumpack_threads PROPERTIES ENVIRONMENT
@@ -460,7 +638,8 @@ if(AXMP_BUILD_PYTHON)
                     OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE nanobind_ROOT RESULT_VARIABLE nb_res)
     if(nb_res EQUAL 0)
       find_package(nanobind CONFIG REQUIRED)
-      nanobind_add_module(_core NB_STATIC cpp/python/bindings.cpp cpp/src/chem/python/bindings_chem.cpp)
+      nanobind_add_module(_core NB_STATIC cpp/python/bindings.cpp cpp/python/bindings_fieldmap.cpp
+                          cpp/src/chem/python/bindings_chem.cpp)
       target_link_libraries(_core PRIVATE axionmultiphysics)
       # build provenance (cmake/axmp_gitinfo.cmake, the target axmp_gitinfo above): build_info() reads it from the
       # generated header

@@ -74,8 +74,9 @@ double radius_at_point(mfem::ElementTransformation& T, const mfem::IntegrationPo
 
 }  // namespace
 
-ConvectionIntegrator::ConvectionIntegrator(double rho, int vdim, bool axisymmetric, ConvectiveForm form, int order)
-    : rho_(rho), vdim_(vdim), axi_(axisymmetric), form_(form), order_(order) {
+ConvectionIntegrator::ConvectionIntegrator(double rho, int vdim, bool axisymmetric, ConvectiveForm form, int order,
+                                           bool allow_under_integration)
+    : rho_(rho), vdim_(vdim), axi_(axisymmetric), form_(form), order_(order), allow_under_(allow_under_integration) {
   AXMP_REQUIRE(std::isfinite(rho) && rho >= 0, axmp::strcat("the density must be non-negative and finite (got ", rho, ")"),
               "rho");  // rho = 0 (a Stokes-like operator with exactly zero convection) is offered with MHD only (NavierStokesSolver checks)
   AXMP_REQUIRE(axi_ ? vdim_ == 3 : (vdim_ == 2 || vdim_ == 3),
@@ -83,9 +84,37 @@ ConvectionIntegrator::ConvectionIntegrator(double rho, int vdim, bool axisymmetr
               "(with swirl)");
 }
 
-int ConvectionIntegrator::quad_order(int p) const {
-  if (order_ > 0) return order_;
-  return axi_ ? 3 * p : 3 * p - 1;  // exact on affine elements: P2 . grad P2 . P2 (x r)
+int ConvectionIntegrator::exact_degree(const mfem::FiniteElement& el, mfem::ElementTransformation& T, bool axisymmetric) {
+  // One factor J^-1 of the physical gradient cancels against det J of the measure, so the planar integrand is
+  // w . adj(J) grad_ref u . v: degree 2p + OrderGrad on the reference element. In axisymmetry the weight r multiplies
+  // it, and the hoop terms (w_t u_t v det J and the like) have the same degree. The degree that counts is the one the
+  // quadrature family of the element is exact for: the TOTAL degree on a simplex, where the entries of J have degree
+  // OrderJ = q - 1 and r has q = OrderJ + 1, and the degree PER DIRECTION on a tensor-product element, where the entries
+  // of J reach q = OrderJ in one direction and r has the same q.
+  //   simplex (Pp on a Pq geometry)   planar 3p + q - 2    axisymmetric 3p + 2q - 2
+  //   tensor  (Qp on a Qq geometry)   planar 3p + q - 1    axisymmetric 3p + 2q - 1
+  const bool tensor = el.Space() == mfem::FunctionSpace::Qk;
+  int d = 2 * el.GetOrder() + T.OrderGrad(&el);
+  if (axisymmetric) d += T.OrderJ() + (tensor ? 0 : 1);
+  return d;
+}
+
+bool ConvectionIntegrator::rule_is_exact(const mfem::FiniteElement& el, mfem::ElementTransformation& T, bool axisymmetric,
+                                         int order) {
+  // the degree a rule is exact for is that of the rule MFEM returns, which can exceed the degree asked for: an n-point
+  // Gauss rule is exact to 2n - 1, so an even degree on a tensor-product element selects the rule of the next odd one
+  return mfem::IntRules.Get(el.GetGeomType(), order).GetOrder() >= exact_degree(el, T, axisymmetric);
+}
+
+int ConvectionIntegrator::rule_degree(const mfem::FiniteElement& el, mfem::ElementTransformation& T) const {
+  if (order_ <= 0) return exact_degree(el, T, axi_);
+  AXMP_REQUIRE(allow_under_ || rule_is_exact(el, T, axi_, order_),
+              axmp::strcat("ConvectionIntegrator: quadrature order ", order_, " is below the exact degree ",
+                          exact_degree(el, T, axi_), " of the convective form on element ", T.ElementNo, " (",
+                          axi_ ? "axisymmetric" : "planar", ", element order ", el.GetOrder(), ")"),
+              "quad_order_convection",
+              "Use order 0 (the exact degree) or a value at least as large; a lower rule under-integrates the term.");
+  return order_;
 }
 
 void ConvectionIntegrator::AssembleElementVector(const mfem::FiniteElement& el, mfem::ElementTransformation& T,
@@ -96,7 +125,7 @@ void ConvectionIntegrator::AssembleElementVector(const mfem::FiniteElement& el, 
   elvect = 0.0;
   mfem::Vector N(nd);
   mfem::DenseMatrix dN(nd, 2);
-  const mfem::IntegrationRule& ir = mfem::IntRules.Get(el.GetGeomType(), quad_order(el.GetOrder()));
+  const mfem::IntegrationRule& ir = mfem::IntRules.Get(el.GetGeomType(), rule_degree(el, T));
   for (int q = 0; q < ir.GetNPoints(); ++q) {
     const mfem::IntegrationPoint& ip = ir.IntPoint(q);
     T.SetIntPoint(&ip);
@@ -133,7 +162,7 @@ void ConvectionIntegrator::AssembleElementGrad(const mfem::FiniteElement& el, mf
   elmat = 0.0;
   mfem::Vector N(nd);
   mfem::DenseMatrix dN(nd, 2);
-  const mfem::IntegrationRule& ir = mfem::IntRules.Get(el.GetGeomType(), quad_order(el.GetOrder()));
+  const mfem::IntegrationRule& ir = mfem::IntRules.Get(el.GetGeomType(), rule_degree(el, T));
   for (int q = 0; q < ir.GetNPoints(); ++q) {
     const mfem::IntegrationPoint& ip = ir.IntPoint(q);
     T.SetIntPoint(&ip);

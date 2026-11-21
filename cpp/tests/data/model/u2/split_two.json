@@ -1,0 +1,33 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "split_two",
+  "description": "a rectangle L x H split at x = L/2 into the regions a and b, with one heat instance on each; 'bottom' and 'top' span both regions and are keys of both instances, each of which takes the half on its own domain; 'mid' is the interface, a boundary of both",
+  "symmetry": "planar",
+  "parameters": {"L": 0.04, "H": 0.01, "k": 0.6, "cp": 4180.0, "rho": 998.0},
+  "materials": {"slab": {"density": "rho", "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+  "regions": [
+    {"name": "a", "shape": {"rect": {"x": [0, "L/2"], "y": [0, "H"]}}, "material": "slab"},
+    {"name": "b", "shape": {"rect": {"x": ["L/2", "L"], "y": [0, "H"]}}, "material": "slab"}
+  ],
+  "domains": {"both": ["a", "b"]},
+  "boundaries": {
+    "left": {"of": "a", "where": {"x": 0}},
+    "right": {"of": "b", "where": {"x": "L"}},
+    "bottom": {"of": "both", "where": {"y": 0}},
+    "top": {"of": "both", "where": {"y": "H"}},
+    "mid": {"between": ["a", "b"]}
+  },
+  "physics": {
+    "heat_a": {"type": "heat.transfer", "domains": ["a"],
+               "boundary_conditions": {"left": {"kind": "temperature", "T_K": 310.0},
+                                       "mid": {"kind": "temperature", "T_K": 300.0},
+                                       "bottom": {"kind": "insulation"},
+                                       "top": {"kind": "insulation"}}},
+    "heat_b": {"type": "heat.transfer", "domains": ["b"],
+               "boundary_conditions": {"right": {"kind": "temperature", "T_K": 290.0},
+                                       "mid": {"kind": "temperature", "T_K": 300.0},
+                                       "bottom": {"kind": "insulation"},
+                                       "top": {"kind": "insulation"}}}
+  },
+  "mesh": {"size": "H/8"}
+}

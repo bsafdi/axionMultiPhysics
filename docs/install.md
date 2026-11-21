@@ -19,7 +19,9 @@ wheel on PyPI must not require a system MPI, so the wheels are *sequential*. A
 
 ## Wheels for laptops
 
-The wheels are on PyPI. On other platforms the sequential source build of the
+The 0.2.0 wheels follow on PyPI after the release; until `pip index versions axionmultiphysics` lists 0.2.0,
+`pip install axionmultiphysics` installs 0.1.0, whose API lacks the 0.2.0 features, and we install 0.2.0 from the source
+build of the [installation guide](guides/install.md#build-and-installation). On other platforms the sequential source build of the
 [installation guide](guides/install.md#sequential-source-build) gives the same package.
 
 ```bash
@@ -28,7 +30,7 @@ pip install "axionmultiphysics[mesh,notebook]"   # also the Jupyter widget throu
 pip install "axionmultiphysics[draw]"        # circuit drawings: Readout/Circuit/Chain .draw() (schemdraw)
 ```
 
-Platforms built by CI (release tags and on demand): **manylinux_2_28 x86_64**,
+Platforms the wheels workflow builds (release tags and on demand; 0.2.0 itself was built and tested on Linux x86_64 only): **manylinux_2_28 x86_64**,
 **macOS x86_64** (11.0+ via `macos-15-intel`) and **macOS arm64** (11.0+ via `macos-15`), for CPython 3.10–3.14.
 musllinux, PyPy and Linux aarch64 are not built; use a source build. Windows is not supported.
 
@@ -37,7 +39,7 @@ Check what you got:
 ```python
 import axionmultiphysics as axmp
 axmp.build_info()
-# {'version': '0.1.0', 'mfem': '4.10', 'device': 'cpu', 'gpu_backend': '',
+# {'version': '0.2.0', 'mfem': '4.10', 'device': 'cpu', 'gpu_backend': '',
 #  'mpi': False, 'engine_3d': False, 'openmp': True, 'threads': 8}
 ```
 
@@ -83,6 +85,8 @@ that they agree.
 | (header-only, compiled in) nlohmann/json, nanobind | MIT, BSD-3 | |
 | (compiled into `libaxionmultiphysics`) stb_image_write | MIT or public domain | `cpp/third_party/`, unmodified |
 | `axionmultiphysics/bin/axmp-mesher` | BSD-3-Clause source; **links GPL gmsh at run time** | see below |
+| `axionmultiphysics/_programs/axmp_generate.py` (the event generator; not in a wheel yet) | BSD-3-Clause source; **runs GPL Pythia 8 in its own process** | imports nothing of this package; Pythia comes from its own wheel (`pythia8mc`, GPL-2+), which we never redistribute |
+| `axmp-transport` (built from source with `-DAXMP_BUILD_TRANSPORT=ON`; **not in any wheel**) | BSD-3-Clause source; **links Geant4** (Geant4 Software License) **and the LGPL-3 CLHEP inside it** | a separate program that exchanges files; see [Particle transport](guides/particles.md) |
 | `axionmultiphysics/_libs/libmetis.*` | Apache-2.0 | nested-dissection ordering of the axisymmetric engine's large factorizations |
 | **not present**: `libgmsh`, hypre, STRUMPACK, MPI | — | hypre is only needed by the 3D engine; a custom build that bundles hypre or STRUMPACK adds their licences (below) |
 
@@ -187,10 +191,11 @@ built against gmsh's PyPI wheel, which CMake finds in the Python environment it 
 | `AXMP_OPENMP` | `AUTO`, `ON`, `OFF` | `AUTO` | OpenMP in the assembly loops. `OFF` compiles through `cpp/include/axionmultiphysics/omp_shim.hpp` and is single-threaded; results are identical. |
 | `AXMP_GPU` | `OFF`, `CUDA`, `HIP` | `OFF` | see [GPU builds](#gpu-builds). |
 | `AXMP_USE_STRUMPACK` | `ON`/`OFF` | `ON` | use STRUMPACK for the large axisymmetric systems when it is installed under `AXMP_DEPS` (silently off when it is not). See [Sparse direct solvers](#sparse-direct-solvers). |
-| `AXMP_STRUMPACK_PREFIX` | path | empty | the prefix of an MPI STRUMPACK (`scripts/build_strumpack_mpi.sh`), used instead of the serial one in `AXMP_DEPS`: the 3D direct full-wave path then factorizes across the ranks. Needs `AXMP_MPI` and a Fortran compiler at configure time. See [Sparse direct solvers](#sparse-direct-solvers). |
+| `AXMP_STRUMPACK_PREFIX` | path | empty | the prefix of an MPI STRUMPACK (`scripts/build_strumpack_mpi.sh`), used instead of the serial one in `AXMP_DEPS`: the 3D direct full-wave path then factorizes across the ranks. Needs `AXMP_MPI` and a Fortran compiler at configure time. The Fortran compiler must be of the same GCC as the C++ compiler, or newer (`-DCMAKE_Fortran_COMPILER=...`); an older GNU one stops the configure. CMake keeps the Fortran compiler it found first in the build directory's cache, so pass the option in a new build directory or with `cmake --fresh` (CMake 3.24 or newer). See [Sparse direct solvers](#sparse-direct-solvers). |
 | `AXMP_BUNDLE_LIBS` | `ON`/`OFF` | `ON` under scikit-build-core | copy the third-party shared libraries (MFEM, hypre, METIS, STRUMPACK) into `axionmultiphysics/_libs` with `$ORIGIN` rpaths. |
 | `AXMP_BUILD_MESHER` | `ON`/`OFF` | `ON` | build `axmp-mesher`. Without it nothing can be meshed. |
 | `AXMP_GMSH_ROOT` | path | — | where to find `include/gmsh.h` and `lib/libgmsh.*`. Searched automatically: `$AXMP_GMSH_ROOT`, `$AXMP_DEPS/gmsh-sdk`, the interpreter's data prefix (where `pip install gmsh` puts them). |
+| `AXMP_BUILD_TRANSPORT` | `ON`/`OFF` | `OFF` | build `axmp-transport`, the separate Geant4 program ([Particle transport](guides/particles.md)). Always `OFF` in a wheel build. Needs `-DGeant4_DIR=<prefix>/lib64/cmake/Geant4` of a multithreaded Geant4 from 11.2 up to, not including, 11.5 (tested with 11.4.3); the configure refuses any other. The Geant4 pin is the GitLab archive `https://gitlab.cern.ch/geant4/geant4/-/archive/v11.4.3/geant4-v11.4.3.tar.gz`, sha256 in `third_party/SHA256SUMS.txt`; a later checksum mismatch of that URL means GitLab regenerated the archive, not that the source changed. |
 | `AXMP_BUILD_PYTHON`, `AXMP_BUILD_TESTS` | `ON`/`OFF` | `ON` | the nanobind module, the C++ unit tests. |
 | `AXMP_INPLACE_PYTHON_DIR` | path | `python/axionmultiphysics` | where a non-wheel build writes `_core`; change it so that several build trees can coexist. |
 | `AXMP_DEPS` | path | `$AXIONMULTIPHYSICS_DEPS` or `third_party/install` | the third-party prefix. |
@@ -245,6 +250,12 @@ agree to round-off, which `tests/test_solvers.py` checks on every build.
 | Eigen `SimplicialLDLT`, AMD ordering | nothing (Eigen is always there) | everything small | — |
 | the same with METIS nested dissection | `libmetis` under `AXMP_DEPS` | systems above 1.5e5 unknowns, where Eigen's AMD becomes unreliable | nothing above 4e5 unknowns: the solve is refused |
 | STRUMPACK (multifrontal, OpenMP, METIS) | `scripts/build_strumpack.sh` | systems above `AXMP_STRUMPACK_MIN_DOFS` | Eigen's LDLT at every size |
+| Eigen `SparseLU` (COLAMD, partial pivoting), gathered to rank 0 | nothing | the fluids module's direct solver when the build has no STRUMPACK, and `lu="eigen"` | limited by rank 0's memory and time: measured on one core of a shared AMD EPYC 7401 node, the 3D Taylor-Hood Stokes system with 49 073 unknowns (4.5e6 matrix entries) took 122 s (127 s with 32-bit indices) and 2.9 GiB, and the one with 112 725 unknowns (1.0e7 entries) had not been factorized after 2 h and held at least 10.9 GB after 22 min |
+
+The fluids module's Eigen `SparseLU` factorizes on rank 0 alone, with 32-bit indices up to 46 340 unknowns (and 2^28 matrix
+entries) and 64-bit above, so its limit is the memory and time of that rank, not an index overflow. Linux allocates the factor lazily, so a
+job can be ended by its memory limit or by the kernel's OOM killer before Eigen reports that it ran out of memory;
+when Eigen does report it, the error names the sizes and the remedies (STRUMPACK, or an iterative solver).
 
 ```bash
 source scripts/env.sh
@@ -500,7 +511,7 @@ the [viewer reference](viewer.md) for the widget's API and its limitations.
 | `AXMP_MPI=ON but this MFEM ... MFEM_USE_MPI=NO` | `AXMP_DEPS` points at the sequential stack. Use `third_party/install`, or configure with `-DAXMP_MPI=OFF`. |
 | `MFEM was not found`, `MPI was not found`, `.../include/eigen3/Eigen/Core is missing` | the configure step names the missing piece and the script that installs it. |
 | `does not match its recorded sha256` | a download was damaged or changed upstream: delete it from `third_party/src` and rerun `scripts/fetch_deps.sh`. |
-| a crash in a STRUMPACK solve after `OpenBLAS warning: precompiled NUM_THREADS exceeded` | OpenBLAS's own threads inside axionMultiPhysics's OpenMP threads (distribution OpenBLAS builds allow 64 threads): `export OPENBLAS_NUM_THREADS=1`, which `scripts/env.sh` sets unless it is set already. |
+| a crash in a STRUMPACK solve after `OpenBLAS warning: precompiled NUM_THREADS exceeded` | OpenBLAS's own threads inside axionMultiPhysics's OpenMP threads (distribution OpenBLAS builds allow 64 threads): `export OPENBLAS_NUM_THREADS=1`, which `scripts/env.sh` sets unless it is set already. If it comes with `OPENBLAS_NUM_THREADS=1` (often after `too many memory regions`), the OpenMP threads that call OpenBLAS at the same time are more than the OpenBLAS build has work buffers for, the number its warning names (it happens, intermittently, on a node with more hardware threads than that number): set `OMP_NUM_THREADS` to at most that number before starting, or use an OpenBLAS built with a larger `NUM_THREADS`. |
 | `mpirun -n 2` runs two one-rank solves (Ubuntu 24.04 with MPICH) | that MPICH package is built for PMIx but ships the hydra launcher; use OpenMPI on Ubuntu 24.04. |
 | `AXMP_DEVICE='cuda' but this build ... has no GPU backend` | configure with `-DAXMP_GPU=CUDA` against a CUDA MFEM, or unset `AXMP_DEVICE`. |
 | `AXMP_DEVICE='omp' is not supported by this build` | a GPU build takes `cpu`, `cuda` or `cuda:N` only (other MFEM device strings would put MFEM's vectors where axionMultiPhysics's host code cannot see them). |

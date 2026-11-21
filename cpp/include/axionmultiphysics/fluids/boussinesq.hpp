@@ -61,6 +61,12 @@ struct BoussinesqDiagnostics {
   std::vector<double> buoyancy_scales;
   long n_velocity = 0, n_pressure = 0, n_temperature = 0;
   double lu_residual = -1;
+  double mass_lu_residual_max = -1;  // worst relative residual of a dual-norm mass solve (flow and transport); -1 = none
+  // The step solves of this solve() (counts), and its dual-norm mass solves (flow and temperature) that took more than
+  // one attempt.
+  LUCounts lu_counts;
+  long mass_lu_escalated = 0;
+  // from the Stokes assembly; lu, lu_attempts and lu_stage describe the last step's direct solve
   StokesDiagnostics linear;
   std::vector<int> quad_orders;           // viscous, convection, load, boundary, mass, transport
 };

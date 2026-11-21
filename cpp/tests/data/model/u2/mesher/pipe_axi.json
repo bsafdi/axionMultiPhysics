@@ -1,0 +1,79 @@
+{
+ "bounded": true,
+ "geometry": "axisymmetric",
+ "exterior": "none",
+ "regions": [
+  {
+   "name": "p1",
+   "attr": 1,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      0.005
+     ],
+     "z": [
+      0,
+      0.02
+     ]
+    }
+   }
+  },
+  {
+   "name": "p2",
+   "attr": 2,
+   "shape": {
+    "rect": {
+     "r": [
+      0,
+      0.005
+     ],
+     "z": [
+      0.02,
+      0.04
+     ]
+    }
+   }
+  }
+ ],
+ "curves": [],
+ "boundaries": {
+  "inlet": {
+   "of": [
+    "p1"
+   ],
+   "where": {
+    "z": [
+     0
+    ]
+   }
+  },
+  "outlet": {
+   "of": [
+    "p2"
+   ],
+   "where": {
+    "z": [
+     0.04
+    ]
+   }
+  },
+  "wall": {
+   "of": [
+    "p1",
+    "p2"
+   ],
+   "where": {
+    "r": [
+     0.005
+    ]
+   }
+  }
+ },
+ "size": 0.000625,
+ "surface_size": 0.000625,
+ "curvature_points": 24,
+ "order": 2,
+ "resolve_only": false,
+ "verbose": 0
+}

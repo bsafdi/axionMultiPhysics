@@ -46,6 +46,8 @@ interfaces. The main entry points:
 |---|---|
 | `spec.hpp` | the typed design specification: JSON in, validated C++ structures out |
 | `templates.hpp`, `expr.hpp` | parametric design templates; the expression evaluator for design parameters |
+| `field_expr.hpp` | `FieldExpr`: the same grammar compiled once with free variables, evaluated at a point or at many, with exact first derivatives |
+| `spec_model.hpp` | the parser of a model document (beta): `is_model_document`, `parse_model_collect` (every grammar error of a document, section by section) and `parse_model` (the first), and the resolved model they make; the switch between the two parsers: `require_em_document` (`model.em_only_operation`), `refuse_unserved_model_document` (`route.not_implemented`), `serves_model_documents`, `resolved_model_geometry` and `scan_duplicate_keys` (`json.duplicate_key`); `parse_design` refuses a model document (the backstop) and a section of one without `physics` |
 | `model.hpp`, `axi.hpp` | `AxiModel`: the axisymmetric magnetoquasistatic engine (ψ = rA_φ and G = rH_φ problems) and its post-processing |
 | `model3d.hpp`, `topology.hpp` | `Model3D`: the 3D H(curl) engine (MPI); cohomology bases for superconducting bodies |
 | `fullwave.hpp`, `fw2d.hpp`, `pml.hpp` | axisymmetric full wave beyond MQS; 2D full wave on an imported mesh ([formulation](physics/fw2d.md)); perfectly matched layers |

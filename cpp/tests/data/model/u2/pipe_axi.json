@@ -1,0 +1,25 @@
+{
+  "schema": "axionmultiphysics.design/1",
+  "name": "pipe_axi",
+  "description": "an axisymmetric pipe of radius R and length Lz split at z = Lz/2 into the regions p1 and p2; the axis r = 0 is named by no boundary",
+  "symmetry": "axisymmetric",
+  "parameters": {"R": 0.005, "Lz": 0.04, "k": 0.6, "cp": 4180.0, "rho": 998.0},
+  "materials": {"water": {"density": "rho", "thermal": {"k_W_mK": "k", "cp_J_kgK": "cp"}}},
+  "regions": [
+    {"name": "p1", "shape": {"rect": {"r": [0, "R"], "z": [0, "Lz/2"]}}, "material": "water"},
+    {"name": "p2", "shape": {"rect": {"r": [0, "R"], "z": ["Lz/2", "Lz"]}}, "material": "water"}
+  ],
+  "domains": {"pipe": ["p1", "p2"]},
+  "boundaries": {
+    "inlet": {"of": "p1", "where": {"z": 0}},
+    "outlet": {"of": "p2", "where": {"z": "Lz"}},
+    "wall": {"of": "pipe", "where": {"r": "R"}}
+  },
+  "physics": {
+    "heat": {"type": "heat.transfer", "domains": ["pipe"],
+             "boundary_conditions": {"inlet": {"kind": "temperature", "T_K": 300.0},
+                                     "outlet": {"kind": "temperature", "T_K": 290.0},
+                                     "wall": {"kind": "insulation"}}}
+  },
+  "mesh": {"size": "R/8"}
+}

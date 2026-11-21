@@ -103,6 +103,9 @@ def test_g3_jacobian_is_the_derivative(form):
 def test_g4_patch_is_reproduced(mode):
     sol = _problem(mode, "sym")
     assert sol.diagnostics["converged"] and sol.diagnostics["relative_residual"] <= 1e-11
+    # the verdict's dual norm: every Cholesky mass solve had its residual formed. They are unrefined, so the residual is
+    # eps times a modest factor (measured 3e-16 on this 20:1 graded mesh); the gate is 1e-10, as for Taylor-Hood.
+    assert 0.0 <= sol.diagnostics["mass_lu_residual_max"] <= 1e-13
     u, p = sol.u(), sol.p()
     c = np.zeros(len(V))
     np.add.at(c, T.ravel(), np.repeat(C5.element_geometry(V, T)["area"] / 3.0, 3))
